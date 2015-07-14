@@ -6,9 +6,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Scanner;
 
-public class launcher {
+public class Database {
 	public static void main(String[] var){
-		launcher test = new launcher();
+		Database test = new Database();
 		//test.connect();
 		Scanner sc = new Scanner(System.in);
 		System.out.println("MetaData or Query");
@@ -43,7 +43,7 @@ public class launcher {
 	 * Ali Finkelstein
 	 * 9 July 2015
 	 */
-	public launcher(){
+	public Database(){
 		//Testing for presence of PostgreSQL Driver
 		System.out.println("Testing PostgreSQL driver");
 		
@@ -59,7 +59,7 @@ public class launcher {
 		
 		//creating connection to PostgreSQL database		
 		try{
-			connection = DriverManager.getConnection("jdbc:postgresql://localhost/test","postgres","postgres");
+			connection = DriverManager.getConnection("jdbc:postgresql://localhost/booktown","postgres","postgres");
 		} catch (SQLException e){
 			System.out.println("Connection Failed.");
 			e.printStackTrace();
@@ -104,14 +104,14 @@ public class launcher {
 		
 		//Get Type info for database
 		ResultSet typeSet = baseMetaData.getTypeInfo();
-		System.out.println("typeSet info");
+		System.out.println("typeSet info ---------------- ");
 		while(typeSet.next()){
 			System.out.println(typeSet.getString(1));
 		}
 		
 		System.out.println("////////////////////////");
 		ResultSet schemaSet = baseMetaData.getSchemas();
-		System.out.println("schema set info");
+		System.out.println("schema set info --------- ");
 		while(schemaSet.next()){
 			System.out.println(schemaSet.getString(1));
 		}
