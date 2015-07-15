@@ -13,35 +13,36 @@ import java.util.Scanner;
  * https://wiki.postgresql.org/wiki/Sample_Databases
  */
 public class Database {
-	public static void main(String[] var){
-		Database test = new Database();
-		//test.connect();
-		Scanner sc = new Scanner(System.in);
-		System.out.println("MetaData or Query");
-		String selection = sc.next();
-		if (selection.equalsIgnoreCase("query")){
-			System.out.println("Enter Query");
-			String query = sc.next();
-			try {
-				test.launchQuery(query);
-			} catch (SQLException e) {
-				System.out.println("Query Failed");
-				e.printStackTrace();
-			}
-		} else {
-			try {
-				test.metadataFetch();
-			} catch (SQLException e) {
-				System.out.println("Failed to get metadata");
-				e.printStackTrace();
-			}
-		}
-
-
-	}
+//	public static void main(String[] var){
+//		Database test = new Database();
+//		//test.connect();
+//		Scanner sc = new Scanner(System.in);
+//		System.out.println("MetaData or Query");
+//		String selection = sc.next();
+//		if (selection.equalsIgnoreCase("query")){
+//			System.out.println("Enter Query");
+//			String query = sc.next();
+//			try {
+//				test.launchQuery(query);
+//			} catch (SQLException e) {
+//				System.out.println("Query Failed");
+//				e.printStackTrace();
+//			}
+//		} else {
+//			try {
+//				test.metadataFetch();
+//			} catch (SQLException e) {
+//				System.out.println("Failed to get metadata");
+//				e.printStackTrace();
+//			}
+//		}
+//
+//
+//	}
 	private Connection connection = null; 
 	private DatabaseMetaData baseMetaData = null;
-
+	private String dbName;
+	
 	/*
 	 * Initializes the PostgreSQL database into the Java VM.
 	 * Checks for driver and establishes connection to Postgresql server/db
@@ -51,24 +52,32 @@ public class Database {
 	 * Ali Finkelstein
 	 * 9 July 2015
 	 */
-	public Database(){
+	public Database(String databaseName, String user, String password){
 		//Testing for presence of PostgreSQL Driver
 		System.out.println("Testing PostgreSQL driver");
 		try {
 			Class.forName("org.postgresql.Driver");
+			System.out.println("PostgreSQL Driver Found");
 		} catch(ClassNotFoundException e){
 			System.out.println("Driver not found");
 			e.printStackTrace();
 			return;
 		}
 		
-		System.out.println("PostgreSQL Driver Found");
-		
-		//creating connection to PostgreSQL database		
+		dbName = databaseName;
+		//creating connection to PostgreSQL database	
 		try{
-			connection = DriverManager.getConnection("jdbc:postgresql://localhost/booktown","postgres","postgres");
+			connection = DriverManager.getConnection("jdbc:postgresql://localhost/"+dbName,user,password);
 		} catch (SQLException e){
 			System.out.println("Connection Failed.");
+			e.printStackTrace();
+			return;
+		}
+		
+		try {
+			baseMetaData = connection.getMetaData();
+		} catch (SQLException e) {
+			System.out.println("Unable to pull metadata.");
 			e.printStackTrace();
 			return;
 		}
@@ -86,17 +95,26 @@ public class Database {
 	}
 	
 	/*
+	 * Verifies that MetaData object was created
+	 * 
+	 * Ali Finkelstein
+	 * 15 July 2015
+	 */	
+	public boolean verifyMetaDataObj(){
+		return baseMetaData != null;
+	}
+	
+	/*
 	 * Queries the Database
 	 * 
 	 * https://jdbc.postgresql.org/documentation/head/query.html
 	 * 
+	 * 	//test query: SELECT * FROM authors;
+
 	 * Ali Finkelstein 
 	 * 10 July 2015
 	 */
-	
-	//test query: SELECT * FROM authors;
-	
-	public void launchQuery(String query) throws SQLException{
+	public void query(String query) throws SQLException{
 		Statement queryStatement = connection.createStatement();
 		ResultSet queryResult = queryStatement.executeQuery(query);
 		while(queryResult.next()){
@@ -113,7 +131,6 @@ public class Database {
 	 * 10 July 2015
 	 */
 	public void metadataFetch() throws SQLException{
-		DatabaseMetaData baseMetaData = connection.getMetaData();
 		
 		//Get Type info for database
 		ResultSet typeSet = baseMetaData.getTypeInfo();
@@ -127,43 +144,12 @@ public class Database {
 		System.out.println("schema set info --------- ");
 		while(schemaSet.next()){
 			System.out.println(schemaSet.getString(1));
-		}
-		
-		
-		
+		}	
 	}
 	
-//	public void connect(){
-//		//Testing for presence of PostgreSQL Driver
-//		System.out.println("Testing PostgreSQL driver");
-//		
-//		try {
-//			Class.forName("org.postgresql.Driver");
-//		} catch(ClassNotFoundException e){
-//			System.out.println("Driver not found");
-//			e.printStackTrace();
-//			return;
-//		}
-//		
-//		System.out.println("PostgreSQL Driver Found");
-//		
-//		//creating connection to PostgreSQL database
-//		Connection connection = null; 
-//		
-//		try{
-//			connection = DriverManager.getConnection("jdbc:postgresql://localhost/test","postgres","postgres");
-//		} catch (SQLException e){
-//			System.out.println("Connection Failed.");
-//			e.printStackTrace();
-//			return;
-//		}
-//		
-//		//verify that a connection was made
-//		if (connection != null) {
-//			System.out.println("Connection Successful");
-//		} else{
-//			System.out.println("Attempt to make connection Failed.");
-//		}	
-//	}
+	
+	/*
+	 * Get total number of columns
+	 */
 	
 }
