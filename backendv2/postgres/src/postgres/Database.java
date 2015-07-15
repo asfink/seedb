@@ -40,6 +40,8 @@ public class Database {
 
 	}
 	private Connection connection = null; 
+	private DatabaseMetaData baseMetaData = null;
+
 	/*
 	 * Initializes the PostgreSQL database into the Java VM.
 	 * Checks for driver and establishes connection to Postgresql server/db
@@ -52,7 +54,6 @@ public class Database {
 	public Database(){
 		//Testing for presence of PostgreSQL Driver
 		System.out.println("Testing PostgreSQL driver");
-		
 		try {
 			Class.forName("org.postgresql.Driver");
 		} catch(ClassNotFoundException e){
@@ -71,13 +72,17 @@ public class Database {
 			e.printStackTrace();
 			return;
 		}
-		
-		//verify that a connection was made
-		if (connection != null) {
-			System.out.println("Connection Successful");
-		} else{
-			System.out.println("Attempt to make connection Failed.");
-		}	
+
+	}
+	
+	/*
+	 * Verifies that a connection was made to the database
+	 * 
+	 * Ali Finkelstein
+	 * 15 July 2015
+	 */
+	public boolean verifyConnection(){
+		return connection != null;
 	}
 	
 	/*
