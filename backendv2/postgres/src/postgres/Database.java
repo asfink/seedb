@@ -6,6 +6,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Scanner;
 
+/*
+ * http://dev.mysql.com/doc/world-setup/en/
+ * http://blog.manoharbhattarai.com.np/2013/04/03/execute-sql-file-from-command-line-in-postgresql/
+ * http://stackoverflow.com/questions/3393961/how-to-import-existing-sql-files-in-postgresql-8-4
+ * https://wiki.postgresql.org/wiki/Sample_Databases
+ */
 public class Database {
 	public static void main(String[] var){
 		Database test = new Database();
@@ -83,11 +89,13 @@ public class Database {
 	 * 10 July 2015
 	 */
 	
+	//test query: SELECT * FROM authors;
+	
 	public void launchQuery(String query) throws SQLException{
 		Statement queryStatement = connection.createStatement();
 		ResultSet queryResult = queryStatement.executeQuery(query);
 		while(queryResult.next()){
-			System.out.println(queryResult.getString(1));
+			System.out.println(queryResult.getString(0));
 		}
 		queryResult.close();
 		queryStatement.close();
