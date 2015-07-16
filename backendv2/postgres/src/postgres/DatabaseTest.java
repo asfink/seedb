@@ -71,5 +71,23 @@ public class DatabaseTest {
 		int countVal = functional.getDistinctValueCount("stock", "cost");
 		assertEquals(12, countVal);
 	}
+	
+	
+	@Test
+	public void schemaTest() throws SQLException{
+		System.out.print("SCHEMLASKDF;ALKSDM;ALSKDMVA;LSKMDFA;LKSMDF-----");
+		System.out.println(functional.getSchema());
+	}
+	
+	@Test 
+	public void columnAttributeTest(){
+		System.out.println("CLKSJDF:LKSDMVS:LKDMV:LK ");
+		try {
+			System.out.println(functional.getColumnAttribute("stock"));
+		} catch (NoDatabaseConnectionException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 }

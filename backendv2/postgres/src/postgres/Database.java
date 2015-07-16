@@ -2,6 +2,8 @@ package postgres;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 /*
@@ -171,19 +173,31 @@ public class Database {
 		return tableArrList.toArray(new String[tableArrList.size()]);
 	}
 	
+	public String getSchema() throws SQLException{
+		return connection.getSchema();
+	}
+	
 	/*
 	 * Get total number of columns
 	 * 
 	 * @param table - the table from the database you want to get information from
+	 * @Return a hash map with the key being the name of the column and the value being the column type
 	 * Ali Finkelstein 
 	 * 15 July 2015
 	 */
-	public int getColumnCount(String table) throws NoDatabaseConnectionException{
+	public Map<String,String> getColumnAttribute(String tableName) throws NoDatabaseConnectionException, SQLException{
 		if (connection == null){
 			throw new NoDatabaseConnectionException("No database found to connect");
 		}
+		ResultSet rs = baseMetaData.getColumns(null,null,tableName,null);
+		HashMap<String,String> tableColumnAttrs = new HashMap<String,String>();
 		
-		return 0;
+		while(rs.next()){
+			String name = rs.getString("COLUMN_NAME");
+			String type = rs.getString("TYPE_NAME");
+			tableColumnAttrs.put(name,type);
+		}
+		return tableColumnAttrs;
 	}
 	
 	/*
@@ -205,4 +219,5 @@ public class Database {
 		}
 		return count;
 	}
+	
 }
