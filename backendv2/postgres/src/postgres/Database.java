@@ -150,6 +150,13 @@ public class Database {
 	
 	/*
 	 * Get total number of columns
+	 * 
+	 * Ali Finkelstein 
+	 * 15 July 2015
 	 */
+	public int getColumnCount(){
+		
+		return 0;
+	}
 	
 }
