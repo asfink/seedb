@@ -2,6 +2,7 @@ package postgres;
 //
 import static org.junit.Assert.*;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 
 import org.junit.Rule;
@@ -63,6 +64,12 @@ public class DatabaseTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	@Test 
+	public void testUniqueColumnValueCount() throws SQLException{
+		int countVal = functional.getDistinctValueCount("stock", "cost");
+		assertEquals(12, countVal);
 	}
 
 }

@@ -197,7 +197,7 @@ public class Database {
 	 */
 	public int getDistinctValueCount(String tableName, String columnName) throws SQLException{
 		Statement pgQuery = connection.createStatement();
-		String queryStatement = "SELECT COUNT(DISTINCT"+columnName+") FROM "+tableName;
+		String queryStatement = "SELECT COUNT(DISTINCT "+columnName+") FROM "+tableName;
 		ResultSet pgResult = pgQuery.executeQuery(queryStatement);
 		int count = -1;
 		while(pgResult.next()){
