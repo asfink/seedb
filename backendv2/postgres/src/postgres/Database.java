@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+import org.postgresql.util.PSQLException;
+
 /*
  * //	public static void main(String[] var){
 //		Database test = new Database();
@@ -200,6 +202,40 @@ public class Database {
 		return tableColumnAttrs;
 	}
 	
+	public int getRowCount(String tableName) throws SQLException{
+		Statement pgQuery = connection.createStatement();
+		String queryStatement = "SELECT count(*) FROM "+tableName;
+		ResultSet queryResult = pgQuery.executeQuery(queryStatement);
+		return queryResult.getInt(1);
+	}
+
+	/*
+	 * From Manasi
+	 */
+	public Float getVariance(String columnName, String tableName) throws SQLException {
+		
+		if (connection == null) {
+			System.out.println("Connection null. Quit");
+		}
+			
+		String sqlQuery = "SELECT var_pop(" + columnName + ") FROM " + tableName;
+		Statement stmt = null;
+		ResultSet rs = null;
+		try {
+			stmt = connection.createStatement();
+		    rs = stmt.executeQuery(sqlQuery);
+	
+		    rs.next();
+		 	return rs.getFloat(1);
+		} catch (PSQLException e) {
+			if (e.getMessage().contains("var_pop") && e.getMessage().contains("does not exist")) {
+			 	return null;
+			} else {
+				System.out.println(e.getMessage());
+			}
+		}
+		return null;
+	}
 	/*
 	 * Getting the number of distinct values in columnName from tableName
 	 * 
