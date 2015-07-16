@@ -2,6 +2,8 @@ package postgres;
 //
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.BeforeClass;
@@ -49,6 +51,18 @@ public class DatabaseTest {
 		Database falsePWRD = new Database("booktown","postgres","meow");
 		thrown.expect(PSQLException.class);
 		assertFalse(falsePWRD.verifyConnection());
+	}
+	
+	@Test
+	public void testListingTables(){
+		String[] tableArr;
+		try {
+			tableArr = functional.accessableTables();
+			System.out.println(Arrays.toString(tableArr));
+		} catch (NoDatabaseConnectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
