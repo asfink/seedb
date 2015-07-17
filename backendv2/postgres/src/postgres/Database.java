@@ -131,7 +131,9 @@ public class Database {
 	 * 
 	 * Ali Finkelstein
 	 * 10 July 2015
+	 * @Deprecated
 	 */
+	@Deprecated
 	public void metadataFetch() throws SQLException{
 		
 		//Get Type info for database
@@ -150,7 +152,7 @@ public class Database {
 	}
 	
 	/*
-	 * Get names of all possible accessable tables 
+	 * Get names of all possible accessible tables 
 	 * 
 	 * Ali Finkelstein
 	 * 16 July 2015
@@ -175,6 +177,10 @@ public class Database {
 		return tableArrList.toArray(new String[tableArrList.size()]);
 	}
 	
+	/*
+	 * Because I dont know what a schema is. 
+	 * Ali Finkelstein
+	 */
 	public String getSchema() throws SQLException{
 		return connection.getSchema();
 	}
@@ -201,6 +207,14 @@ public class Database {
 		}
 		return tableColumnAttrs;
 	}
+	
+	/*
+	 * Gets the row count for the given table
+	 * @param tableName - name of the table in the database to analyze
+	 * 
+	 * Ali Finkelstein
+	 * 16 July 2015
+	 */
 	
 	public int getRowCount(String tableName) throws SQLException{
 		Statement pgQuery = connection.createStatement();
