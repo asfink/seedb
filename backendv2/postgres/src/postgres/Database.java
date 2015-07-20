@@ -87,6 +87,90 @@ public class Database {
 
 	}
 	
+	public Database(String databaseName){
+		//Testing for presence of PostgreSQL Driver
+		System.out.println("Testing PostgreSQL driver");
+		try {
+			Class.forName("org.postgresql.Driver");
+			System.out.println("PostgreSQL Driver Found");
+		} catch(ClassNotFoundException e){
+			System.out.println("Driver not found");
+			e.printStackTrace();
+			return;
+		}
+		dbName = databaseName;
+	}
+	
+	/*
+	 * database constructor without defining the database name
+	 */
+	public Database(){
+		//Testing for presence of PostgreSQL Driver
+		System.out.println("Testing PostgreSQL driver");
+		try {
+			Class.forName("org.postgresql.Driver");
+			System.out.println("PostgreSQL Driver Found");
+		} catch(ClassNotFoundException e){
+			System.out.println("Driver not found");
+			e.printStackTrace();
+			return;
+		}
+	}
+	
+	/*
+	 * Connect to DB given that dbName variable is not defined
+	 * 
+	 * @param databaseName - name of database to connect to 
+	 * @param address - address of the database to connect to
+	 * @param user - user to connect to db via
+	 * @param password - password to user account to connect to database via
+	 */
+	public void connect(String databaseName, String address, String user, String password){
+		dbName = databaseName;
+		//creating connection to PostgreSQL database	
+		try{
+			connection = DriverManager.getConnection("jdbc:postgresql://"+address+"/"+dbName,user,password);
+		} catch (SQLException e){
+			System.out.println("Connection Failed.");
+			e.printStackTrace();
+			return;
+		}
+		
+		try {
+			baseMetaData = connection.getMetaData();
+		} catch (SQLException e) {
+			System.out.println("Unable to pull metadata.");
+			e.printStackTrace();
+			return;
+		}
+	}
+	
+	/*
+	 * Connect to DB given that dbName variable is defined
+	 * 
+	 * @param address - address of the database to connect to
+	 * @param user - user to connect to db via
+	 * @param password - password to user account to connect to database via
+	 */
+	public void connect(String address, String user, String password){
+		//creating connection to PostgreSQL database	
+		try{
+			connection = DriverManager.getConnection("jdbc:postgresql://"+address+"/"+dbName,user,password);
+		} catch (SQLException e){
+			System.out.println("Connection Failed.");
+			e.printStackTrace();
+			return;
+		}
+		
+		try {
+			baseMetaData = connection.getMetaData();
+		} catch (SQLException e) {
+			System.out.println("Unable to pull metadata.");
+			e.printStackTrace();
+			return;
+		}
+	}
+	
 	/*
 	 * Verifies that a connection was made to the database
 	 * 
@@ -215,7 +299,6 @@ public class Database {
 	 * Ali Finkelstein
 	 * 16 July 2015
 	 */
-	
 	public int getRowCount(String tableName) throws SQLException{
 		Statement pgQuery = connection.createStatement();
 		String queryStatement = "SELECT count(*) FROM "+tableName;
@@ -250,6 +333,7 @@ public class Database {
 		}
 		return null;
 	}
+	
 	/*
 	 * Getting the number of distinct values in columnName from tableName
 	 * 
@@ -270,4 +354,8 @@ public class Database {
 		return count;
 	}
 	
+	/*
+	 * Gets name of all tables in the DB
+	 * 20 July 2015
+	 */
 }
