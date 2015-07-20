@@ -4,6 +4,9 @@ import static org.junit.Assert.*;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -55,15 +58,11 @@ public class DatabaseTest {
 	}
 	
 	@Test
-	public void testListingTables(){
-		String[] tableArr;
-		try {
-			tableArr = functional.accessableTables();
-			System.out.println(Arrays.toString(tableArr));
-		} catch (NoDatabaseConnectionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	@Deprecated
+	public void testListingTables() throws NoDatabaseConnectionException{
+		String[] tableArr = functional.accessableTables();
+		System.out.println(Arrays.toString(tableArr));
+		assertTrue(true);
 	}
 	
 	@Test 
@@ -75,20 +74,27 @@ public class DatabaseTest {
 	
 	@Test
 	public void schemaTest() throws SQLException{
-		System.out.print("SCHEMLASKDF;ALKSDM;ALSKDMVA;LSKMDFA;LKSMDF-----");
-		System.out.println(functional.getSchema());
+		assertEquals("$user",functional.getSchema().toString());
 	}
 	
 	
 	@Test 
-	public void columnAttributeTest(){
-		System.out.println("CLKSJDF:LKSDMVS:LKDMV:LK ");
-		try {
-			System.out.println(functional.getColumnAttribute("stock"));
-		} catch (NoDatabaseConnectionException | SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void columnAttributeTest() throws NoDatabaseConnectionException, SQLException{
+		Map<String,String> returnedColumnAttr = functional.getColumnAttribute("stock");
+		Map<String,String> expectedColumnAttr = new HashMap<String,String>();
+		expectedColumnAttr.put("stock","int4");
+		expectedColumnAttr.put("isbn","text");
+		expectedColumnAttr.put("cost", "numeric");
+		expectedColumnAttr.put("retail", "numeric");
+		assertEquals(expectedColumnAttr,returnedColumnAttr);
 	}
 
+	@Test
+	public void getTablesInDBTest() throws SQLException{
+		Set<String> countedTables = functional.getTables();
+		assertEquals(29,countedTables.size());
+		System.out.println("COUNTED TABLES");
+		System.out.println(countedTables.toString());
+		
+	}
 }
