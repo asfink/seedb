@@ -368,12 +368,6 @@ public class Database {
 		return count;
 	}
 	
-
-	public String getSeeDBType(String table, String columnName){
-		int distinctVals = getDistinctValueCount(columnName, table);
-		
-		return null;
-	}
 	
 	/*
 	 * Gets name of all tables in the DB
