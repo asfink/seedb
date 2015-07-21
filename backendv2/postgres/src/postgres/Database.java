@@ -202,14 +202,12 @@ public class Database {
 	 * Ali Finkelstein 
 	 * 10 July 2015
 	 */
-	public void query(String query) throws SQLException{
+	public ResultSet query(String query) throws SQLException{
 		Statement queryStatement = connection.createStatement();
 		ResultSet queryResult = queryStatement.executeQuery(query);
-		while(queryResult.next()){
-			System.out.println(queryResult.getString(0));
-		}
 		queryResult.close();
 		queryStatement.close();
+		return queryResult;
 	}
 	
 	/*
@@ -295,6 +293,19 @@ public class Database {
 		return tableColumnAttrs;
 	}
 	
+	public ResultSet executeStatementWithResult(String statement) throws SQLException{
+		Statement stmntToExecute = connection.createStatement();
+		ResultSet statementResult = stmntToExecute.executeQuery(statement);
+		stmntToExecute.close();
+		return statementResult;	
+	}
+	
+	public void executeStatementNoResult(String statement) throws SQLException{
+		Statement stmntToExecute = connection.createStatement();
+		ResultSet statementResult = stmntToExecute.executeQuery(statement);
+		stmntToExecute.close();
+	}
+	
 	/*
 	 * Gets the row count for the given table
 	 * @param tableName - name of the table in the database to analyze
@@ -357,6 +368,13 @@ public class Database {
 		return count;
 	}
 	
+
+	public String getSeeDBType(String table, String columnName){
+		int distinctVals = getDistinctValueCount(columnName, table);
+		
+		return null;
+	}
+	
 	/*
 	 * Gets name of all tables in the DB
 	 * 
@@ -365,7 +383,8 @@ public class Database {
 	 */
 	public Set<String> getTables() throws SQLException{
 		Set<String> containedTables = new HashSet<String>();
-		ResultSet metadataTables = baseMetaData.getTables(null,null,"%",null);
+		String[] tableTypesArray = {"VIEW","TABLE","SEQUENCE"};
+		ResultSet metadataTables = baseMetaData.getTables(null,null,"%",tableTypesArray);
 		while (metadataTables.next()){
 			containedTables.add(metadataTables.getString(3));
 		}
