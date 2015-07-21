@@ -304,6 +304,7 @@ public class Database {
 		Statement stmntToExecute = connection.createStatement();
 		ResultSet statementResult = stmntToExecute.executeQuery(statement);
 		stmntToExecute.close();
+		statementResult.close();
 	}
 	
 	/*
@@ -354,6 +355,9 @@ public class Database {
 	 * @param tableName - table to look into
 	 * @param columnName - name of the column
 	 * 
+	 * 
+	 * @return -1 if no values present
+	 * @return int number of distinct values present
 	 * Ali Finkelstein
 	 * 16 July 2015
 	 */

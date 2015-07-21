@@ -3,6 +3,7 @@ package apiWrapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
@@ -60,6 +61,7 @@ public class DatabaseConnection {
 		 */
 		
 		// statement to drop table if it already exists
+		@SuppressWarnings("unused")
 		String dropTableStatement = "DROP TABLE IF EXISTS seeDBInfo";
 		
 		//creates table if it doesnt exist already
@@ -67,7 +69,7 @@ public class DatabaseConnection {
 				"tableName TEXT, "+
 				"columnName TEXT, "+
 				"columnType TEXT, "+
-				"cbdType TEXT,"+
+				"seebdType TEXT,"+
 				"numDistinctVals NUMERIC "+
 				");";
 		
@@ -75,7 +77,6 @@ public class DatabaseConnection {
 		try {
 			databaseConnection.executeStatementNoResult(tableCreationStatement);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -132,24 +133,74 @@ public class DatabaseConnection {
 		try {
 			return databaseConnection.getTables();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}
 	}
 	
+	/*
+	 * 
+	 */
 	public ResultSet executeQueryWithResult(String query){
 		try {
 			return databaseConnection.query(query);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			System.out.println("query unsuccessful");
 			return null;
 		}
 	}
 	
+	/*
+	 * Queries database for all columns that represent dimensons. 
+	 * 
+	 * @returns array of strings that are the columns that represent dimensions.
+	 * @returns null if query was unsuccessful
+	 * 
+	 *  21 July 2015
+	 */
+	public String[] getDimensions(String tableName){
+		String queryString = "SELECT columnName FROM seeDBInfo"+
+				"WHERE (table ='"+tableName+"') "+
+				"AND (seedbType='dimension');";
+		ArrayList<String> queryResultArrList = new ArrayList<String>();
+		try {
+			ResultSet queryResults = databaseConnection.executeStatementWithResult(queryString);
+			while(queryResults.next()){
+				queryResultArrList.add(queryResults.getString(1));
+			}
+			return queryResultArrList.toArray(new String[queryResultArrList.size()]);
+		} catch (SQLException e) {
+			System.out.println("Unable to execute query statement " + queryString);
+			e.printStackTrace();
+		}
+		return null;
+	}
 	
-	
-	
+	/*
+	 * Queries database for all columns that represent measurements. 
+	 * 
+	 * @returns array of strings that are the columns that represent measurements. 
+	 * @returns null if query was unsuccessful
+	 * 
+	 * 21 July 2015
+	 */
+	public String[] getMeasures(String tableName){
+		String queryString = "SELECT columnName FROM seeDBInfo"+
+				"WHERE (table ='"+tableName+"') "+
+				"AND (seedbType='measure');";
+		ArrayList<String> queryResultArrList = new ArrayList<String>();
+		try {
+			ResultSet queryResults = databaseConnection.executeStatementWithResult(queryString);
+			while(queryResults.next()){
+				queryResultArrList.add(queryResults.getString(1));
+			}
+			return queryResultArrList.toArray(new String[queryResultArrList.size()]);
+		} catch (SQLException e) {
+			System.out.println("Unable to execute query statement " + queryString);
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 }
