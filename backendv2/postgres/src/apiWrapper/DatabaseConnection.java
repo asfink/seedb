@@ -214,7 +214,7 @@ public class DatabaseConnection {
 
 	public Map<String, String[]> getInfoForTable(String databaseName,
 			String tableName) {
-
+		
 		return null;
 	}
 }
