@@ -2,6 +2,7 @@ package postgres;
 //
 import static org.junit.Assert.*;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -57,19 +58,19 @@ public class DatabaseTest {
 		assertFalse(falsePWRD.verifyConnection());
 	}
 	
+	//should make to try catch
 	@Test 
 	public void testUniqueColumnValueCount() throws SQLException{
 		int countVal = functional.getDistinctValueCount("stock", "cost");
 		assertEquals(12, countVal);
 	}
 	
-	
 	@Test
 	public void schemaTest() throws SQLException{
 		assertEquals("$user",functional.getSchema().toString());
 	}
 	
-	
+	//should make to try catch
 	@Test 
 	public void columnAttributeTest() throws NoDatabaseConnectionException, SQLException{
 		Map<String,String> returnedColumnAttr = functional.getColumnAttribute("stock");
@@ -81,17 +82,52 @@ public class DatabaseTest {
 		assertEquals(expectedColumnAttr,returnedColumnAttr);
 	}
 
+	//should make to try catch
 	@Test
 	public void getTablesInDBTest() throws SQLException{
-		System.out.println("ls;akjdf;alsjkef;laskd;laskdval;kmsv;lawekmev");
 		Set<String> countedTables = functional.getTables();
 		String[] expectedTableNames = {"alternate_stock", "author_ids","authors","book_backup","book_ids","book_queue","books", "customers","daily_inventory","distinguished_authors","editions","employees","favorite_authors","favorite_books","money_example","my_list","numeric_values","publishers","recent_shipments","schedules","shipments","shipments_ship_id_seq","states","stock","stock_backup","stock_view","subject_ids","subjects","text_sorting"};
 		Set<String> expectedSet = new HashSet<String>(Arrays.asList(expectedTableNames));
-		System.out.println("COUNTED TABLES");
-		System.out.println(countedTables.toString());
 		assertEquals(29,countedTables.size());
 		assertEquals(expectedSet,countedTables);
-		
+	}
+
+	//testing if statements are executed
+	@Test
+	public void executeStatementResultTest(){
+		try {
+			ResultSet receivedResult = functional.executeStatementWithResult("SELECT count(*) FROM stock");
+			int responseVal = receivedResult.getInt(1);
+			assertEquals(16,responseVal);
+		} catch (SQLException e) {
+			assertFalse(true);
+			e.printStackTrace();
+		}
+	}
+
+	//testing to see if error is thrown on false statement
+	@Test (expected=PSQLException.class)
+	public void executeStatementResultFailTest(){
+		try {
+			ResultSet receivedResult = functional.executeStatementWithResult("SELECT count(*) FROM stock");
+		} catch (SQLException e) {
+			assertTrue(true);
+			e.printStackTrace();
+		}
+	}
+
+	//testing if row count works properly
+	@Test
+	public void testRowCount()
+	{
+		try{
+			int resultCount = functional.getRowCount("stock");
+			assertEquals(16,resultCount);
+		}
+		catch(SQLException e){
+			assertFalse(true);
+			e.printStackTrace();
+		}
 		
 	}
 }

@@ -11,32 +11,6 @@ import java.util.Set;
 import org.postgresql.util.PSQLException;
 
 /*
- * //	public static void main(String[] var){
-//		Database test = new Database();
-//		//test.connect();
-//		Scanner sc = new Scanner(System.in);
-//		System.out.println("MetaData or Query");
-//		String selection = sc.next();
-//		if (selection.equalsIgnoreCase("query")){
-//			System.out.println("Enter Query");
-//			String query = sc.next();
-//			try {
-//				test.launchQuery(query);
-//			} catch (SQLException e) {
-//				System.out.println("Query Failed");
-//				e.printStackTrace();
-//			}
-//		} else {
-//			try {
-//				test.metadataFetch();
-//			} catch (SQLException e) {
-//				System.out.println("Failed to get metadata");
-//				e.printStackTrace();
-//			}
-//		}
-//
-//
-//	}
  * http://dev.mysql.com/doc/world-setup/en/
  * http://blog.manoharbhattarai.com.np/2013/04/03/execute-sql-file-from-command-line-in-postgresql/
  * http://stackoverflow.com/questions/3393961/how-to-import-existing-sql-files-in-postgresql-8-4
@@ -293,6 +267,13 @@ public class Database {
 		return tableColumnAttrs;
 	}
 	
+	/*
+	 * Execute a query/statement for the SQL database, and return the resulting data
+	 * 
+	 * @param statement - SQL query string
+	 * @return result set containing query results
+	 * @throws SQLException upon failure of query/statement execution
+	 */
 	public ResultSet executeStatementWithResult(String statement) throws SQLException{
 		Statement stmntToExecute = connection.createStatement();
 		ResultSet statementResult = stmntToExecute.executeQuery(statement);
@@ -300,6 +281,12 @@ public class Database {
 		return statementResult;	
 	}
 	
+	/*
+	 * Execute a query/statement for the SQL database
+	 * 
+	 * @param statement - SQL query string
+	 * @throws SQLException upon failure of query/statement execution
+	 */
 	public void executeStatementNoResult(String statement) throws SQLException{
 		Statement stmntToExecute = connection.createStatement();
 		ResultSet statementResult = stmntToExecute.executeQuery(statement);
@@ -310,6 +297,7 @@ public class Database {
 	/*
 	 * Gets the row count for the given table
 	 * @param tableName - name of the table in the database to analyze
+	 * @throws SQLException if statement could not be created to allow querying of row count
 	 * 
 	 * Ali Finkelstein
 	 * 16 July 2015
@@ -355,6 +343,7 @@ public class Database {
 	 * @param tableName - table to look into
 	 * @param columnName - name of the column
 	 * 
+	 * @throws SQLException is no connection can be made to the database
 	 * 
 	 * @return -1 if no values present
 	 * @return int number of distinct values present
