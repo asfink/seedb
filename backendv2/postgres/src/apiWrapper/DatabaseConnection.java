@@ -3,6 +3,7 @@ package apiWrapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,7 +12,7 @@ import postgres.NoDatabaseConnectionException;
 
 public class DatabaseConnection {
 	private static int DISTINCT_DIMENSION_COUNT = 20;
-	private Database databaseConnection;
+	private Map<String, Database> connectionKeeper;
 
 	/*
 	 * Establishes ability to connect to database
@@ -19,7 +20,7 @@ public class DatabaseConnection {
 	 * 20 July 2015
 	 */
 	public DatabaseConnection() {
-		databaseConnection = new Database();
+		connectionKeeper = new HashMap<String, Database>();
 	}
 
 	/*
@@ -29,7 +30,14 @@ public class DatabaseConnection {
 	 */
 	public void connectToDB(String databaseName, String address,
 			String username, String password) {
-		databaseConnection.connect(databaseName, address, username, password);
+		Database connectionDB = new Database();
+		connectionDB.connect(databaseName, address, username, password);
+		connectionKeeper.put(databaseName, connectionDB);
+	}
+	
+	public Boolean validateDatabaseConnection(String databaseName){
+		Database db = connectionKeeper.get(databaseName);
+		return db.verifyConnection();
 	}
 
 	/*
@@ -41,8 +49,9 @@ public class DatabaseConnection {
 	 */
 	public void populateTableInfoForDB(String databaseName) {
 		Set<String> tablesInDB = null;
+		Database db = connectionKeeper.get(databaseName);
 		try {
-			tablesInDB = databaseConnection.getTables();
+			tablesInDB = db.getTables();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return;
@@ -71,21 +80,21 @@ public class DatabaseConnection {
 
 		// executing tableCreationStatement on DB
 		try {
-			databaseConnection.executeStatementNoResult(tableCreationStatement);
+			db.executeStatementNoResult(tableCreationStatement);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
 		for (String table : tablesInDB) {
 			try {
-				Map<String, String> tableColumnData = databaseConnection
+				Map<String, String> tableColumnData = db
 						.getColumnAttribute(table);
 				for (Map.Entry<String, String> columnDataSetEntry : tableColumnData
 						.entrySet()) {
 					String columnName = columnDataSetEntry.getKey();
 					String columnType = columnDataSetEntry.getValue();
-					int distinctValues = databaseConnection
-							.getDistinctValueCount(table, columnName);
+					int distinctValues = db.getDistinctValueCount(table,
+							columnName);
 					String seeDBType = getSeeDBType(columnType, distinctValues);
 
 					// build statement for inserting values
@@ -94,8 +103,7 @@ public class DatabaseConnection {
 							+ columnType + "," + seeDBType + ", "
 							+ distinctValues + ");";
 
-					databaseConnection
-							.executeStatementNoResult(insertDataStatement);
+					db.executeStatementNoResult(insertDataStatement);
 				}
 			} catch (NoDatabaseConnectionException | SQLException e) {
 				System.out.println("Unable to access table information");
@@ -130,8 +138,9 @@ public class DatabaseConnection {
 	 * Output's the database tables :P
 	 */
 	public Set<String> getTableInfoForDB(String database) {
+		Database db = connectionKeeper.get(database);
 		try {
-			return databaseConnection.getTables();
+			return db.getTables();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return null;
@@ -141,9 +150,10 @@ public class DatabaseConnection {
 	/*
 	 * 
 	 */
-	public ResultSet executeQueryWithResult(String query) {
+	public ResultSet executeQueryWithResult(String query, String database) {
+		Database db = connectionKeeper.get(database);
 		try {
-			return databaseConnection.query(query);
+			return db.query(query);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			System.out.println("query unsuccessful");
@@ -160,14 +170,14 @@ public class DatabaseConnection {
 	 * 
 	 * 21 July 2015
 	 */
-	public String[] getDimensions(String tableName) {
+	public String[] getDimensions(String tableName, String database) {
 		String queryString = "SELECT columnName FROM seeDB_schema"
 				+ "WHERE (table ='" + tableName + "') "
 				+ "AND (seedbType='dimension');";
 		ArrayList<String> queryResultArrList = new ArrayList<String>();
+		Database db = connectionKeeper.get(database);
 		try {
-			ResultSet queryResults = databaseConnection
-					.executeStatementWithResult(queryString);
+			ResultSet queryResults = db.executeStatementWithResult(queryString);
 			while (queryResults.next()) {
 				queryResultArrList.add(queryResults.getString(1));
 			}
@@ -191,14 +201,14 @@ public class DatabaseConnection {
 	 * 
 	 * 21 July 2015
 	 */
-	public String[] getMeasures(String tableName) {
+	public String[] getMeasures(String tableName, String dbName) {
 		String queryString = "SELECT columnName FROM seeDB_schema"
 				+ "WHERE (table ='" + tableName + "') "
 				+ "AND (seedbType='measure');";
 		ArrayList<String> queryResultArrList = new ArrayList<String>();
+		Database db = connectionKeeper.get(dbName);
 		try {
-			ResultSet queryResults = databaseConnection
-					.executeStatementWithResult(queryString);
+			ResultSet queryResults = db.executeStatementWithResult(queryString);
 			while (queryResults.next()) {
 				queryResultArrList.add(queryResults.getString(1));
 			}
@@ -214,7 +224,7 @@ public class DatabaseConnection {
 
 	public Map<String, String[]> getInfoForTable(String databaseName,
 			String tableName) {
-		
+
 		return null;
 	}
 }
