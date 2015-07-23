@@ -55,7 +55,7 @@ public class DatabaseTest {
 	public void testWrongPWDDB(){
 		Database falsePWRD = new Database("booktown","postgres","meow");
 		//thrown.expect(PSQLException.class);
-		assertFalse(falsePWRD.verifyConnection());
+		assert(falsePWRD.verifyConnection());
 	}
 	
 	//should make to try catch
