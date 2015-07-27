@@ -53,15 +53,45 @@ public class Database {
 			return;
 		}
 		
-		try {
-			baseMetaData = connection.getMetaData();
-		} catch (SQLException e) {
-			System.out.println("Unable to pull metadata.");
-			e.printStackTrace();
-			return;
-		}
-
+//		try {
+//			baseMetaData = connection.getMetaData();
+//		} catch (SQLException e) {
+//			System.out.println("Unable to pull metadata.");
+//			e.printStackTrace();
+//			return;
+//		}
 	}
+	
+//	public Database(String databaseName, String user, String password, Boolean debug){
+//		//Testing for presence of PostgreSQL Driver
+//		System.out.println("Testing PostgreSQL driver");
+//		try {
+//			Class.forName("org.postgresql.Driver");
+//			System.out.println("PostgreSQL Driver Found");
+//		} catch(ClassNotFoundException e){
+//			System.out.println("Driver not found");
+//			e.printStackTrace();
+//			return;
+//		}
+//		
+//		dbName = databaseName;
+//		//creating connection to PostgreSQL database	
+//		try{
+//			connection = DriverManager.getConnection("jdbc:postgresql://localhost/"+dbName,user,password);
+//		} catch (SQLException e){
+//			System.out.println("Connection Failed.");
+//			e.printStackTrace();
+//			return;
+//		}
+//		
+////		try {
+////			baseMetaData = connection.getMetaData();
+////		} catch (SQLException e) {
+////			System.out.println("Unable to pull metadata.");
+////			e.printStackTrace();
+////			return;
+////		}
+//	}
 	
 	public Database(String databaseName){
 		//Testing for presence of PostgreSQL Driver
@@ -306,6 +336,12 @@ public class Database {
 		Statement pgQuery = connection.createStatement();
 		String queryStatement = "SELECT count(*) FROM "+tableName;
 		ResultSet queryResult = pgQuery.executeQuery(queryStatement);
+		//printResultSet(queryResult);
+		queryResult.next();
+		//int result = queryResult.getInt(1);
+		queryResult.close();
+		pgQuery.close();
+		//return result;
 		return queryResult.getInt(1);
 	}
 
@@ -361,6 +397,25 @@ public class Database {
 		return count;
 	}
 	
+	/*
+	 * Prints out the result of the result set
+	 * 
+	 * SRC: https://coderwall.com/p/609ppa/printing-the-result-of-resultset
+	 * 
+	 * 26 July 2015
+	 */
+	public void printResultSet(ResultSet rs) throws SQLException{
+		ResultSetMetaData rsmd = rs.getMetaData();
+		int colNumber = rsmd.getColumnCount();
+		while (rs.next()){
+			for(int i = 1; i<=colNumber; i++){
+				if(i>1) System.out.println(",  ");
+				String val = rs.getString(1);
+				System.out.println(val+" "+rsmd.getColumnName(i));
+			}
+			System.out.println("");
+		}
+	}
 	
 	/*
 	 * Gets name of all tables in the DB
@@ -368,12 +423,19 @@ public class Database {
 	 * @Throws SQLException if unable to connect to DB or get metadata information
 	 * 20 July 2015
 	 */
-	public Set<String> getTables() throws SQLException{
+	public Set<String> getTables(){
 		Set<String> containedTables = new HashSet<String>();
 		String[] tableTypesArray = {"VIEW","TABLE","SEQUENCE"};
-		ResultSet metadataTables = baseMetaData.getTables(null,null,"%",tableTypesArray);
-		while (metadataTables.next()){
-			containedTables.add(metadataTables.getString(3));
+		ResultSet metadataTables;
+		try {
+			metadataTables = baseMetaData.getTables(null,null,"%",tableTypesArray);
+			while (metadataTables.next()){
+				containedTables.add(metadataTables.getString(3));
+			}
+			printResultSet(metadataTables);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return containedTables;
 	}

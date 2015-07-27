@@ -10,7 +10,7 @@ import java.util.Set;
 import postgres.Database;
 import postgres.NoDatabaseConnectionException;
 
-public class DatabaseConnection {
+public class DatabaseConnectionWrapper {
 	private static int DISTINCT_DIMENSION_COUNT = 20;
 	private Map<String, Database> connectionKeeper;
 
@@ -19,7 +19,7 @@ public class DatabaseConnection {
 	 * 
 	 * 20 July 2015
 	 */
-	public DatabaseConnection() {
+	public DatabaseConnectionWrapper() {
 		connectionKeeper = new HashMap<String, Database>();
 	}
 
@@ -50,15 +50,11 @@ public class DatabaseConnection {
 	public void populateTableInfoForDB(String databaseName) {
 		Set<String> tablesInDB = null;
 		Database db = connectionKeeper.get(databaseName);
-		try {
-			tablesInDB = db.getTables();
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return;
-		}
+		tablesInDB = db.getTables();
 		if (tablesInDB == null)
 			return;
 
+		System.out.println("Table list received");
 		/*
 		 * CREATE TABLE new_table_name ( table_column_title TYPE_OF_DATA
 		 * column_constraints, next_column_title TYPE_OF_DATA
@@ -67,9 +63,14 @@ public class DatabaseConnection {
 		 */
 
 		// statement to drop table if it already exists
-		@SuppressWarnings("unused")
 		String dropTableStatement = "DROP TABLE IF EXISTS seeDB_schema";
-
+		try {
+			db.executeStatementNoResult(dropTableStatement);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		System.out.println("Excesss tables Dropped");
+		
 		// creates table if it doesnt exist already
 		String tableCreationStatement = "CREATE TABLE IF NOT EXISTS seeDB_schema ("
 				+ "tableName TEXT, "
@@ -84,6 +85,8 @@ public class DatabaseConnection {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		System.out.println("seeDB_schema table created");
+
 
 		for (String table : tablesInDB) {
 			try {
@@ -136,15 +139,12 @@ public class DatabaseConnection {
 
 	/*
 	 * Output's the database tables :P
+	 * 
+	 * @return a set of strings containing the names of all the tables
 	 */
 	public Set<String> getTableInfoForDB(String database) {
 		Database db = connectionKeeper.get(database);
-		try {
-			return db.getTables();
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return null;
-		}
+		return db.getTables();
 	}
 
 	/*
@@ -202,9 +202,11 @@ public class DatabaseConnection {
 	 * 21 July 2015
 	 */
 	public String[] getMeasures(String tableName, String dbName) {
+		//the query string for getting all columns that fall under measurements
 		String queryString = "SELECT columnName FROM seeDB_schema"
 				+ "WHERE (table ='" + tableName + "') "
 				+ "AND (seedbType='measure');";
+		
 		ArrayList<String> queryResultArrList = new ArrayList<String>();
 		Database db = connectionKeeper.get(dbName);
 		try {

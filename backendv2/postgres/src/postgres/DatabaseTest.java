@@ -38,8 +38,6 @@ public class DatabaseTest {
 	@Test (expected=PSQLException.class)
 	public void testWrongDB(){
 		Database notReal = new Database("False", "postgres","postgres");
-		//thrown.expect(PSQLException.class);
-		assertFalse(notReal.verifyConnection());
 	}
 	
 	//Testing if connection is not established using wrong user
