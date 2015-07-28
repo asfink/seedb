@@ -1,6 +1,9 @@
 package wrapperInterface;
 
+import java.sql.ResultSet;
 import java.util.Set;
+
+import seeDBExceptions.NoDatabaseConnectionException;
 
 /*
  * Connect to the seeDB backend to allow for computations to DB? something
@@ -25,7 +28,7 @@ public interface SeeDB_Backend {
 	 * @date 27 July 2015
 	 */
 	public void connectToDB(String databaseName, String address,
-			String username, String password);
+			String username, String password) throws NoDatabaseConnectionException;
 
 	/*
 	 * Populates a table in the Database to use for calculations and searches
@@ -61,7 +64,7 @@ public interface SeeDB_Backend {
 	 * 
 	 * @return TODO:decide the return type
 	 */
-	public void executeQueryWithResult(String databaseName, String query);
+	public ResultSet executeQueryWithResult(String databaseName, String query);
 
 	/*
 	 * Executes query on a database and does not return a result of any type
@@ -72,7 +75,7 @@ public interface SeeDB_Backend {
 	 * @Author Ali Finkelstein
 	 * @date 27 July 2015
 	 */
-	public void executeStatement(String databaseName, String query);
+	public void executeStatement(String databaseName, String statement);
 	
 	/*
 	 * Gets the names of columns that are measurements in the table

@@ -1,21 +1,24 @@
 package wrapperInterface;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import postgres.Database;
 import seeDBExceptions.NoDatabaseConnectionException;
 
 
 public class SeeDB_PostgreSQL implements SeeDB_Backend{
 	private static int DISTINCT_DIMENSION_COUNT = 20;
-	private Map<String, Database> connectionKeeper;
+	private Map<String, Connection> connectionKeeper;
 	
 	public SeeDB_PostgreSQL(){
 		System.out.println("Testing PostgreSQL driver");
@@ -28,38 +31,29 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend{
 			return;
 		}
 		
-		connectionKeeper = new HashMap<String, Database>();
+		connectionKeeper = new HashMap<String, Connection>();
 	}
 	
 	@Override
 	public void connectToDB(String databaseName, String address,
-			String username, String password) {
-		Database connectionDB = new Database();
+			String username, String password) throws NoDatabaseConnectionException {
 		Connection connection = null; 
 		try{
-			connection = DriverManager.getConnection("jdbc:postgresql://"+address+"/"+dbName,user,password);
+			connection = DriverManager.getConnection("jdbc:postgresql://"+address+"/"+databaseName,username,password);
 		} catch (SQLException e){
 			System.out.println("Connection Failed.");
 			e.printStackTrace();
 			return;
 		}
-		
-		try {
-			baseMetaData = connection.getMetaData();
-		} catch (SQLException e) {
-			System.out.println("Unable to pull metadata.");
-			e.printStackTrace();
-			return;
-		}
-		connectionKeeper.put(databaseName, connectionDB);		
+		if (connection == null) throw new NoDatabaseConnectionException("No database found to connect"); 
+		connectionKeeper.put(databaseName, connection);		
 	}
 
 	
 	@Override
 	public void populateTableInfoForDB(String databaseName) {
 		Set<String> tablesInDB = null;
-		Database db = connectionKeeper.get(databaseName);
-		tablesInDB = db.getTables();
+		tablesInDB = getTables(databaseName);
 		if (tablesInDB == null) return;
 
 		//System.out.println("Table list received");
@@ -73,13 +67,9 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend{
 		if (tablesInDB.contains("seedb_schema")){
 			// statement to drop table if it already exists
 			String dropTableStatement = "DROP TABLE IF EXISTS seeDB_schema";
-			try {
-				db.executeStatementNoResult(dropTableStatement);
-				System.out.println("Excesss tables Dropped");
-				tablesInDB = db.getTables();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			executeStatement(databaseName, dropTableStatement);
+			System.out.println("Excesss tables Dropped");
+			tablesInDB = getTables(databaseName);
 		}
 		
 		// creates table if it doesnt exist already
@@ -90,28 +80,20 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend{
 				+ "seebdType TEXT,"
 				+ "numDistinctVals NUMERIC" + ");";
 
-		// executing tableCreationStatement on DB
-		try {
-			db.executeStatementNoResult(tableCreationStatement);
-			System.out.println("seeDB_schema table created");
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		executeStatement(databaseName, tableCreationStatement);
+		System.out.println("seeDB_schema table created");
 		
-		tablesInDB = db.getTables();
+		tablesInDB = getTables(databaseName);
 		
 		
 		for (String table : tablesInDB) {
 			try {
-				Map<String, String> tableColumnData = db
-						.getColumnAttribute(table);
+				Map<String, String> tableColumnData = getColumnAttribute(databaseName, table);
 				for (Map.Entry<String, String> columnDataSetEntry : tableColumnData
 						.entrySet()) {
 					String columnName = columnDataSetEntry.getKey();
 					String columnType = columnDataSetEntry.getValue();
-					int distinctValues = db.getDistinctValueCount(table,
-							columnName);
+					int distinctValues = getDistinctValueCount(databaseName,table,columnName);
 					String seeDBType = getSeeDBType(columnType, distinctValues);
 
 					// build statement for inserting values
@@ -120,7 +102,7 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend{
 							+ columnType + "', '" + seeDBType + "', "
 							+ distinctValues + ");";
 
-					db.executeStatementNoResult(insertDataStatement);
+					executeStatement(databaseName,insertDataStatement);
 				}
 			} catch (NoDatabaseConnectionException e) {
 				System.out.println("ERR: Unable to access table information");
@@ -137,26 +119,35 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend{
 
 	@Override
 	public Set<String> getTableInfoForDB(String databaseName) {
-		Database db = connectionKeeper.get(databaseName);
-		return db.getTables();
+		return getTables(databaseName);
 	}
 
 	//NOT SURE WHAT TO MAKE THE RETURN TYPE
 	@Override
-	public void executeQueryWithResult(String databaseName, String query) {
-		Database db = connectionKeeper.get(databaseName);
+	public ResultSet executeQueryWithResult(String databaseName, String query) {
+		Connection conn = connectionKeeper.get(databaseName);
+		Statement stmntToExecute;
 		try {
-			db.executeStatementWithResult(query);
+			stmntToExecute = conn.createStatement();
+			ResultSet statementResult = stmntToExecute.executeQuery(query);
+			return statementResult;	
 		} catch (SQLException e) {
 			e.printStackTrace();
-			System.out.println("query unsuccessful");
-		}		
+			return null;
+		}
 	}
 
 	@Override
-	public void executeStatement(String databaseName, String query) {
-		// TODO Auto-generated method stub
-		
+	public void executeStatement(String databaseName, String statement) {
+		Connection conn = connectionKeeper.get(databaseName);
+		PreparedStatement stmntToExecute;
+		try {
+			stmntToExecute = conn.prepareStatement(statement);
+			stmntToExecute.executeUpdate();
+			stmntToExecute.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}		
 	}
 
 	@Override
@@ -167,9 +158,8 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend{
 				+ "AND (seedbType='measure');";
 
 		ArrayList<String> queryResultArrList = new ArrayList<String>();
-		Database db = connectionKeeper.get(databaseName);
 		try {
-			ResultSet queryResults = db.executeStatementWithResult(queryString);
+			ResultSet queryResults = executeQueryWithResult(databaseName, queryString);
 			while (queryResults.next()) {
 				queryResultArrList.add(queryResults.getString(1));
 			}
@@ -189,9 +179,8 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend{
 				+ "WHERE (table ='" + tableName + "') "
 				+ "AND (seedbType='dimension');";
 		ArrayList<String> queryResultArrList = new ArrayList<String>();
-		Database db = connectionKeeper.get(databaseName);
 		try {
-			ResultSet queryResults = db.executeStatementWithResult(queryString);
+			ResultSet queryResults = executeQueryWithResult(databaseName, queryString);
 			while (queryResults.next()) {
 				queryResultArrList.add(queryResults.getString(1));
 			}
@@ -225,6 +214,103 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend{
 		}
 		return "other";
 	}
+	
+	/*
+	 * Gets the row count for the given table
+	 * @param tableName - name of the table in the database to analyze
+	 * @throws SQLException if statement could not be created to allow querying of row count
+	 * 
+	 * Ali Finkelstein
+	 * 16 July 2015
+	 */
+	public int getRowCount(String databaseName, String tableName) throws SQLException{
+		Connection conn = connectionKeeper.get(databaseName);
+		Statement pgQuery = conn.createStatement();
+		String queryStatement = "SELECT count(*) FROM "+tableName;
+		ResultSet queryResult = pgQuery.executeQuery(queryStatement);
+		queryResult.next();
+		int result = queryResult.getInt(1);
+		queryResult.close();
+		pgQuery.close();
+		return result;
+	}
+	
+	/*
+	 * Gets name of all tables in the DB
+	 * 
+	 * @Throws SQLException if unable to connect to DB or get metadata information
+	 * @param databaseName
+	 * 20 July 2015
+	 */
+	public Set<String> getTables(String databaseName){
+		Connection conn = connectionKeeper.get(databaseName);
+		Set<String> containedTables = new HashSet<String>();
+		String[] tableTypesArray = {"VIEW","TABLE","SEQUENCE"};
+		ResultSet metadataTables;
+		try {
+			DatabaseMetaData baseMetaData = conn.getMetaData();
+			metadataTables = baseMetaData.getTables(null,null,"%",tableTypesArray);
+			while (metadataTables.next()){
+				containedTables.add(metadataTables.getString(3));
+			}
+			metadataTables.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return containedTables;
+	}
+	
+	/*
+	 * Get total number of columns
+	 * 
+	 * @param table - the table from the database you want to get information from
+	 * @Return a hash map with the key being the name of the column and the value being the column type
+	 * Ali Finkelstein 
+	 * 15 July 2015
+	 */
+	public Map<String,String> getColumnAttribute(String databaseName, String tableName) throws NoDatabaseConnectionException, SQLException{
+		Connection conn = connectionKeeper.get(databaseName);
+		DatabaseMetaData baseMetaData = conn.getMetaData();
+		ResultSet rs = baseMetaData.getColumns(null,null,tableName,null);
+		HashMap<String,String> tableColumnAttrs = new HashMap<String,String>();
+		
+		while(rs.next()){
+			String name = rs.getString("COLUMN_NAME");
+			String type = rs.getString("TYPE_NAME");
+			tableColumnAttrs.put(name,type);
+		}
+		rs.close();
+		return tableColumnAttrs;
+	}
+	
+	
+	/*
+	 * Getting the number of distinct values in columnName from tableName
+	 * 
+	 * @param tableName - table to look into
+	 * @param columnName - name of the column
+	 * 
+	 * @throws SQLException is no connection can be made to the database
+	 * 
+	 * @return -1 if no values present
+	 * @return int number of distinct values present
+	 * Ali Finkelstein
+	 * 16 July 2015
+	 */
+	public int getDistinctValueCount(String databaseName, String tableName, String columnName) throws SQLException{
+		Connection conn = connectionKeeper.get(databaseName);
+		Statement pgQuery = conn.createStatement();
+		String queryStatement = "SELECT COUNT(DISTINCT "+columnName+") FROM "+tableName;
+		ResultSet pgResult = pgQuery.executeQuery(queryStatement);
+		int count = -1;
+		while(pgResult.next()){
+			count = pgResult.getInt(1);
+		}
+		pgQuery.close();
+		pgResult.close();
+		return count;
+	}
+	
 	
 
 }

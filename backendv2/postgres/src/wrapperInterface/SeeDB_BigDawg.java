@@ -1,5 +1,6 @@
 package wrapperInterface;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -107,7 +108,8 @@ public class SeeDB_BigDawg implements SeeDB_Backend {
 	}
 
 	@Override
-	public void executeQueryWithResult(String databaseName, String query) {
+	public ResultSet executeQueryWithResult(String databaseName, String query) {
+		return null;
 		// TODO Auto-generated method stub
 		
 	}
