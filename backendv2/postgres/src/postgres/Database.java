@@ -10,6 +10,9 @@ import java.util.Set;
 
 import org.postgresql.util.PSQLException;
 
+import seeDBExceptions.NoDatabaseConnectionException;
+import seeDBExceptions.NoMetaDataFoundException;
+
 /*
  * http://dev.mysql.com/doc/world-setup/en/
  * http://blog.manoharbhattarai.com.np/2013/04/03/execute-sql-file-from-command-line-in-postgresql/
@@ -61,7 +64,8 @@ public class Database {
 //			return;
 //		}
 	}
-	
+
+	/*
 //	public Database(String databaseName, String user, String password, Boolean debug){
 //		//Testing for presence of PostgreSQL Driver
 //		System.out.println("Testing PostgreSQL driver");
@@ -92,6 +96,7 @@ public class Database {
 ////			return;
 ////		}
 //	}
+	*/
 	
 	public Database(String databaseName){
 		//Testing for presence of PostgreSQL Driver
@@ -198,11 +203,13 @@ public class Database {
 	}
 	
 	/*
-	 * Queries the Database
+	 * Queries the Database  
 	 * 
 	 * https://jdbc.postgresql.org/documentation/head/query.html
 	 * 
 	 * 	//test query: SELECT * FROM authors;
+	 * @param query the string statement or query to be executed.
+	 * @return the resultset from the query. Be sure to close the resultset once you are finished with it. 
 	 * Ali Finkelstein 
 	 * 10 July 2015
 	 */
@@ -214,57 +221,6 @@ public class Database {
 		return queryResult;
 	}
 	
-	/*
-	 * Gets metadata for database and prints it out. 
-	 * 
-	 * Ali Finkelstein
-	 * 10 July 2015
-	 * @Deprecated
-	 */
-	@Deprecated
-	public void metadataFetch() throws SQLException{
-		
-		//Get Type info for database
-		ResultSet typeSet = baseMetaData.getTypeInfo();
-		System.out.println("typeSet info ---------------- ");
-		while(typeSet.next()){
-			System.out.println(typeSet.getString(1));
-		}
-		
-		System.out.println("////////////////////////");
-		ResultSet schemaSet = baseMetaData.getSchemas();
-		System.out.println("schema set info --------- ");
-		while(schemaSet.next()){
-			System.out.println(schemaSet.getString(1));
-		}	
-	}
-	
-	/*
-	 * Get names of all possible accessible tables 
-	 * 
-	 * Ali Finkelstein
-	 * 16 July 2015
-	 * [authors_pkey, books_id_pkey, books_title_idx, customers_pkey, employees_pkey, pkey, publishers_pkey, schedules_pkey, shipments_ship_id_key, state_pkey, stock_pkey, subjects_pkey, text_idx, unique_publisher_idx, author_ids, book_ids, shipments_ship_id_seq, subject_ids, pg_aggregate_fnoid_index, pg_am_name_index, pg_am_oid_index, pg_amop_fam_strat_index, pg_amop_oid_index, pg_amop_opr_fam_index, pg_amproc_fam_proc_index, pg_amproc_oid_index, pg_attrdef_adrelid_adnum_index, pg_attrdef_oid_index, pg_attribute_relid_attnam_index, pg_attribute_relid_attnum_index, pg_auth_members_member_role_index, pg_auth_members_role_member_index, pg_authid_oid_index, pg_authid_rolname_index, pg_cast_oid_index, pg_cast_source_target_index, pg_class_oid_index, pg_class_relname_nsp_index, pg_class_tblspc_relfilenode_index, pg_collation_name_enc_nsp_index, pg_collation_oid_index, pg_constraint_conname_nsp_index, pg_constraint_conrelid_index, pg_constraint_contypid_index, pg_constraint_oid_index, pg_conversion_default_index, pg_conversion_name_nsp_index, pg_conversion_oid_index, pg_database_datname_index, pg_database_oid_index, pg_db_role_setting_databaseid_rol_index, pg_default_acl_oid_index, pg_default_acl_role_nsp_obj_index, pg_depend_depender_index, pg_depend_reference_index, pg_description_o_c_o_index, pg_enum_oid_index, pg_enum_typid_label_index, pg_enum_typid_sortorder_index, pg_event_trigger_evtname_index, pg_event_trigger_oid_index, pg_extension_name_index, pg_extension_oid_index, pg_foreign_data_wrapper_name_index, pg_foreign_data_wrapper_oid_index, pg_foreign_server_name_index, pg_foreign_server_oid_index, pg_foreign_table_relid_index, pg_index_indexrelid_index, pg_index_indrelid_index, pg_inherits_parent_index, pg_inherits_relid_seqno_index, pg_language_name_index, pg_language_oid_index, pg_largeobject_loid_pn_index, pg_largeobject_metadata_oid_index, pg_namespace_nspname_index, pg_namespace_oid_index, pg_opclass_am_name_nsp_index, pg_opclass_oid_index, pg_operator_oid_index, pg_operator_oprname_l_r_n_index, pg_opfamily_am_name_nsp_index, pg_opfamily_oid_index, pg_pltemplate_name_index, pg_proc_oid_index, pg_proc_proname_args_nsp_index, pg_range_rngtypid_index, pg_rewrite_oid_index, pg_rewrite_rel_rulename_index, pg_seclabel_object_index, pg_shdepend_depender_index, pg_shdepend_reference_index, pg_shdescription_o_c_index, pg_shseclabel_object_index, pg_statistic_relid_att_inh_index, pg_tablespace_oid_index, pg_tablespace_spcname_index, pg_trigger_oid_index, pg_trigger_tgconstraint_index, pg_trigger_tgrelid_tgname_index, pg_ts_config_cfgname_index, pg_ts_config_map_index, pg_ts_config_oid_index, pg_ts_dict_dictname_index, pg_ts_dict_oid_index, pg_ts_parser_oid_index, pg_ts_parser_prsname_index, pg_ts_template_oid_index, pg_ts_template_tmplname_index, pg_type_oid_index, pg_type_typname_nsp_index, pg_user_mapping_oid_index, pg_user_mapping_user_server_index, sql_features, sql_implementation_info, sql_languages, sql_packages, sql_parts, sql_sizing, sql_sizing_profiles, pg_aggregate, pg_am, pg_amop, pg_amproc, pg_attrdef, pg_attribute, pg_auth_members, pg_authid, pg_cast, pg_class, pg_collation, pg_constraint, pg_conversion, pg_database, pg_db_role_setting, pg_default_acl, pg_depend, pg_description, pg_enum, pg_event_trigger, pg_extension, pg_foreign_data_wrapper, pg_foreign_server, pg_foreign_table, pg_index, pg_inherits, pg_language, pg_largeobject, pg_largeobject_metadata, pg_namespace, pg_opclass, pg_operator, pg_opfamily, pg_pltemplate, pg_proc, pg_range, pg_rewrite, pg_seclabel, pg_shdepend, pg_shdescription, pg_shseclabel, pg_statistic, pg_tablespace, pg_trigger, pg_ts_config, pg_ts_config_map, pg_ts_dict, pg_ts_parser, pg_ts_template, pg_type, pg_user_mapping, pg_toast_11976_index, pg_toast_11981_index, pg_toast_11986_index, pg_toast_11991_index, pg_toast_11996_index, pg_toast_12001_index, pg_toast_12006_index, pg_toast_1255_index, pg_toast_16386_index, pg_toast_16407_index, pg_toast_16417_index, pg_toast_16425_index, pg_toast_16433_index, pg_toast_16439_index, pg_toast_16452_index, pg_toast_16461_index, pg_toast_16468_index, pg_toast_16478_index, pg_toast_16485_index, pg_toast_16508_index, pg_toast_16517_index, pg_toast_16526_index, pg_toast_16537_index, pg_toast_16544_index, pg_toast_16558_index, pg_toast_16567_index, pg_toast_16573_index, pg_toast_16580_index, pg_toast_2396_index, pg_toast_2604_index, pg_toast_2606_index, pg_toast_2609_index, pg_toast_2618_index, pg_toast_2619_index, pg_toast_2620_index, pg_toast_2964_index, pg_toast_3596_index, _pg_foreign_data_wrappers, _pg_foreign_servers, _pg_foreign_table_columns, _pg_foreign_tables, _pg_user_mappings, administrable_role_authorizations, applicable_roles, attributes, character_sets, check_constraint_routine_usage, check_constraints, collation_character_set_applicability, collations, column_domain_usage, column_options, column_privileges, column_udt_usage, columns, constraint_column_usage, constraint_table_usage, data_type_privileges, domain_constraints, domain_udt_usage, domains, element_types, enabled_roles, foreign_data_wrapper_options, foreign_data_wrappers, foreign_server_options, foreign_servers, foreign_table_options, foreign_tables, information_schema_catalog_name, key_column_usage, parameters, referential_constraints, role_column_grants, role_routine_grants, role_table_grants, role_udt_grants, role_usage_grants, routine_privileges, routines, schemata, sequences, table_constraints, table_privileges, tables, triggered_update_columns, triggers, udt_privileges, usage_privileges, user_defined_types, user_mapping_options, user_mappings, view_column_usage, view_routine_usage, view_table_usage, views, pg_available_extension_versions, pg_available_extensions, pg_cursors, pg_group, pg_indexes, pg_locks, pg_matviews, pg_prepared_statements, pg_prepared_xacts, pg_replication_slots, pg_roles, pg_rules, pg_seclabels, pg_settings, pg_shadow, pg_stat_activity, pg_stat_all_indexes, pg_stat_all_tables, pg_stat_archiver, pg_stat_bgwriter, pg_stat_database, pg_stat_database_conflicts, pg_stat_replication, pg_stat_sys_indexes, pg_stat_sys_tables, pg_stat_user_functions, pg_stat_user_indexes, pg_stat_user_tables, pg_stat_xact_all_tables, pg_stat_xact_sys_tables, pg_stat_xact_user_functions, pg_stat_xact_user_tables, pg_statio_all_indexes, pg_statio_all_sequences, pg_statio_all_tables, pg_statio_sys_indexes, pg_statio_sys_sequences, pg_statio_sys_tables, pg_statio_user_indexes, pg_statio_user_sequences, pg_statio_user_tables, pg_stats, pg_tables, pg_timezone_abbrevs, pg_timezone_names, pg_user, pg_user_mappings, pg_views, alternate_stock, authors, book_backup, book_queue, books, customers, daily_inventory, distinguished_authors, editions, employees, favorite_authors, favorite_books, money_example, my_list, numeric_values, publishers, schedules, shipments, states, stock, stock_backup, subjects, text_sorting, recent_shipments, stock_view, pg_toast_11976, pg_toast_11981, pg_toast_11986, pg_toast_11991, pg_toast_11996, pg_toast_12001, pg_toast_12006, pg_toast_1255, pg_toast_16386, pg_toast_16407, pg_toast_16417, pg_toast_16425, pg_toast_16433, pg_toast_16439, pg_toast_16452, pg_toast_16461, pg_toast_16468, pg_toast_16478, pg_toast_16485, pg_toast_16508, pg_toast_16517, pg_toast_16526, pg_toast_16537, pg_toast_16544, pg_toast_16558, pg_toast_16567, pg_toast_16573, pg_toast_16580, pg_toast_2396, pg_toast_2604, pg_toast_2606, pg_toast_2609, pg_toast_2618, pg_toast_2619, pg_toast_2620, pg_toast_2964, pg_toast_3596]
-	 */
-	@Deprecated
-	public String[] accessableTables() throws NoDatabaseConnectionException{
-		if (connection == null){
-			throw new NoDatabaseConnectionException("No database found to connect");
-		}
-		
-		ArrayList<String> tableArrList = new ArrayList<String>();
-
-		//gotta check metadata connection too. eventually.. i should write a method for this. 
-		try {
-			ResultSet tableResultSet = baseMetaData.getTables(null,null,"%",null);
-			while (tableResultSet.next()){
-				tableArrList.add(tableResultSet.getString(3));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return tableArrList.toArray(new String[tableArrList.size()]);
-	}
 	
 	/*
 	 * Because I dont know what a schema is. 
@@ -286,6 +242,9 @@ public class Database {
 		if (connection == null){
 			throw new NoDatabaseConnectionException("No database found to connect");
 		}
+		if (baseMetaData == null){
+			baseMetaData = connection.getMetaData();
+		}
 		ResultSet rs = baseMetaData.getColumns(null,null,tableName,null);
 		HashMap<String,String> tableColumnAttrs = new HashMap<String,String>();
 		
@@ -294,6 +253,7 @@ public class Database {
 			String type = rs.getString("TYPE_NAME");
 			tableColumnAttrs.put(name,type);
 		}
+		rs.close();
 		return tableColumnAttrs;
 	}
 	
@@ -301,13 +261,12 @@ public class Database {
 	 * Execute a query/statement for the SQL database, and return the resulting data
 	 * 
 	 * @param statement - SQL query string
-	 * @return result set containing query results
+	 * @return result set containing query results. be sure to close the resultset once you are completed with it. 
 	 * @throws SQLException upon failure of query/statement execution
 	 */
 	public ResultSet executeStatementWithResult(String statement) throws SQLException{
 		Statement stmntToExecute = connection.createStatement();
 		ResultSet statementResult = stmntToExecute.executeQuery(statement);
-		stmntToExecute.close();
 		return statementResult;	
 	}
 	
@@ -318,10 +277,9 @@ public class Database {
 	 * @throws SQLException upon failure of query/statement execution
 	 */
 	public void executeStatementNoResult(String statement) throws SQLException{
-		Statement stmntToExecute = connection.createStatement();
-		ResultSet statementResult = stmntToExecute.executeQuery(statement);
+		PreparedStatement stmntToExecute = connection.prepareStatement(statement);
+		stmntToExecute.executeUpdate();
 		stmntToExecute.close();
-		statementResult.close();
 	}
 	
 	/*
@@ -336,13 +294,11 @@ public class Database {
 		Statement pgQuery = connection.createStatement();
 		String queryStatement = "SELECT count(*) FROM "+tableName;
 		ResultSet queryResult = pgQuery.executeQuery(queryStatement);
-		//printResultSet(queryResult);
 		queryResult.next();
-		//int result = queryResult.getInt(1);
+		int result = queryResult.getInt(1);
 		queryResult.close();
 		pgQuery.close();
-		//return result;
-		return queryResult.getInt(1);
+		return result;
 	}
 
 	/*
@@ -394,6 +350,8 @@ public class Database {
 		while(pgResult.next()){
 			count = pgResult.getInt(1);
 		}
+		pgQuery.close();
+		pgResult.close();
 		return count;
 	}
 	
@@ -407,11 +365,17 @@ public class Database {
 	public void printResultSet(ResultSet rs) throws SQLException{
 		ResultSetMetaData rsmd = rs.getMetaData();
 		int colNumber = rsmd.getColumnCount();
+		System.out.println(Integer.toString(colNumber));
+		for (int i=1; i<=colNumber;i++){
+			if(i>1 && i<=colNumber) System.out.print(" - ");
+			System.out.print(rsmd.getColumnName(i));
+		}
+		System.out.println("");
 		while (rs.next()){
 			for(int i = 1; i<=colNumber; i++){
-				if(i>1) System.out.println(",  ");
-				String val = rs.getString(1);
-				System.out.println(val+" "+rsmd.getColumnName(i));
+				if(i>1 && i<=colNumber) System.out.print(" - ");
+				String val = rs.getString(i);
+				System.out.print(val);
 			}
 			System.out.println("");
 		}
@@ -432,7 +396,7 @@ public class Database {
 			while (metadataTables.next()){
 				containedTables.add(metadataTables.getString(3));
 			}
-			printResultSet(metadataTables);
+			metadataTables.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

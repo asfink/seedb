@@ -1,5 +1,4 @@
-/postgres
-/apiWrapper
-/SeeDBBknd.class
-/SeeDB_Backend.class
+/database
 /wrapperInterface
+/apiWrapper
+/postgres

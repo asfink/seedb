@@ -17,6 +17,8 @@ import org.postgresql.util.PSQLException;
 import org.junit.rules.*;
 
 import postgres.Database;
+import seeDBExceptions.NoDatabaseConnectionException;
+import seeDBExceptions.NoMetaDataFoundException;
 
 public class DatabaseTest {
 	private static Database functional;
@@ -58,20 +60,42 @@ public class DatabaseTest {
 	
 	//should make to try catch
 	@Test 
-	public void testUniqueColumnValueCount() throws SQLException{
-		int countVal = functional.getDistinctValueCount("stock", "cost");
-		assertEquals(12, countVal);
+	public void testUniqueColumnValueCount(){
+		try{
+			int countVal = functional.getDistinctValueCount("stock", "cost");
+			assertEquals(12, countVal);
+		} catch(SQLException e){
+			assert(false);
+		}
 	}
 	
 	@Test
-	public void schemaTest() throws SQLException{
-		assertEquals("$user",functional.getSchema().toString());
+	public void schemaTest() {
+		try{
+			assertEquals("$user",functional.getSchema().toString());
+		} catch (SQLException e) {
+			assert(false);
+		}
 	}
 	
-	//should make to try catch
+	
 	@Test 
-	public void columnAttributeTest() throws NoDatabaseConnectionException, SQLException{
-		Map<String,String> returnedColumnAttr = functional.getColumnAttribute("stock");
+	public void verifyMetaDataObjectCreated(){
+		
+	}
+	
+	//Test to see if the getColumnAttribute() method works properly using a functional DB and table name
+	@Test 
+	public void columnAttributeTest(){
+		Map<String,String> returnedColumnAttr = null;
+		try{
+			returnedColumnAttr = functional.getColumnAttribute("stock");
+		} catch (NoDatabaseConnectionException | SQLException e){
+			if (e.getClass().equals(NoDatabaseConnectionException.class)) System.out.println("NoDatabaseConnectionException");
+			else if (e.getClass().equals(SQLException.class)) System.out.println("SQLException");
+			assert(false);
+			return;
+		}
 		Map<String,String> expectedColumnAttr = new HashMap<String,String>();
 		expectedColumnAttr.put("stock","int4");
 		expectedColumnAttr.put("isbn","text");
@@ -82,7 +106,7 @@ public class DatabaseTest {
 
 	//should make to try catch
 	@Test
-	public void getTablesInDBTest() throws SQLException{
+	public void getTablesInDBTest(){
 		Set<String> countedTables = functional.getTables();
 		String[] expectedTableNames = {"alternate_stock", "author_ids","authors","book_backup","book_ids","book_queue","books", "customers","daily_inventory","distinguished_authors","editions","employees","favorite_authors","favorite_books","money_example","my_list","numeric_values","publishers","recent_shipments","schedules","shipments","shipments_ship_id_seq","states","stock","stock_backup","stock_view","subject_ids","subjects","text_sorting"};
 		Set<String> expectedSet = new HashSet<String>(Arrays.asList(expectedTableNames));
@@ -90,27 +114,32 @@ public class DatabaseTest {
 		assertEquals(expectedSet,countedTables);
 	}
 
-	//testing if statements are executed
+	//Test to see if the executeStatementWithResult() method works properly, with a functional statement and a proper return set.
 	@Test
 	public void executeStatementResultTest(){
+		ResultSet receivedResult = null;
 		try {
-			ResultSet receivedResult = functional.executeStatementWithResult("SELECT count(*) FROM stock");
-			int responseVal = receivedResult.getInt(1);
+			receivedResult = functional.executeStatementWithResult("SELECT count(*) FROM stock;");
+			receivedResult.next();
+			int responseVal = receivedResult.getInt("count");
 			assertEquals(16,responseVal);
+			receivedResult.close();
 		} catch (SQLException e) {
+			//e.printStackTrace();
 			assertFalse(true);
-			e.printStackTrace();
 		}
 	}
 
 	//testing to see if error is thrown on false statement
-	@Test (expected=PSQLException.class)
+	@Test
 	public void executeStatementResultFailTest(){
+		ResultSet receivedResult = null;
 		try {
-			ResultSet receivedResult = functional.executeStatementWithResult("SELECT count(*) FROM stock");
+			receivedResult = functional.executeStatementWithResult("SELECT count(*) FROM stocks");
+			assertTrue(false);
+			receivedResult.close();
 		} catch (SQLException e) {
 			assertTrue(true);
-			e.printStackTrace();
 		}
 	}
 
@@ -118,14 +147,15 @@ public class DatabaseTest {
 	@Test
 	public void testRowCount()
 	{
+		boolean catchActivated = false;
 		try{
 			int resultCount = functional.getRowCount("stock");
 			assertEquals(16,resultCount);
 		}
 		catch(SQLException e){
-			assertFalse(true);
 			e.printStackTrace();
+			catchActivated = true;
 		}
-		
+		assert(!catchActivated);
 	}
 }

@@ -1,4 +1,4 @@
-package postgres;
+package seeDBExceptions;
 
 public class NoDatabaseConnectionException extends Exception{
 	/**

@@ -83,8 +83,7 @@ public interface SeeDB_Backend {
 	 * @return an array of strings containing the names of the columns 
 	 */
 	public String[] getMeasures(String databaseName, String tableName);
-	
-	
+		
 	/*
 	 * Gets the names of columns that are dimensions in the table
 	 * 

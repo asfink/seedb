@@ -1,7 +1,8 @@
-package apiWrapper;
+package wrapperInterface;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,43 +12,50 @@ import java.util.Set;
 import postgres.Database;
 import seeDBExceptions.NoDatabaseConnectionException;
 
-public class DatabaseConnectionWrapper {
+
+public class SeeDB_PostgreSQL implements SeeDB_Backend{
 	private static int DISTINCT_DIMENSION_COUNT = 20;
 	private Map<String, Database> connectionKeeper;
-
-	/*
-	 * Establishes ability to connect to database
-	 * 
-	 * 20 July 2015
-	 */
-	public DatabaseConnectionWrapper() {
+	
+	public SeeDB_PostgreSQL(){
+		System.out.println("Testing PostgreSQL driver");
+		try {
+			Class.forName("org.postgresql.Driver");
+			System.out.println("PostgreSQL Driver Found");
+		} catch(ClassNotFoundException e){
+			System.out.println("Driver not found");
+			e.printStackTrace();
+			return;
+		}
+		
 		connectionKeeper = new HashMap<String, Database>();
 	}
-
-	/*
-	 * Establishes connection to database
-	 * 
-	 * 20 July 2015
-	 */
+	
+	@Override
 	public void connectToDB(String databaseName, String address,
 			String username, String password) {
 		Database connectionDB = new Database();
-		connectionDB.connect(databaseName, address, username, password);
-		connectionKeeper.put(databaseName, connectionDB);
+		Connection connection = null; 
+		try{
+			connection = DriverManager.getConnection("jdbc:postgresql://"+address+"/"+dbName,user,password);
+		} catch (SQLException e){
+			System.out.println("Connection Failed.");
+			e.printStackTrace();
+			return;
+		}
+		
+		try {
+			baseMetaData = connection.getMetaData();
+		} catch (SQLException e) {
+			System.out.println("Unable to pull metadata.");
+			e.printStackTrace();
+			return;
+		}
+		connectionKeeper.put(databaseName, connectionDB);		
 	}
 
-	public Boolean validateDatabaseConnection(String databaseName) {
-		Database db = connectionKeeper.get(databaseName);
-		return db.verifyConnection();
-	}
-
-	/*
-	 * Makes a new table in the DB for SeeDB to use for it's analysis.
-	 * 
-	 * 
-	 * @throws SQLException if no database is able to be found or no metadata
-	 * available. 20 July 2015
-	 */
+	
+	@Override
 	public void populateTableInfoForDB(String databaseName) {
 		Set<String> tablesInDB = null;
 		Database db = connectionKeeper.get(databaseName);
@@ -124,9 +132,79 @@ public class DatabaseConnectionWrapper {
 				return;
 			}
 		}
-
+		
 	}
 
+	@Override
+	public Set<String> getTableInfoForDB(String databaseName) {
+		Database db = connectionKeeper.get(databaseName);
+		return db.getTables();
+	}
+
+	//NOT SURE WHAT TO MAKE THE RETURN TYPE
+	@Override
+	public void executeQueryWithResult(String databaseName, String query) {
+		Database db = connectionKeeper.get(databaseName);
+		try {
+			db.executeStatementWithResult(query);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("query unsuccessful");
+		}		
+	}
+
+	@Override
+	public void executeStatement(String databaseName, String query) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String[] getMeasures(String databaseName, String tableName) {
+		// the query string for getting all columns that fall under measurements
+		String queryString = "SELECT columnName FROM seeDB_schema"
+				+ "WHERE (table ='" + tableName + "') "
+				+ "AND (seedbType='measure');";
+
+		ArrayList<String> queryResultArrList = new ArrayList<String>();
+		Database db = connectionKeeper.get(databaseName);
+		try {
+			ResultSet queryResults = db.executeStatementWithResult(queryString);
+			while (queryResults.next()) {
+				queryResultArrList.add(queryResults.getString(1));
+			}
+			return queryResultArrList.toArray(new String[queryResultArrList
+					.size()]);
+		} catch (SQLException e) {
+			System.out.println("Unable to execute query statement "
+					+ queryString);
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public String[] getDimensions(String databaseName, String tableName) {
+		String queryString = "SELECT columnName FROM seeDB_schema"
+				+ "WHERE (table ='" + tableName + "') "
+				+ "AND (seedbType='dimension');";
+		ArrayList<String> queryResultArrList = new ArrayList<String>();
+		Database db = connectionKeeper.get(databaseName);
+		try {
+			ResultSet queryResults = db.executeStatementWithResult(queryString);
+			while (queryResults.next()) {
+				queryResultArrList.add(queryResults.getString(1));
+			}
+			return queryResultArrList.toArray(new String[queryResultArrList
+					.size()]);
+		} catch (SQLException e) {
+			System.out.println("Unable to execute query statement "
+					+ queryString);
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	/*
 	 * Gives a classifier based on the SEEDB column type and number of distinct
 	 * values
@@ -147,118 +225,6 @@ public class DatabaseConnectionWrapper {
 		}
 		return "other";
 	}
-
-	/*
-	 * Output's the database tables :P
-	 * 
-	 * @return a set of strings containing the names of all the tables
-	 */
-	public Set<String> getTableInfoForDB(String database) {
-		Database db = connectionKeeper.get(database);
-		return db.getTables();
-	}
-
-	/*
-	 * 
-	 */
-	public ResultSet executeQueryWithResult(String query, String database) {
-		Database db = connectionKeeper.get(database);
-		try {
-			return db.executeStatementWithResult(query);
-		} catch (SQLException e) {
-			e.printStackTrace();
-			System.out.println("query unsuccessful");
-			return null;
-		}
-	}
-
-	/*
-	 * Queries database for all columns that represent dimensons.
-	 * 
-	 * @returns array of strings that are the columns that represent dimensions.
-	 * 
-	 * @returns null if query was unsuccessful
-	 * 
-	 * 21 July 2015
-	 */
-	public String[] getDimensions(String tableName, String database) {
-		String queryString = "SELECT columnName FROM seeDB_schema"
-				+ "WHERE (table ='" + tableName + "') "
-				+ "AND (seedbType='dimension');";
-		ArrayList<String> queryResultArrList = new ArrayList<String>();
-		Database db = connectionKeeper.get(database);
-		try {
-			ResultSet queryResults = db.executeStatementWithResult(queryString);
-			while (queryResults.next()) {
-				queryResultArrList.add(queryResults.getString(1));
-			}
-			return queryResultArrList.toArray(new String[queryResultArrList
-					.size()]);
-		} catch (SQLException e) {
-			System.out.println("Unable to execute query statement "
-					+ queryString);
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	/*
-	 * Queries database for all columns that represent measurements.
-	 * 
-	 * @returns array of strings that are the columns that represent
-	 * measurements.
-	 * 
-	 * @returns null if query was unsuccessful
-	 * 
-	 * 21 July 2015
-	 */
-	public String[] getMeasures(String tableName, String dbName) {
-		// the query string for getting all columns that fall under measurements
-		String queryString = "SELECT columnName FROM seeDB_schema"
-				+ "WHERE (table ='" + tableName + "') "
-				+ "AND (seedbType='measure');";
-
-		ArrayList<String> queryResultArrList = new ArrayList<String>();
-		Database db = connectionKeeper.get(dbName);
-		try {
-			ResultSet queryResults = db.executeStatementWithResult(queryString);
-			while (queryResults.next()) {
-				queryResultArrList.add(queryResults.getString(1));
-			}
-			return queryResultArrList.toArray(new String[queryResultArrList
-					.size()]);
-		} catch (SQLException e) {
-			System.out.println("Unable to execute query statement "
-					+ queryString);
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	public Map<String, String[]> getInfoForTable(String databaseName,
-			String tableName) {
-		return null;
-	}
 	
-	/*
-	 * Prints out the view of the result set
-	 */
-	
-	public void printResultSet(ResultSet rs) throws SQLException{
-		ResultSetMetaData rsmd = rs.getMetaData();
-		int colNumber = rsmd.getColumnCount();
-		for (int i=1; i<=colNumber;i++){
-			if(i>1 && i<=colNumber) System.out.print(" - ");
-			System.out.print(rsmd.getColumnName(i));
-		}
-		System.out.println("");
-		while (rs.next()){
-			for(int i = 1; i<=colNumber; i++){
-				if(i>1 && i<=colNumber) System.out.print(" - ");
-				String val = rs.getString(i);
-				System.out.print(val);
-			}
-			System.out.println("");
-		}
-	}
+
 }
