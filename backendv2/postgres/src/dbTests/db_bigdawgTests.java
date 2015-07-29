@@ -1,9 +1,10 @@
-package tests;
+package dbTests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -11,24 +12,25 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import seeDBExceptions.NoDatabaseConnectionException;
-import wrapperInterface.SeeDB_PostgreSQL;
+import dbExceptions.NoDatabaseConnectionException;
+import dbWrapper.Database_BigDawg;
 
-public class db_postgresqlTests {
-	private static SeeDB_PostgreSQL functional;
+public class db_bigdawgTests {
+	private static Database_BigDawg functional;
 	public static String DBNAME = "booktown";
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
 
 	@BeforeClass
 	public static void setUpBefore() {
-		functional = new SeeDB_PostgreSQL();
+		functional = new Database_BigDawg();
 		try {
 			functional.connectToDB("booktown", "jdbc:postgresql://localhost/",
 					"postgres", "123");
@@ -51,7 +53,7 @@ public class db_postgresqlTests {
 					"postgres", "123");
 			assert (functional.verifyConnection(DBNAME));
 		} catch (NoDatabaseConnectionException e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 			assert (true);
 		}
 	}
@@ -62,10 +64,10 @@ public class db_postgresqlTests {
 		try {
 			functional.connectToDB("booktown", "jdbc:postgresql://localhost/",
 					"meow", "123");
-			assert(functional.verifyConnection(DBNAME));
+			assert (functional.verifyConnection(DBNAME));
 		} catch (NoDatabaseConnectionException e) {
-			//e.printStackTrace();
-			assert(true);
+			// e.printStackTrace();
+			assert (true);
 		}
 	}
 
@@ -162,7 +164,7 @@ public class db_postgresqlTests {
 	public void executeStatementResultFailTest() {
 		ResultSet receivedResult = functional.executeQueryWithResult(DBNAME,
 				"SELECT count(*) FROM stocks");
-		assertEquals(receivedResult,null);
+		assertEquals(receivedResult, null);
 	}
 
 	// testing if row count works properly
@@ -173,21 +175,22 @@ public class db_postgresqlTests {
 			int resultCount = functional.getRowCount(DBNAME, "stock");
 			assertEquals(16, resultCount);
 		} catch (SQLException e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 			catchActivated = true;
 		}
 		assert (!catchActivated);
 	}
-	
 
-	@Test 
-	public void testCBDTablePopulation() throws SQLException{
+	@Test
+	public void testCBDTablePopulation() throws SQLException {
 		functional.populateTableInfoForDB(DBNAME);
-		ResultSet result = functional.executeQueryWithResult(DBNAME,"SELECT * FROM seedb_schema");
 		int rowCount = functional.getRowCount(DBNAME, "seedb_schema");
 		int colCount = functional.getColumnCount(DBNAME, "seedb_schema");
-		assertEquals(120,rowCount);
-		assertEquals(5,colCount);
-		
+		assertEquals(120, rowCount);
+		assertEquals(5, colCount);
+
 	}
+	
+
+	
 }

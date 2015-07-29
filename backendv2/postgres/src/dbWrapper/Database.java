@@ -1,41 +1,47 @@
-package wrapperInterface;
+package dbWrapper;
 
 import java.sql.ResultSet;
 import java.util.Set;
 
-import seeDBExceptions.NoDatabaseConnectionException;
+import dbExceptions.NoDatabaseConnectionException;
 
 /**
  * Connect to the seeDB backend to allow for computations to DB? something
  * 
  * @author Ali Finkelstein
  */
-public interface SeeDB_Backend {
+public interface Database {
 
 	/**
 	 * Establishes connection to a database.
 	 * 
-	 * @param databaseName the database to which connections will be established
+	 * @param databaseName
+	 *            the database to which connections will be established
 	 * 
-	 * @param address IP address/weblocation of the database to connect to
+	 * @param address
+	 *            IP address/weblocation of the database to connect to
 	 * 
-	 * @param username user name for database login information
+	 * @param username
+	 *            user name for database login information
 	 * 
-	 * @param password password for database login information
+	 * @param password
+	 *            password for database login information
 	 * 
 	 * @author Ali Finkelstein
 	 * 
 	 * @date 27 July 2015
 	 */
 	public void connectToDB(String databaseName, String address,
-			String username, String password) throws NoDatabaseConnectionException;
+			String username, String password)
+			throws NoDatabaseConnectionException;
 
 	/**
 	 * Populates a table in the Database to use for calculations and searches
 	 * for the SeeDB project. Either it creates a new table, if possible, or
 	 * uses table that already exists.
 	 * 
-	 * @param databaseName name of the database to connect to
+	 * @param databaseName
+	 *            name of the database to connect to
 	 * 
 	 * @author Ali Finkelstein
 	 * 
@@ -46,7 +52,8 @@ public interface SeeDB_Backend {
 	/**
 	 * Returns a set listing all of the tables available in a given database
 	 * 
-	 * @param databaseName the database which we are getting information about
+	 * @param databaseName
+	 *            the database which we are getting information about
 	 * 
 	 * @return a set of the possible tables
 	 * 
@@ -60,7 +67,8 @@ public interface SeeDB_Backend {
 	 * Executes a query on a given database and returns the results of the query
 	 * if possible.
 	 * 
-	 * @param databaseName the database which is being queried
+	 * @param databaseName
+	 *            the database which is being queried
 	 * 
 	 * @return TODO:decide the return type
 	 */
@@ -69,31 +77,41 @@ public interface SeeDB_Backend {
 	/**
 	 * Executes query on a database and does not return a result of any type
 	 * 
-	 * @param databaseName the database the statement will be executed upon
-	 * @param query string of the statement to be executed on the DB
+	 * @param databaseName
+	 *            the database the statement will be executed upon
+	 * @param query
+	 *            string of the statement to be executed on the DB
 	 * 
 	 * @Author Ali Finkelstein
 	 * @date 27 July 2015
 	 */
 	public void executeStatement(String databaseName, String statement);
-	
+
 	/**
 	 * Gets the names of columns that are measurements in the table
 	 * 
-	 * @param databaseName the database than contains the table
-	 * @param tableName the name of the table to get the classifications
+	 * @param databaseName
+	 *            the database than contains the table
+	 * @param tableName
+	 *            the name of the table to get the classifications
 	 * 
-	 * @return an array of strings containing the names of the columns 
+	 * @return an array of strings containing the names of the columns
+	 * 
+	 * @author asfink
 	 */
 	public String[] getMeasures(String databaseName, String tableName);
-		
+
 	/**
 	 * Gets the names of columns that are dimensions in the table
 	 * 
-	 * @param databaseName the database than contains the table
-	 * @param tableName the name of the table to get the classifications
+	 * @param databaseName
+	 *            the database than contains the table
+	 * @param tableName
+	 *            the name of the table to get the classifications
 	 * 
-	 * @return an array of strings containing the names of the columns 
+	 * @return an array of strings containing the names of the columns
+	 * 
+	 * @author asfink
 	 */
 	public String[] getDimensions(String databaseName, String tableName);
 }

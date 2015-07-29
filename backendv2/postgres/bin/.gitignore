@@ -1,4 +1,2 @@
-/tests
-/wrapperInterface
-/apiWrapper
-/postgres
+/dbTests
+/dbWrapper

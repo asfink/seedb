@@ -1,4 +1,4 @@
-package seeDBExceptions;
+package dbExceptions;
 
 public class NoDatabaseConnectionException extends Exception{
 	/**

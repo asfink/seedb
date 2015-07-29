@@ -1,5 +1,6 @@
-package wrapperInterface;
+package dbWrapper;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -12,14 +13,22 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
-import seeDBExceptions.NoDatabaseConnectionException;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
+import org.apache.http.impl.nio.client.HttpAsyncClients;
 
-public class SeeDB_PostgreSQL implements SeeDB_Backend {
+import dbExceptions.NoDatabaseConnectionException;
+
+///http://128.52.183.245:8000/
+public class Database_BigDawg implements Database {
 	private static int DISTINCT_DIMENSION_COUNT = 20;
 	private Map<String, Connection> connectionKeeper;
 
-	public SeeDB_PostgreSQL() {
+	public Database_BigDawg() {
 		System.out.println("Testing PostgreSQL driver");
 		try {
 			Class.forName("org.postgresql.Driver");
@@ -51,10 +60,13 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend {
 		connectionKeeper.put(databaseName, connection);
 	}
 
-	/*
+	/**
 	 * Verifies that a connection was made to the database
 	 * 
-	 * Ali Finkelstein 15 July 2015
+	 * @param databaseName
+	 *            name of the database to verify
+	 * @author Ali Finkelstein
+	 * @date 15 July 2015
 	 */
 	public boolean verifyConnection(String databaseName) {
 		Connection conn = connectionKeeper.get(databaseName);
@@ -209,11 +221,14 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend {
 	 * Gives a classifier based on the SEEDB column type and number of distinct
 	 * values
 	 * 
-	 * @param type - type of the column as assigned by PostgreSQL
+	 * @param type
+	 *            - type of the column as assigned by PostgreSQL
 	 * 
-	 * @param distinctCount - number of distinct values in a column
+	 * @param distinctCount
+	 *            - number of distinct values in a column
 	 * 
-	 * 21 July 2015
+	 * @date 21 July 2015
+	 * @author Ali Finkelstein
 	 */
 	private String getSeeDBType(String type, int distinctCount) {
 		if (distinctCount <= DISTINCT_DIMENSION_COUNT
@@ -229,12 +244,15 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend {
 	/**
 	 * Gets the row count for the given table
 	 * 
-	 * @param tableName - name of the table in the database to analyze
+	 * @param tableName
+	 *            - name of the table in the database to analyze
 	 * 
-	 * @throws SQLException if statement could not be created to allow querying
-	 * of row count
+	 * @throws SQLException
+	 *             if statement could not be created to allow querying of row
+	 *             count
 	 * 
-	 * Ali Finkelstein 16 July 2015
+	 * @author Ali Finkelstein
+	 * @date 16 July 2015
 	 */
 	public int getRowCount(String databaseName, String tableName)
 			throws SQLException {
@@ -253,9 +271,12 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend {
 	 * Gets name of all tables in the DB
 	 * 
 	 * @Throws SQLException if unable to connect to DB or get metadata
-	 * information
+	 *         information
 	 * 
-	 * @param databaseName 20 July 2015
+	 * @param databaseName
+	 *            the name of the database
+	 * 
+	 * @date 20 July 2015
 	 */
 	public Set<String> getTables(String databaseName) {
 		Connection conn = connectionKeeper.get(databaseName);
@@ -279,11 +300,11 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend {
 	/**
 	 * Gets column information and attributes.
 	 * 
-	 * @param table - the table from the database you want to get information
-	 * from
+	 * @param table
+	 *            - the table from the database you want to get information from
 	 * 
 	 * @Return a hash map with the key being the name of the column and the
-	 * value being the column type Ali Finkelstein 15 July 2015
+	 *         value being the column type Ali Finkelstein 15 July 2015
 	 */
 	public Map<String, String> getColumnAttribute(String databaseName,
 			String tableName) throws SQLException {
@@ -304,12 +325,14 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend {
 	/**
 	 * Gets the total number of columns in a database
 	 * 
-	 * @param databaseName the database that contains the table
+	 * @param databaseName
+	 *            the database that contains the table
 	 * 
-	 * @param tableName the name of the table to exam
+	 * @param tableName
+	 *            the name of the table to exam
 	 * 
 	 * @returns an integer that is the total number of columns in the given
-	 * table
+	 *          table
 	 */
 	public int getColumnCount(String databaseName, String tableName)
 			throws SQLException {
@@ -327,16 +350,20 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend {
 	/**
 	 * Getting the number of distinct values in columnName from tableName
 	 * 
-	 * @param tableName - table to look into
+	 * @param tableName
+	 *            - table to look into
 	 * 
-	 * @param columnName - name of the column
+	 * @param columnName
+	 *            - name of the column
 	 * 
-	 * @throws SQLException is no connection can be made to the database
+	 * @throws SQLException
+	 *             is no connection can be made to the database
 	 * 
 	 * @return -1 if no values present
 	 * 
-	 * @return int number of distinct values present Ali Finkelstein 16 July
-	 * 2015
+	 * @return number of distinct values present
+	 * @author Ali Finkelstein
+	 * @date 16 July 2015
 	 */
 	public int getDistinctValueCount(String databaseName, String tableName,
 			String columnName) throws SQLException {
@@ -354,4 +381,25 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend {
 		return count;
 	}
 
+	/**
+	 * For connecting to the thing
+	 * @param meow
+	 * @throws IOException
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
+	 */
+	public void sendSansResponse(String meow) throws IOException, InterruptedException, ExecutionException {
+		CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
+		try {
+			httpclient.start();
+			HttpGet request = new HttpGet("http://www.apache.org/");
+			Future<HttpResponse> future = httpclient.execute(request, null);
+			HttpResponse response = future.get();
+			System.out.println("Response: " + response.getStatusLine());
+			System.out.println("Shutting down");
+		} finally {
+			httpclient.close();
+		}
+		System.out.println("Done");
+	}
 }
