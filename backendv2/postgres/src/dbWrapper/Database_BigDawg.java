@@ -1,6 +1,8 @@
 package dbWrapper;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -18,6 +20,7 @@ import java.util.concurrent.Future;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
 
@@ -392,14 +395,21 @@ public class Database_BigDawg implements Database {
 		CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
 		try {
 			httpclient.start();
-			HttpGet request = new HttpGet("http://www.apache.org/");
-			Future<HttpResponse> future = httpclient.execute(request, null);
+			//HttpGet request = new HttpGet("http://www.apache.org/");
+            HttpPost httppost = new HttpPost("http://httpbin.org/post");
+
+			Future<HttpResponse> future = httpclient.execute(httppost, null);
 			HttpResponse response = future.get();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+			StringBuilder builder = new StringBuilder();
+			for (String line = null; (line = reader.readLine()) != null;) {
+			    builder.append(line).append("\n");
+			}
+			System.out.println(builder.toString());
 			System.out.println("Response: " + response.getStatusLine());
 			System.out.println("Shutting down");
 		} finally {
 			httpclient.close();
 		}
-		System.out.println("Done");
 	}
 }
