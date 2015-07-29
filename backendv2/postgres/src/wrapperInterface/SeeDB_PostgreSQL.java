@@ -1,11 +1,5 @@
 package wrapperInterface;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.OutputStreamWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -18,18 +12,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.HttpClientBuilder;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.URL;
-import java.net.URLConnection;
 
 import seeDBExceptions.NoDatabaseConnectionException;
 
@@ -47,7 +29,6 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend {
 			e.printStackTrace();
 			return;
 		}
-
 		connectionKeeper = new HashMap<String, Connection>();
 	}
 
@@ -57,8 +38,8 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend {
 			throws NoDatabaseConnectionException {
 		Connection connection = null;
 		try {
-			connection = DriverManager.getConnection("jdbc:postgresql://"
-					+ address + "/" + databaseName, username, password);
+			connection = DriverManager.getConnection(address + databaseName,
+					username, password);
 		} catch (SQLException e) {
 			System.out.println("Connection Failed.");
 			e.printStackTrace();
@@ -68,6 +49,16 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend {
 			throw new NoDatabaseConnectionException(
 					"No database found to connect");
 		connectionKeeper.put(databaseName, connection);
+	}
+
+	/*
+	 * Verifies that a connection was made to the database
+	 * 
+	 * Ali Finkelstein 15 July 2015
+	 */
+	public boolean verifyConnection(String databaseName) {
+		Connection conn = connectionKeeper.get(databaseName);
+		return conn != null;
 	}
 
 	@Override
@@ -126,10 +117,6 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend {
 
 					executeStatement(databaseName, insertDataStatement);
 				}
-			} catch (NoDatabaseConnectionException e) {
-				System.out.println("ERR: Unable to access table information");
-				e.printStackTrace();
-				return;
 			} catch (SQLException e) {
 				System.out.println("ERR: SQLException Thrown");
 				e.printStackTrace();
@@ -218,7 +205,7 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend {
 		return null;
 	}
 
-	/*
+	/**
 	 * Gives a classifier based on the SEEDB column type and number of distinct
 	 * values
 	 * 
@@ -239,7 +226,7 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend {
 		return "other";
 	}
 
-	/*
+	/**
 	 * Gets the row count for the given table
 	 * 
 	 * @param tableName - name of the table in the database to analyze
@@ -262,7 +249,7 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend {
 		return result;
 	}
 
-	/*
+	/**
 	 * Gets name of all tables in the DB
 	 * 
 	 * @Throws SQLException if unable to connect to DB or get metadata
@@ -289,8 +276,8 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend {
 		return containedTables;
 	}
 
-	/*
-	 * Get total number of columns
+	/**
+	 * Gets column information and attributes.
 	 * 
 	 * @param table - the table from the database you want to get information
 	 * from
@@ -299,8 +286,7 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend {
 	 * value being the column type Ali Finkelstein 15 July 2015
 	 */
 	public Map<String, String> getColumnAttribute(String databaseName,
-			String tableName) throws NoDatabaseConnectionException,
-			SQLException {
+			String tableName) throws SQLException {
 		Connection conn = connectionKeeper.get(databaseName);
 		DatabaseMetaData baseMetaData = conn.getMetaData();
 		ResultSet rs = baseMetaData.getColumns(null, null, tableName, null);
@@ -315,7 +301,30 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend {
 		return tableColumnAttrs;
 	}
 
-	/*
+	/**
+	 * Gets the total number of columns in a database
+	 * 
+	 * @param databaseName the database that contains the table
+	 * 
+	 * @param tableName the name of the table to exam
+	 * 
+	 * @returns an integer that is the total number of columns in the given
+	 * table
+	 */
+	public int getColumnCount(String databaseName, String tableName)
+			throws SQLException {
+		Connection conn = connectionKeeper.get(databaseName);
+		DatabaseMetaData baseMetaData = conn.getMetaData();
+		ResultSet rs = baseMetaData.getColumns(null, null, tableName, null);
+		int count = 0;
+		while (rs.next()) {
+			count++;
+		}
+		rs.close();
+		return count;
+	}
+
+	/**
 	 * Getting the number of distinct values in columnName from tableName
 	 * 
 	 * @param tableName - table to look into
@@ -343,26 +352,6 @@ public class SeeDB_PostgreSQL implements SeeDB_Backend {
 		pgQuery.close();
 		pgResult.close();
 		return count;
-	}
-
-	private void sendSansResponse(String meow) throws IOException {
-		URL url = new URL("http://www.java2s.com");
-		URLConnection conn = url.openConnection();
-		conn.setDoOutput(true);
-		OutputStreamWriter writer = new OutputStreamWriter(
-				conn.getOutputStream());
-
-		writer.write("value=1&anotherValue=1");
-		writer.flush();
-		String line;
-		BufferedReader reader = new BufferedReader(new InputStreamReader(
-				conn.getInputStream()));
-		while ((line = reader.readLine()) != null) {
-			System.out.println(line);
-		}
-		writer.close();
-		reader.close();
-
 	}
 
 }

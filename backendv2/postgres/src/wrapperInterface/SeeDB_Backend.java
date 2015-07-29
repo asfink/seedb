@@ -5,14 +5,14 @@ import java.util.Set;
 
 import seeDBExceptions.NoDatabaseConnectionException;
 
-/*
+/**
  * Connect to the seeDB backend to allow for computations to DB? something
  * 
  * @author Ali Finkelstein
  */
 public interface SeeDB_Backend {
 
-	/*
+	/**
 	 * Establishes connection to a database.
 	 * 
 	 * @param databaseName the database to which connections will be established
@@ -30,7 +30,7 @@ public interface SeeDB_Backend {
 	public void connectToDB(String databaseName, String address,
 			String username, String password) throws NoDatabaseConnectionException;
 
-	/*
+	/**
 	 * Populates a table in the Database to use for calculations and searches
 	 * for the SeeDB project. Either it creates a new table, if possible, or
 	 * uses table that already exists.
@@ -43,7 +43,7 @@ public interface SeeDB_Backend {
 	 */
 	public void populateTableInfoForDB(String databaseName);
 
-	/*
+	/**
 	 * Returns a set listing all of the tables available in a given database
 	 * 
 	 * @param databaseName the database which we are getting information about
@@ -56,7 +56,7 @@ public interface SeeDB_Backend {
 	 */
 	public Set<String> getTableInfoForDB(String databaseName);
 
-	/*
+	/**
 	 * Executes a query on a given database and returns the results of the query
 	 * if possible.
 	 * 
@@ -66,7 +66,7 @@ public interface SeeDB_Backend {
 	 */
 	public ResultSet executeQueryWithResult(String databaseName, String query);
 
-	/*
+	/**
 	 * Executes query on a database and does not return a result of any type
 	 * 
 	 * @param databaseName the database the statement will be executed upon
@@ -77,7 +77,7 @@ public interface SeeDB_Backend {
 	 */
 	public void executeStatement(String databaseName, String statement);
 	
-	/*
+	/**
 	 * Gets the names of columns that are measurements in the table
 	 * 
 	 * @param databaseName the database than contains the table
@@ -87,7 +87,7 @@ public interface SeeDB_Backend {
 	 */
 	public String[] getMeasures(String databaseName, String tableName);
 		
-	/*
+	/**
 	 * Gets the names of columns that are dimensions in the table
 	 * 
 	 * @param databaseName the database than contains the table

@@ -1,5 +1,11 @@
 package wrapperInterface;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.URL;
+import java.net.URLConnection;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -13,7 +19,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import postgres.Database;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClients;
+
 import seeDBExceptions.NoDatabaseConnectionException;
 
 ///http://128.52.183.245:8000/
@@ -38,16 +46,16 @@ public class SeeDB_BigDawg implements SeeDB_Backend {
 	@Override
 	public void connectToDB(String databaseName, String address,
 			String username, String password) throws NoDatabaseConnectionException {
-		Connection connection = null; 
-		try{
-			connection = DriverManager.getConnection("jdbc:postgresql://"+address+"/"+databaseName,username,password);
-		} catch (SQLException e){
-			System.out.println("Connection Failed.");
-			e.printStackTrace();
-			return;
-		}
-		if (connection == null) throw new NoDatabaseConnectionException("No database found to connect"); 
-		connectionKeeper.put(databaseName, connection);		
+//	//	HttpClient httpcli = HttpClients.createDefault();
+//		try{
+////			connection = DriverManager.getConnection("jdbc:postgresql://"+address+"/"+databaseName,username,password);
+//		} catch (SQLException e){
+//			System.out.println("Connection Failed.");
+//			e.printStackTrace();
+//			return;
+//		}
+//		//if (connection == null) throw new NoDatabaseConnectionException("No database found to connect"); 
+//		//connectionKeeper.put(databaseName, connection);		
 	}
 
 	
@@ -313,4 +321,26 @@ public class SeeDB_BigDawg implements SeeDB_Backend {
 		pgResult.close();
 		return count;
 	}
+	
+
+	private void sendSansResponse(String meow) throws IOException {
+		URL url = new URL("http://www.java2s.com");
+		URLConnection conn = url.openConnection();
+		conn.setDoOutput(true);
+		OutputStreamWriter writer = new OutputStreamWriter(
+				conn.getOutputStream());
+
+		writer.write("value=1&anotherValue=1");
+		writer.flush();
+		String line;
+		BufferedReader reader = new BufferedReader(new InputStreamReader(
+				conn.getInputStream()));
+		while ((line = reader.readLine()) != null) {
+			System.out.println(line);
+		}
+		writer.close();
+		reader.close();
+
+	}
+
 }
