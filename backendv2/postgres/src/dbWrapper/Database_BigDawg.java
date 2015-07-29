@@ -3,6 +3,7 @@ package dbWrapper;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -19,17 +20,22 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import dbExceptions.NoDatabaseConnectionException;
 
-///http://128.52.183.245:8000/
+/*
+ * http://128.52.183.245:8000/
+ * curl -v -H "Content-Type: application/json" -X POST -d '{"query":"RELATION(select * from mimic2v26.d_patients limit 5)","authorization":{},"tuplesPerPage":1,"pageNumber":1,"timestamp":"2012-04-23T18:25:43.511Z"}' http://128.52.183.245:8080/bigdawg/query
+ */
 public class Database_BigDawg implements Database {
 	private static int DISTINCT_DIMENSION_COUNT = 20;
-	private Map<String, Connection> connectionKeeper;
+	private Map<String, String> connectionKeeper;
 
 	public Database_BigDawg() {
 		System.out.println("Testing PostgreSQL driver");
@@ -41,26 +47,13 @@ public class Database_BigDawg implements Database {
 			e.printStackTrace();
 			return;
 		}
-		connectionKeeper = new HashMap<String, Connection>();
+		connectionKeeper = new HashMap<String, String>();
 	}
 
 	@Override
 	public void connectToDB(String databaseName, String address,
-			String username, String password)
-			throws NoDatabaseConnectionException {
-		Connection connection = null;
-		try {
-			connection = DriverManager.getConnection(address + databaseName,
-					username, password);
-		} catch (SQLException e) {
-			System.out.println("Connection Failed.");
-			e.printStackTrace();
-			return;
-		}
-		if (connection == null)
-			throw new NoDatabaseConnectionException(
-					"No database found to connect");
-		connectionKeeper.put(databaseName, connection);
+			String username, String password) {
+		connectionKeeper.put(databaseName, address + databaseName);
 	}
 
 	/**
@@ -71,10 +64,10 @@ public class Database_BigDawg implements Database {
 	 * @author Ali Finkelstein
 	 * @date 15 July 2015
 	 */
-	public boolean verifyConnection(String databaseName) {
-		Connection conn = connectionKeeper.get(databaseName);
-		return conn != null;
-	}
+	// public boolean verifyConnection(String databaseName) {
+	// Connection conn = connectionKeeper.get(databaseName);
+	// return conn != null;
+	// }
 
 	@Override
 	public void populateTableInfoForDB(String databaseName) {
@@ -146,6 +139,79 @@ public class Database_BigDawg implements Database {
 		return getTables(databaseName);
 	}
 
+	/**
+	 * For connecting to the thing WORKS
+	 * 
+	 * @param meow
+	 * @throws IOException
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 */
+	public void sendSansResponse(String postURL, String pkg)
+			throws IOException, InterruptedException, ExecutionException {
+		CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
+		try {
+			httpclient.start();
+			HttpPost httppost = new HttpPost("http://httpbin.org/post");
+
+			Future<HttpResponse> future = httpclient.execute(httppost, null);
+			HttpResponse response = future.get();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					response.getEntity().getContent(), "UTF-8"));
+			StringBuilder builder = new StringBuilder();
+			for (String line = null; (line = reader.readLine()) != null;) {
+				builder.append(line).append("\n");
+			}
+			System.out.println(builder.toString());
+			System.out.println("Response: " + response.getStatusLine());
+			System.out.println("Shutting down");
+		} finally {
+			httpclient.close();
+		}
+	}
+
+	/**
+	 * For connecting to the thing WORKS http://requestb.in/1l1ff841
+	 * 
+	 * @param meow
+	 * @throws IOException
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 * @throws JSONException
+	 */
+	public void sendSansResponseMeow(String postURL, String query)
+			throws IOException, InterruptedException, ExecutionException,
+			JSONException {
+		CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
+		try {
+			httpclient.start();
+			HttpPost httppost = new HttpPost(
+					"http://128.52.183.245:8080/bigdawg/query");
+
+			httppost.addHeader("Content-Type", "application/json");
+			JSONObject json = new JSONObject();
+			json.put("query", "RELATION(" + query + ")");
+
+			System.out.println(json.toString());
+
+			StringEntity se = new StringEntity(json.toString());
+			httppost.setEntity(se);
+			Future<HttpResponse> future = httpclient.execute(httppost, null);
+			HttpResponse response = future.get();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					response.getEntity().getContent(), "UTF-8"));
+			StringBuilder builder = new StringBuilder();
+			for (String line = null; (line = reader.readLine()) != null;) {
+				builder.append(line).append("\n");
+			}
+			System.out.println(builder.toString());
+			System.out.println("Response: " + response.getStatusLine());
+			System.out.println("Shutting down");
+		} finally {
+			httpclient.close();
+		}
+	}
+
 	// NOT SURE WHAT TO MAKE THE RETURN TYPE
 	@Override
 	public ResultSet executeQueryWithResult(String databaseName, String query) {
@@ -163,14 +229,56 @@ public class Database_BigDawg implements Database {
 
 	@Override
 	public void executeStatement(String databaseName, String statement) {
-		Connection conn = connectionKeeper.get(databaseName);
-		PreparedStatement stmntToExecute;
+		String url = connectionKeeper.get(databaseName);
+		CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
 		try {
-			stmntToExecute = conn.prepareStatement(statement);
-			stmntToExecute.executeUpdate();
-			stmntToExecute.close();
-		} catch (SQLException e) {
+			httpclient.start();
+			HttpPost httppost = new HttpPost(url + "/query");
+			httppost.addHeader("Content-Type", "application/json");
+
+			JSONObject json = new JSONObject();
+			json.put("query", "RELATION(" + statement + ")");
+
+			StringEntity se = new StringEntity(json.toString());
+			httppost.setEntity(se);
+
+			Future<HttpResponse> future = httpclient.execute(httppost, null);
+			HttpResponse response = future.get();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					response.getEntity().getContent(), "UTF-8"));
+
+			StringBuilder builder = new StringBuilder();
+			for (String line = null; (line = reader.readLine()) != null;) {
+				builder.append(line).append("\n");
+			}
+			System.out.println(builder.toString());
+			System.out.println("Response: " + response.getStatusLine());
+			System.out.println("Shutting down");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedOperationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				httpclient.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -282,7 +390,7 @@ public class Database_BigDawg implements Database {
 	 * @date 20 July 2015
 	 */
 	public Set<String> getTables(String databaseName) {
-		Connection conn = connectionKeeper.get(databaseName);
+		
 		Set<String> containedTables = new HashSet<String>();
 		String[] tableTypesArray = { "VIEW", "TABLE", "SEQUENCE" };
 		ResultSet metadataTables;
@@ -384,32 +492,4 @@ public class Database_BigDawg implements Database {
 		return count;
 	}
 
-	/**
-	 * For connecting to the thing
-	 * @param meow
-	 * @throws IOException
-	 * @throws ExecutionException 
-	 * @throws InterruptedException 
-	 */
-	public void sendSansResponse(String meow) throws IOException, InterruptedException, ExecutionException {
-		CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
-		try {
-			httpclient.start();
-			//HttpGet request = new HttpGet("http://www.apache.org/");
-            HttpPost httppost = new HttpPost("http://httpbin.org/post");
-
-			Future<HttpResponse> future = httpclient.execute(httppost, null);
-			HttpResponse response = future.get();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-			StringBuilder builder = new StringBuilder();
-			for (String line = null; (line = reader.readLine()) != null;) {
-			    builder.append(line).append("\n");
-			}
-			System.out.println(builder.toString());
-			System.out.println("Response: " + response.getStatusLine());
-			System.out.println("Shutting down");
-		} finally {
-			httpclient.close();
-		}
-	}
 }

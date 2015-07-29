@@ -18,5 +18,6 @@
 	<classpathentry kind="lib" path="lib/httpasyncclient-4.1.jar"/>
 	<classpathentry kind="lib" path="lib/httpcore-nio-4.4.1.jar"/>
 	<classpathentry kind="lib" path="lib/httpasyncclient-cache-4.1.jar"/>
+	<classpathentry kind="lib" path="lib/org.json-20120521.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

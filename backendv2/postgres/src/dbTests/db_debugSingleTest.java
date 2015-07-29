@@ -1,14 +1,10 @@
 package dbTests;
 
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import dbExceptions.NoDatabaseConnectionException;
 import dbWrapper.Database_BigDawg;
 
 public class db_debugSingleTest {
@@ -20,22 +16,17 @@ public class db_debugSingleTest {
 	@BeforeClass
 	public static void setUpBefore() {
 		functional = new Database_BigDawg();
-		try {
-			functional.connectToDB("booktown", "jdbc:postgresql://localhost/",
-					"postgres", "123");
-		} catch (NoDatabaseConnectionException e) {
-			e.printStackTrace();
-		}
+		functional.connectToDB("bigdawg", "http://128.52.183.245:8080/",
+				"postgres", "123");
 	}
-	
+
 	@Test
-	public void asynchtestthing()
-	{
+	public void asynchtestthing() {
 		try {
-			functional.sendSansResponse("ugh");
-		} catch (IOException | InterruptedException | ExecutionException e) {
+			functional.sendSansResponseMeow("ugh",
+					"select * from mimic2v26.d_patients limit 5");
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
 	}
 }
