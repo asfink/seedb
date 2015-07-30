@@ -125,7 +125,7 @@ public class BigDawgResultSet implements ResultSet {
 	public Object getObject(String columnLabel) throws SQLException {
 		int columnIndex = Arrays.asList(columnNames).indexOf(columnLabel);
 		List<String> rowData = dataArray.get(pointer-1);
-		return rowData.get(columnIndex-1);
+		return rowData.get(columnIndex);
 	}
 
 	@Override

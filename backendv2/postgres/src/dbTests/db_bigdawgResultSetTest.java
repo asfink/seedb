@@ -121,7 +121,9 @@ public class db_bigdawgResultSetTest {
 		}
 	}
 
-	// testing getString(int) with int out of bounds
+	/*
+	 * testing getString(int) with int out of bounds
+	 */
 	@Test
 	public void test_GetString_OutOfBoundsIndex() {
 		BigDawgResultSet testSet = new BigDawgResultSet(testJSON);
@@ -206,10 +208,10 @@ public class db_bigdawgResultSetTest {
 			Object meow = testSet.getObject("meow");
 			assert (false);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			assert (true);
 		} catch (IndexOutOfBoundsException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			assert (true);
 		}
 	}
@@ -225,7 +227,7 @@ public class db_bigdawgResultSetTest {
 		String expectedResult = "3147-04-05 00:00:00.0";
 		try {
 			testSet.next();
-			Object testResult = testSet.getObject("dod");
+			Object testResult = testSet.getObject(4);
 			assertEquals(expectedResult, testResult);
 		} catch (SQLException e) {
 			// e.printStackTrace();
@@ -241,7 +243,7 @@ public class db_bigdawgResultSetTest {
 		String expectedResult = "3147-04-05 00:00:00.0";
 		try {
 			testSet.next();
-			String testResult = testSet.getString("dod");
+			Object testResult = testSet.getObject("dod");
 			assertEquals(expectedResult, testResult);
 		} catch (SQLException e) {
 			// e.printStackTrace();
