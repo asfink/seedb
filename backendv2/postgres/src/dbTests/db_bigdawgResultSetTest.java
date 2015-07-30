@@ -222,7 +222,6 @@ public class db_bigdawgResultSetTest {
 	@Test
 	public void test_GetObject_RightIndex_NoNext() {
 		@SuppressWarnings("resource")
-		// TODO
 		BigDawgResultSet testSet = new BigDawgResultSet(testJSON);
 		String expectedResult = "3147-04-05 00:00:00.0";
 		try {

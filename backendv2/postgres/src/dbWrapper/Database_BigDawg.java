@@ -184,6 +184,7 @@ public class Database_BigDawg implements Database {
 		String url = connectionKeeper.get(databaseName);
 		CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
 		verifyInternalConnection(httpclient, url);
+		BigDawgResultSet queryResultSet = null;
 		try {
 			httpclient.start();
 			HttpPost httppost = new HttpPost(url + "/query");
@@ -204,9 +205,10 @@ public class Database_BigDawg implements Database {
 			for (String line = null; (line = reader.readLine()) != null;) {
 				builder.append(line).append("\n");
 			}
-			System.out.println(builder.toString());
-			System.out.println("Response: " + response.getStatusLine());
-			System.out.println("Shutting down");
+			JSONObject returnJSON = new JSONObject(builder.toString());
+			
+			queryResultSet = new BigDawgResultSet(returnJSON);
+			return queryResultSet;
 		} catch (UnsupportedEncodingException e) {
 			System.out.println("UnsupportedEncodingException thrown");
 			e.printStackTrace();
@@ -234,7 +236,7 @@ public class Database_BigDawg implements Database {
 				e.printStackTrace();
 			}
 		}
-		return null;
+		return queryResultSet;
 	}
 
 	/**

@@ -84,9 +84,7 @@ public class BigDawgResultSet implements ResultSet {
 	@Override
 	public String getString(String columnLabel) throws SQLException {
 		int columnIndex = Arrays.asList(columnNames).indexOf(columnLabel);
-		//System.out.println("index of "+columnLabel+" is at "+Integer.toString(columnIndex));
 		List<String> rowData = dataArray.get(pointer-1);
-		//System.out.println("Data array is "+rowData.toString());
 		return (String) rowData.get(columnIndex);
 	}
 
@@ -110,8 +108,7 @@ public class BigDawgResultSet implements ResultSet {
 
 	@Override
 	public ResultSetMetaData getMetaData() throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
+		return new BigDawgResultSetMetaData(this,columnNames,types);
 	}
 
 	@Override
