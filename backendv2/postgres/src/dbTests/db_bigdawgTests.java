@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -12,12 +11,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import dbExceptions.NoDatabaseConnectionException;
 import dbWrapper.Database_BigDawg;
@@ -25,18 +21,12 @@ import dbWrapper.Database_BigDawg;
 public class db_bigdawgTests {
 	private static Database_BigDawg functional;
 	public static String DBNAME = "booktown";
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
 
 	@BeforeClass
 	public static void setUpBefore() {
 		functional = new Database_BigDawg();
-		try {
-			functional.connectToDB("booktown", "jdbc:postgresql://localhost/",
-					"postgres", "123");
-		} catch (NoDatabaseConnectionException e) {
-			e.printStackTrace();
-		}
+		functional.connectToDB("booktown", "jdbc:postgresql://localhost/",
+				"postgres", "123");
 	}
 
 	// Testing if connection is established with functional DB
@@ -48,27 +38,17 @@ public class db_bigdawgTests {
 	// Testing if connection is not established with a nonreal DB
 	@Test
 	public void testWrongDB() {
-		try {
-			functional.connectToDB("boktown", "jdbc:postgresql://localhost/",
-					"postgres", "123");
-			assert (functional.verifyConnection(DBNAME));
-		} catch (NoDatabaseConnectionException e) {
-			// e.printStackTrace();
-			assert (true);
-		}
+		functional.connectToDB("boktown", "jdbc:postgresql://localhost/",
+				"postgres", "123");
+		assert (functional.verifyConnection(DBNAME));
 	}
 
 	// Testing if connection is not established using wrong user
 	@Test
 	public void testWrongUserDB() {
-		try {
-			functional.connectToDB("booktown", "jdbc:postgresql://localhost/",
-					"meow", "123");
-			assert (functional.verifyConnection(DBNAME));
-		} catch (NoDatabaseConnectionException e) {
-			// e.printStackTrace();
-			assert (true);
-		}
+		functional.connectToDB("booktown", "jdbc:postgresql://localhost/",
+				"meow", "123");
+		assert (functional.verifyConnection(DBNAME));
 	}
 
 	// should make to try catch

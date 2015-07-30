@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
@@ -47,6 +48,7 @@ public class Database_BigDawg implements Database {
 	public void connectToDB(String databaseName, String address,
 			String username, String password) {
 		connectionKeeper.put(databaseName, address + databaseName);
+		verifyConnection(databaseName);
 	}
 
 	/**
@@ -57,10 +59,54 @@ public class Database_BigDawg implements Database {
 	 * @author Ali Finkelstein
 	 * @date 15 July 2015
 	 */
-	 public boolean verifyConnection(String databaseName) {
-	 Connection conn = connectionKeeper.get(databaseName);
-	 return conn != null;
-	 }
+	public boolean verifyConnection(String databaseName) {
+		String url = connectionKeeper.get(databaseName);
+		CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
+		try {
+			httpclient.start();
+			HttpGet request = new HttpGet(url);
+			Future<HttpResponse> future = httpclient.execute(request, null);
+			HttpResponse response;
+			response = future.get();
+			if (response.getStatusLine().getStatusCode() == 200) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	/**
+	 * Internally checks that an HTTP connection to the database
+	 * 
+	 * @param client
+	 *            the CloseableHttpAsyncClient that the over arching method is
+	 *            using
+	 * @param url
+	 *            the URL that the HTTP connection needs to ping.
+	 * @return if a ping was verified
+	 */
+	private boolean verifyInternalConnection(CloseableHttpAsyncClient client,
+			String url) {
+		client.start();
+		HttpGet request = new HttpGet(url);
+		Future<HttpResponse> future = client.execute(request, null);
+		HttpResponse response;
+		try {
+			response = future.get();
+			if (response.getStatusLine().getStatusCode() == 200) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 
 	@Override
 	public void populateTableInfoForDB(String databaseName) {
@@ -129,58 +175,15 @@ public class Database_BigDawg implements Database {
 
 	@Override
 	public Set<String> getTableInfoForDB(String databaseName) {
-		
+
 		return getTables(databaseName);
 	}
 
-
-	/**
-	 * For connecting to the thing WORKS http://requestb.in/1l1ff841
-	 * 
-	 * @param meow
-	 * @throws IOException
-	 * @throws ExecutionException
-	 * @throws InterruptedException
-	 * @throws JSONException
-	 */
-	public void sendSansResponseMeow(String postURL, String query)
-			throws IOException, InterruptedException, ExecutionException,
-			JSONException {
-		CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
-		try {
-			httpclient.start();
-			HttpPost httppost = new HttpPost(
-					"http://128.52.183.245:8080/bigdawg/query");
-
-			httppost.addHeader("Content-Type", "application/json");
-			JSONObject json = new JSONObject();
-			json.put("query", "RELATION(" + query + ")");
-
-			System.out.println(json.toString());
-
-			StringEntity se = new StringEntity(json.toString());
-			httppost.setEntity(se);
-			Future<HttpResponse> future = httpclient.execute(httppost, null);
-			HttpResponse response = future.get();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					response.getEntity().getContent(), "UTF-8"));
-			StringBuilder builder = new StringBuilder();
-			for (String line = null; (line = reader.readLine()) != null;) {
-				builder.append(line).append("\n");
-			}
-			System.out.println(builder.toString());
-			System.out.println("Response: " + response.getStatusLine());
-			System.out.println("Shutting down");
-		} finally {
-			httpclient.close();
-		}
-	}
-
-	// NOT SURE WHAT TO MAKE THE RETURN TYPE
 	@Override
 	public ResultSet executeQueryWithResult(String databaseName, String query) {
 		String url = connectionKeeper.get(databaseName);
 		CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
+		verifyInternalConnection(httpclient,url);
 		try {
 			httpclient.start();
 			HttpPost httppost = new HttpPost(url + "/query");
@@ -226,11 +229,77 @@ public class Database_BigDawg implements Database {
 			try {
 				httpclient.close();
 			} catch (IOException e) {
-				System.out.println("HTTPClient unable to close. IO Exception thrown.");
+				System.out
+						.println("HTTPClient unable to close. IO Exception thrown.");
 				e.printStackTrace();
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * Executes a query to the database, but returns a JSON object instead of a ResultSet object
+	 * @param databaseName name of the database to query
+	 * @param query the query to run on the DB
+	 * @return a JSONObject containing the results of the query on the database
+	 * 
+	 * @author asfink
+	 */
+	public JSONObject executeQueryWithJSON(String databaseName, String query) {
+		String url = connectionKeeper.get(databaseName);
+		CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
+		verifyInternalConnection(httpclient,url);
+		JSONObject returnJSON = null;
+		try {
+			httpclient.start();
+			HttpPost httppost = new HttpPost(url + "/query");
+			httppost.addHeader("Content-Type", "application/json");
+
+			JSONObject json = new JSONObject();
+			json.put("query", "RELATION(" + query + ")");
+
+			StringEntity se = new StringEntity(json.toString());
+			httppost.setEntity(se);
+
+			Future<HttpResponse> future = httpclient.execute(httppost, null);
+			HttpResponse response = future.get();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					response.getEntity().getContent(), "UTF-8"));
+
+			StringBuilder builder = new StringBuilder();
+			for (String line = null; (line = reader.readLine()) != null;) {
+				builder.append(line).append("NEXT LINE");
+			}
+			returnJSON = new JSONObject(builder.toString());
+			System.out.println(returnJSON.toString(5));
+		} catch (UnsupportedEncodingException e) {
+			System.out.println("UnsupportedEncodingException thrown");
+			e.printStackTrace();
+		} catch (JSONException e) {
+			System.out.println("JSONException thrown");
+			e.printStackTrace();
+		} catch (UnsupportedOperationException e) {
+			System.out.println("UnsupportedOperationException thrown");
+			e.printStackTrace();
+		} catch (IOException e) {
+			System.out.println("IOException thrown");
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			System.out.println("InterruptedException thrown");
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			System.out.println("ExecutionException thrown");
+			e.printStackTrace();
+		} finally {
+			try {
+				httpclient.close();
+			} catch (IOException e) {
+				System.out
+						.println("HTTPClient unable to close. IO Exception thrown.");
+				e.printStackTrace();
+			}
+		}
+		return returnJSON;
 	}
 
 	@Override
@@ -261,28 +330,29 @@ public class Database_BigDawg implements Database {
 			System.out.println("Response: " + response.getStatusLine());
 			System.out.println("Shutting down");
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
+			System.out.println("UnsupportedEncodingException thrown");
 			e.printStackTrace();
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
+			System.out.println("JSONException thrown");
 			e.printStackTrace();
 		} catch (UnsupportedOperationException e) {
-			// TODO Auto-generated catch block
+			System.out.println("UnsupportedOperationException thrown");
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			System.out.println("IOException thrown");
 			e.printStackTrace();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
+			System.out.println("InterruptedException thrown");
 			e.printStackTrace();
 		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
+			System.out.println("ExecutionException thrown");
 			e.printStackTrace();
 		} finally {
 			try {
 				httpclient.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				System.out
+						.println("HTTPClient unable to close. IO Exception thrown.");
 				e.printStackTrace();
 			}
 		}
@@ -374,7 +444,8 @@ public class Database_BigDawg implements Database {
 	public int getRowCount(String databaseName, String tableName)
 			throws SQLException {
 		String queryString = "SELECT count(*) FROM " + tableName;
-		ResultSet queryResult = executeQueryWithResult(databaseName,queryString);
+		ResultSet queryResult = executeQueryWithResult(databaseName,
+				queryString);
 		queryResult.next();
 		int result = queryResult.getInt(1);
 		queryResult.close();
@@ -390,21 +461,22 @@ public class Database_BigDawg implements Database {
 	 * @param databaseName
 	 *            the name of the database
 	 * 
-	 * @date 20 July 2015
-	 *  RELATION()
-	 *  
-	 *  get rid of anything with pg_ or sql_ in the beginning
+	 * @date 20 July 2015 RELATION()
+	 * 
+	 *       get rid of anything with pg_ or sql_ in the beginning
 	 */
 	public Set<String> getTables(String databaseName) {
 		String queryString = "SELECT table_name FROM information_schema.tables WHERE table_type='BASE TABLE';";
-		ResultSet queryResult = executeQueryWithResult(databaseName,queryString);
+		ResultSet queryResult = executeQueryWithResult(databaseName,
+				queryString);
 		Set<String> containedTables = new HashSet<String>();
 		String pg = "pg_";
 		String sql = "sql_";
 		try {
-			while (queryResult.next()){
+			while (queryResult.next()) {
 				String tableName = queryResult.getString(1);
-				if (!tableName.toLowerCase().contains(pg.toLowerCase()) && !tableName.toLowerCase().contains(sql.toLowerCase())){
+				if (!tableName.toLowerCase().contains(pg.toLowerCase())
+						&& !tableName.toLowerCase().contains(sql.toLowerCase())) {
 					containedTables.add(tableName);
 				}
 			}
@@ -423,13 +495,15 @@ public class Database_BigDawg implements Database {
 	 * 
 	 * @Return a hash map with the key being the name of the column and the
 	 *         value being the column type Ali Finkelstein 15 July 2015
-	 *         
-	 *         Select *  from tableName limit 0; <- gives the schema and the types
+	 * 
+	 *         Select * from tableName limit 0; <- gives the schema and the
+	 *         types
 	 */
 	public Map<String, String> getColumnAttribute(String databaseName,
 			String tableName) throws SQLException {
-		String queryString = "Select *  FROM "+tableName+" LIMIT 0;";
-		ResultSet queryResult = executeQueryWithResult(databaseName,queryString);
+		String queryString = "Select *  FROM " + tableName + " LIMIT 0;";
+		ResultSet queryResult = executeQueryWithResult(databaseName,
+				queryString);
 		HashMap<String, String> tableColumnAttrs = new HashMap<String, String>();
 		while (queryResult.next()) {
 			String name = queryResult.getString("COLUMN_NAME");
@@ -450,13 +524,15 @@ public class Database_BigDawg implements Database {
 	 * 
 	 * @returns an integer that is the total number of columns in the given
 	 *          table
-	 *          
-	 *          Select * From tableName limit 0; <- gives the schema and the types
+	 * 
+	 *          Select * From tableName limit 0; <- gives the schema and the
+	 *          types
 	 */
 	public int getColumnCount(String databaseName, String tableName)
 			throws SQLException {
-		String queryString = "SELECT * FROM "+tableName+" LIMIT 0;";
-		ResultSet queryResult = executeQueryWithResult(databaseName,queryString);
+		String queryString = "SELECT * FROM " + tableName + " LIMIT 0;";
+		ResultSet queryResult = executeQueryWithResult(databaseName,
+				queryString);
 		int count = 0;
 		while (queryResult.next()) {
 			count++;
@@ -484,9 +560,9 @@ public class Database_BigDawg implements Database {
 	 */
 	public int getDistinctValueCount(String databaseName, String tableName,
 			String columnName) throws SQLException {
-		String queryString = "SELECT COUNT(DISTINCT " + columnName
-				+ ") FROM " + tableName;
-		ResultSet pgResult = executeQueryWithResult(databaseName,queryString);
+		String queryString = "SELECT COUNT(DISTINCT " + columnName + ") FROM "
+				+ tableName;
+		ResultSet pgResult = executeQueryWithResult(databaseName, queryString);
 		int count = -1;
 		while (pgResult.next()) {
 			count = pgResult.getInt(1);

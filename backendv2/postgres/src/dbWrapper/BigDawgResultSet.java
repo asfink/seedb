@@ -22,10 +22,13 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Map;
 
+import org.json.JSONObject;
+
 public class BigDawgResultSet implements ResultSet{
+	private JSONObject originalJson;
 	
-	public BigDawgResultSet(){
-		
+	public BigDawgResultSet(JSONObject json){
+		originalJson = json;
 	}
 	@Override
 	public <T> T unwrap(Class<T> iface) throws SQLException {

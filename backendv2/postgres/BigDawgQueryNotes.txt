@@ -30,17 +30,22 @@ RESPONSE:
 "cacheTimestamp":0
 }
 
+--- response is sent in 1 big string. I need to break up the string into an array of sorts
 
-public static void main(final String[] args) throws Exception {
-        CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
-        try {
-            httpclient.start();
-            HttpGet request = new HttpGet("http://www.apache.org/");
-            Future<HttpResponse> future = httpclient.execute(request, null);
-            HttpResponse response = future.get();
-            System.out.println("Response: " + response.getStatusLine());
-            System.out.println("Shutting down");
-        } finally {
-            httpclient.close();
-        }
-        System.out.println("Done");
+Must consume the
+
+
+
+QUERY HTTP METHOD:
+    CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
+    try {
+        httpclient.start();
+        HttpGet request = new HttpGet("http://www.apache.org/");
+        Future<HttpResponse> future = httpclient.execute(request, null);
+        HttpResponse response = future.get();
+        System.out.println("Response: " + response.getStatusLine());
+        System.out.println("Shutting down");
+    } finally {
+        httpclient.close();
+    }
+    System.out.println("Done");

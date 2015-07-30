@@ -13,9 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import dbExceptions.NoDatabaseConnectionException;
 import dbWrapper.Database_PostgreSQL;
@@ -23,9 +21,7 @@ import dbWrapper.Database_PostgreSQL;
 public class db_postgresqlTests {
 	private static Database_PostgreSQL functional;
 	public static String DBNAME = "booktown";
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
-
+	
 	@BeforeClass
 	public static void setUpBefore() {
 		functional = new Database_PostgreSQL();
@@ -183,7 +179,7 @@ public class db_postgresqlTests {
 	@Test 
 	public void testCBDTablePopulation() throws SQLException{
 		functional.populateTableInfoForDB(DBNAME);
-		ResultSet result = functional.executeQueryWithResult(DBNAME,"SELECT * FROM seedb_schema");
+//		ResultSet result = functional.executeQueryWithResult(DBNAME,"SELECT * FROM seedb_schema");
 		int rowCount = functional.getRowCount(DBNAME, "seedb_schema");
 		int colCount = functional.getColumnCount(DBNAME, "seedb_schema");
 		assertEquals(120,rowCount);
