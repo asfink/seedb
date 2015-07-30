@@ -23,7 +23,10 @@ import java.util.Calendar;
 import java.util.Map;
 
 public class BigDawgResultSet implements ResultSet{
-
+	
+	public BigDawgResultSet(){
+		
+	}
 	@Override
 	public <T> T unwrap(Class<T> iface) throws SQLException {
 		return null;

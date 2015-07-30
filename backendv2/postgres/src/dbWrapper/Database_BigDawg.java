@@ -4,13 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,8 +21,6 @@ import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import dbExceptions.NoDatabaseConnectionException;
 
 /*
  * http://128.52.183.245:8000/
@@ -64,10 +57,10 @@ public class Database_BigDawg implements Database {
 	 * @author Ali Finkelstein
 	 * @date 15 July 2015
 	 */
-	// public boolean verifyConnection(String databaseName) {
-	// Connection conn = connectionKeeper.get(databaseName);
-	// return conn != null;
-	// }
+	 public boolean verifyConnection(String databaseName) {
+	 Connection conn = connectionKeeper.get(databaseName);
+	 return conn != null;
+	 }
 
 	@Override
 	public void populateTableInfoForDB(String databaseName) {
@@ -136,6 +129,7 @@ public class Database_BigDawg implements Database {
 
 	@Override
 	public Set<String> getTableInfoForDB(String databaseName) {
+		
 		return getTables(databaseName);
 	}
 
@@ -210,8 +204,6 @@ public class Database_BigDawg implements Database {
 			System.out.println(builder.toString());
 			System.out.println("Response: " + response.getStatusLine());
 			System.out.println("Shutting down");
-			
-			
 		} catch (UnsupportedEncodingException e) {
 			System.out.println("UnsupportedEncodingException thrown");
 			e.printStackTrace();

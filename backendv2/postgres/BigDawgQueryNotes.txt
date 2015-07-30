@@ -1,0 +1,46 @@
+g/query
+POST:
+"Content-Type: application/json"
+{
+"query":"RELATION(select * from mimic2v26.d_patients limit 5)",
+"authorization":{},
+"tuplesPerPage":1,
+"pageNumber":1,
+"timestamp":"2012-04-23T18:25:43.511Z"
+}
+
+RESPONSE:
+{
+"message":"OK",
+"responseCode":200,
+"tuples":
+	[
+		["1039","M","3063-10-05 00:00:00.0","3147-04-05 00:00:00.0","Y"],
+		["1010","F","2620-12-07 00:00:00.0","2688-07-30 00:00:00.0","Y"],
+		["1000","M","2442-05-11 00:00:00.0","2512-03-02 00:00:00.0","Y"],
+		["1038","M","2747-06-02 00:00:00.0","2807-11-13 00:00:00.0","N"],
+		["1063","F","3262-03-30 00:00:00.0","3332-02-08 00:00:00.0","N"]
+	],
+"pageNumber":1,
+"totalPages":1,
+"schema":
+	["subject_id","sex","dob","dod","hospital_expire_flg"],
+"types":
+	["int4","varchar","timestamp","timestamp","varchar"],
+"cacheTimestamp":0
+}
+
+
+public static void main(final String[] args) throws Exception {
+        CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
+        try {
+            httpclient.start();
+            HttpGet request = new HttpGet("http://www.apache.org/");
+            Future<HttpResponse> future = httpclient.execute(request, null);
+            HttpResponse response = future.get();
+            System.out.println("Response: " + response.getStatusLine());
+            System.out.println("Shutting down");
+        } finally {
+            httpclient.close();
+        }
+        System.out.println("Done");
