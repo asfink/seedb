@@ -19,17 +19,113 @@ import java.sql.SQLXML;
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class BigDawgResultSet implements ResultSet {
-	private JSONObject originalJson;
+	private JSONObject json;
+	private String[] columnNames;
+	private String[] types;
+	private int pointer;
+	private ArrayList<List<String>> dataArray = new ArrayList<List<String>>();
+	
+	public BigDawgResultSet(JSONObject originalJson) {
+		json = originalJson;
+		pointer = 0;
+		try {
+			JSONArray tupJArr = (JSONArray) json.get("tuples");
 
-	public BigDawgResultSet(JSONObject json) {
-		originalJson = json;
-		
+			// pulling data from the JSON array and creating data for the
+			// resultset --- having issues with adding to the arraylist
+			for (int i = 0; i < tupJArr.length(); i++) {
+				JSONArray indexContent = (JSONArray) tupJArr.get(i);
+				List<String> indexArr = new ArrayList<String>();
+				for (int j = 0; j < indexContent.length(); j++) {
+					indexArr.add((String) indexContent.get(j));
+				}
+				dataArray.add(indexArr);
+			}
+
+			// System.out.println(dataArray.toString());
+
+			// pulling data to populate column names
+			JSONArray schemaData = (JSONArray) json.get("schema");
+			columnNames = new String[schemaData.length()];
+			for (int k = 0; k < schemaData.length(); k++) {
+				columnNames[k] = (String) schemaData.get(k);
+			}
+
+			// pulling data to populate column types
+			JSONArray typeData = (JSONArray) json.get("types");
+			types = new String[typeData.length()];
+			for (int n = 0; n < typeData.length(); n++) {
+				types[n] = (String) typeData.get(n);
+			}
+
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	@Override
+	public boolean next() throws SQLException {
+		pointer++;
+		return pointer <= dataArray.size();
+	}
+
+	@Override
+	public String getString(String columnLabel) throws SQLException {
+		int columnIndex = Arrays.asList(columnNames).indexOf(columnLabel);
+		//System.out.println("index of "+columnLabel+" is at "+Integer.toString(columnIndex));
+		List<String> rowData = dataArray.get(pointer-1);
+		//System.out.println("Data array is "+rowData.toString());
+		return (String) rowData.get(columnIndex);
+	}
+
+
+	@Override
+	public String getString(int columnIndex) throws SQLException {
+		List<String> rowData = dataArray.get(pointer-1);
+		return (String) rowData.get(columnIndex-1);
+	}
+
+	@Override
+	public int getInt(int columnIndex) throws SQLException {
+		List<String> rowData = dataArray.get(pointer-1);
+		try {
+			int value = Integer.parseInt(rowData.get(columnIndex-1));
+			return value;
+		} catch (NumberFormatException e) {
+			return 0;
+		}
+	}
+
+	@Override
+	public ResultSetMetaData getMetaData() throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object getObject(int columnIndex) throws SQLException {
+		List<String> rowData = dataArray.get(pointer-1);
+		return rowData.get(columnIndex-1);
+
+	}
+
+	@Override
+	public Object getObject(String columnLabel) throws SQLException {
+		int columnIndex = Arrays.asList(columnNames).indexOf(columnLabel);
+		List<String> rowData = dataArray.get(pointer-1);
+		return rowData.get(columnIndex-1);
 	}
 
 	@Override
@@ -42,26 +138,13 @@ public class BigDawgResultSet implements ResultSet {
 		return false;
 	}
 
-	// ****** SEEDB
-	@Override
-	public boolean next() throws SQLException {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 	@Override
 	public void close() throws SQLException {
-
 	}
 
 	@Override
 	public boolean wasNull() throws SQLException {
 		return false;
-	}
-
-	@Override
-	public String getString(int columnIndex) throws SQLException {
-		return null;
 	}
 
 	@Override
@@ -76,11 +159,6 @@ public class BigDawgResultSet implements ResultSet {
 
 	@Override
 	public short getShort(int columnIndex) throws SQLException {
-		return 0;
-	}
-
-	@Override
-	public int getInt(int columnIndex) throws SQLException {
 		return 0;
 	}
 
@@ -137,11 +215,6 @@ public class BigDawgResultSet implements ResultSet {
 
 	@Override
 	public InputStream getBinaryStream(int columnIndex) throws SQLException {
-		return null;
-	}
-
-	@Override
-	public String getString(String columnLabel) throws SQLException {
 		return null;
 	}
 
@@ -233,27 +306,6 @@ public class BigDawgResultSet implements ResultSet {
 
 	@Override
 	public String getCursorName() throws SQLException {
-		return null;
-	}
-
-	// ****** SEEDB
-	@Override
-	public ResultSetMetaData getMetaData() throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	// ****** SEEDB
-	@Override
-	public Object getObject(int columnIndex) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	// ****** SEEDB
-	@Override
-	public Object getObject(String columnLabel) throws SQLException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

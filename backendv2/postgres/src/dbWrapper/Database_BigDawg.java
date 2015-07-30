@@ -183,7 +183,7 @@ public class Database_BigDawg implements Database {
 	public ResultSet executeQueryWithResult(String databaseName, String query) {
 		String url = connectionKeeper.get(databaseName);
 		CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
-		verifyInternalConnection(httpclient,url);
+		verifyInternalConnection(httpclient, url);
 		try {
 			httpclient.start();
 			HttpPost httppost = new HttpPost(url + "/query");
@@ -236,11 +236,15 @@ public class Database_BigDawg implements Database {
 		}
 		return null;
 	}
-	
+
 	/**
-	 * Executes a query to the database, but returns a JSON object instead of a ResultSet object
-	 * @param databaseName name of the database to query
-	 * @param query the query to run on the DB
+	 * Executes a query to the database, but returns a JSON object instead of a
+	 * ResultSet object
+	 * 
+	 * @param databaseName
+	 *            name of the database to query
+	 * @param query
+	 *            the query to run on the DB
 	 * @return a JSONObject containing the results of the query on the database
 	 * 
 	 * @author asfink
@@ -248,9 +252,10 @@ public class Database_BigDawg implements Database {
 	public JSONObject executeQueryWithJSON(String databaseName, String query) {
 		String url = connectionKeeper.get(databaseName);
 		CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
-		verifyInternalConnection(httpclient,url);
+		verifyInternalConnection(httpclient, url);
 		JSONObject returnJSON = null;
 		try {
+			//Start up and set up http client and post
 			httpclient.start();
 			HttpPost httppost = new HttpPost(url + "/query");
 			httppost.addHeader("Content-Type", "application/json");
@@ -271,7 +276,9 @@ public class Database_BigDawg implements Database {
 				builder.append(line).append("NEXT LINE");
 			}
 			returnJSON = new JSONObject(builder.toString());
-			System.out.println(returnJSON.toString(5));
+			
+			//Prints out the JSON object received
+			//System.out.println(returnJSON.toString(5));
 		} catch (UnsupportedEncodingException e) {
 			System.out.println("UnsupportedEncodingException thrown");
 			e.printStackTrace();
@@ -307,18 +314,23 @@ public class Database_BigDawg implements Database {
 		String url = connectionKeeper.get(databaseName);
 		CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
 		try {
+			//Start up and set up http client and post
 			httpclient.start();
 			HttpPost httppost = new HttpPost(url + "/query");
 			httppost.addHeader("Content-Type", "application/json");
 
+			//create the JSON object to send
 			JSONObject json = new JSONObject();
 			json.put("query", "RELATION(" + statement + ")");
 
 			StringEntity se = new StringEntity(json.toString());
 			httppost.setEntity(se);
 
+			//Send the JSON object
 			Future<HttpResponse> future = httpclient.execute(httppost, null);
 			HttpResponse response = future.get();
+			
+			//Read the response
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
 					response.getEntity().getContent(), "UTF-8"));
 
