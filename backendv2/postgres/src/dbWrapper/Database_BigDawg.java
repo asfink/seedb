@@ -139,36 +139,6 @@ public class Database_BigDawg implements Database {
 		return getTables(databaseName);
 	}
 
-	/**
-	 * For connecting to the thing WORKS
-	 * 
-	 * @param meow
-	 * @throws IOException
-	 * @throws ExecutionException
-	 * @throws InterruptedException
-	 */
-	public void sendSansResponse(String postURL, String pkg)
-			throws IOException, InterruptedException, ExecutionException {
-		CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
-		try {
-			httpclient.start();
-			HttpPost httppost = new HttpPost("http://httpbin.org/post");
-
-			Future<HttpResponse> future = httpclient.execute(httppost, null);
-			HttpResponse response = future.get();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					response.getEntity().getContent(), "UTF-8"));
-			StringBuilder builder = new StringBuilder();
-			for (String line = null; (line = reader.readLine()) != null;) {
-				builder.append(line).append("\n");
-			}
-			System.out.println(builder.toString());
-			System.out.println("Response: " + response.getStatusLine());
-			System.out.println("Shutting down");
-		} finally {
-			httpclient.close();
-		}
-	}
 
 	/**
 	 * For connecting to the thing WORKS http://requestb.in/1l1ff841
@@ -215,16 +185,60 @@ public class Database_BigDawg implements Database {
 	// NOT SURE WHAT TO MAKE THE RETURN TYPE
 	@Override
 	public ResultSet executeQueryWithResult(String databaseName, String query) {
-		Connection conn = connectionKeeper.get(databaseName);
-		Statement stmntToExecute;
+		String url = connectionKeeper.get(databaseName);
+		CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
 		try {
-			stmntToExecute = conn.createStatement();
-			ResultSet statementResult = stmntToExecute.executeQuery(query);
-			return statementResult;
-		} catch (SQLException e) {
+			httpclient.start();
+			HttpPost httppost = new HttpPost(url + "/query");
+			httppost.addHeader("Content-Type", "application/json");
+
+			JSONObject json = new JSONObject();
+			json.put("query", "RELATION(" + query + ")");
+
+			StringEntity se = new StringEntity(json.toString());
+			httppost.setEntity(se);
+
+			Future<HttpResponse> future = httpclient.execute(httppost, null);
+			HttpResponse response = future.get();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					response.getEntity().getContent(), "UTF-8"));
+
+			StringBuilder builder = new StringBuilder();
+			for (String line = null; (line = reader.readLine()) != null;) {
+				builder.append(line).append("\n");
+			}
+			System.out.println(builder.toString());
+			System.out.println("Response: " + response.getStatusLine());
+			System.out.println("Shutting down");
+			
+			
+		} catch (UnsupportedEncodingException e) {
+			System.out.println("UnsupportedEncodingException thrown");
 			e.printStackTrace();
-			return null;
+		} catch (JSONException e) {
+			System.out.println("JSONException thrown");
+			e.printStackTrace();
+		} catch (UnsupportedOperationException e) {
+			System.out.println("UnsupportedOperationException thrown");
+			e.printStackTrace();
+		} catch (IOException e) {
+			System.out.println("IOException thrown");
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			System.out.println("InterruptedException thrown");
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			System.out.println("ExecutionException thrown");
+			e.printStackTrace();
+		} finally {
+			try {
+				httpclient.close();
+			} catch (IOException e) {
+				System.out.println("HTTPClient unable to close. IO Exception thrown.");
+				e.printStackTrace();
+			}
 		}
+		return null;
 	}
 
 	@Override
@@ -367,14 +381,11 @@ public class Database_BigDawg implements Database {
 	 */
 	public int getRowCount(String databaseName, String tableName)
 			throws SQLException {
-		Connection conn = connectionKeeper.get(databaseName);
-		Statement pgQuery = conn.createStatement();
-		String queryStatement = "SELECT count(*) FROM " + tableName;
-		ResultSet queryResult = pgQuery.executeQuery(queryStatement);
+		String queryString = "SELECT count(*) FROM " + tableName;
+		ResultSet queryResult = executeQueryWithResult(databaseName,queryString);
 		queryResult.next();
 		int result = queryResult.getInt(1);
 		queryResult.close();
-		pgQuery.close();
 		return result;
 	}
 
@@ -388,22 +399,26 @@ public class Database_BigDawg implements Database {
 	 *            the name of the database
 	 * 
 	 * @date 20 July 2015
+	 *  RELATION()
+	 *  
+	 *  get rid of anything with pg_ or sql_ in the beginning
 	 */
 	public Set<String> getTables(String databaseName) {
-		
+		String queryString = "SELECT table_name FROM information_schema.tables WHERE table_type='BASE TABLE';";
+		ResultSet queryResult = executeQueryWithResult(databaseName,queryString);
 		Set<String> containedTables = new HashSet<String>();
-		String[] tableTypesArray = { "VIEW", "TABLE", "SEQUENCE" };
-		ResultSet metadataTables;
+		String pg = "pg_";
+		String sql = "sql_";
 		try {
-			DatabaseMetaData baseMetaData = conn.getMetaData();
-			metadataTables = baseMetaData.getTables(null, null, "%",
-					tableTypesArray);
-			while (metadataTables.next()) {
-				containedTables.add(metadataTables.getString(3));
+			while (queryResult.next()){
+				String tableName = queryResult.getString(1);
+				if (!tableName.toLowerCase().contains(pg.toLowerCase()) && !tableName.toLowerCase().contains(sql.toLowerCase())){
+					containedTables.add(tableName);
+				}
 			}
-			metadataTables.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
+			System.out.println("Unable to get tables from the requested DB");
 		}
 		return containedTables;
 	}
@@ -416,20 +431,19 @@ public class Database_BigDawg implements Database {
 	 * 
 	 * @Return a hash map with the key being the name of the column and the
 	 *         value being the column type Ali Finkelstein 15 July 2015
+	 *         
+	 *         Select *  from tableName limit 0; <- gives the schema and the types
 	 */
 	public Map<String, String> getColumnAttribute(String databaseName,
 			String tableName) throws SQLException {
-		Connection conn = connectionKeeper.get(databaseName);
-		DatabaseMetaData baseMetaData = conn.getMetaData();
-		ResultSet rs = baseMetaData.getColumns(null, null, tableName, null);
+		String queryString = "Select *  FROM "+tableName+" LIMIT 0;";
+		ResultSet queryResult = executeQueryWithResult(databaseName,queryString);
 		HashMap<String, String> tableColumnAttrs = new HashMap<String, String>();
-
-		while (rs.next()) {
-			String name = rs.getString("COLUMN_NAME");
-			String type = rs.getString("TYPE_NAME");
+		while (queryResult.next()) {
+			String name = queryResult.getString("COLUMN_NAME");
+			String type = queryResult.getString("TYPE_NAME");
 			tableColumnAttrs.put(name, type);
 		}
-		rs.close();
 		return tableColumnAttrs;
 	}
 
@@ -444,17 +458,17 @@ public class Database_BigDawg implements Database {
 	 * 
 	 * @returns an integer that is the total number of columns in the given
 	 *          table
+	 *          
+	 *          Select * From tableName limit 0; <- gives the schema and the types
 	 */
 	public int getColumnCount(String databaseName, String tableName)
 			throws SQLException {
-		Connection conn = connectionKeeper.get(databaseName);
-		DatabaseMetaData baseMetaData = conn.getMetaData();
-		ResultSet rs = baseMetaData.getColumns(null, null, tableName, null);
+		String queryString = "SELECT * FROM "+tableName+" LIMIT 0;";
+		ResultSet queryResult = executeQueryWithResult(databaseName,queryString);
 		int count = 0;
-		while (rs.next()) {
+		while (queryResult.next()) {
 			count++;
 		}
-		rs.close();
 		return count;
 	}
 
@@ -478,17 +492,13 @@ public class Database_BigDawg implements Database {
 	 */
 	public int getDistinctValueCount(String databaseName, String tableName,
 			String columnName) throws SQLException {
-		Connection conn = connectionKeeper.get(databaseName);
-		Statement pgQuery = conn.createStatement();
-		String queryStatement = "SELECT COUNT(DISTINCT " + columnName
+		String queryString = "SELECT COUNT(DISTINCT " + columnName
 				+ ") FROM " + tableName;
-		ResultSet pgResult = pgQuery.executeQuery(queryStatement);
+		ResultSet pgResult = executeQueryWithResult(databaseName,queryString);
 		int count = -1;
 		while (pgResult.next()) {
 			count = pgResult.getInt(1);
 		}
-		pgQuery.close();
-		pgResult.close();
 		return count;
 	}
 
