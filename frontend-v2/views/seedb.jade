@@ -12,9 +12,14 @@ block content
                     div.row
                         table.table
                             tr
+                                td Database
+                                td(colspan="3")
+                                    select#datasetSelector
+                            tr
                                 td Dataset
                                 td(colspan="3")
                                     select#datasetSelector
+
                 
                     div.row
                         h5 Query Selector
@@ -56,11 +61,11 @@ block content
                                 td(colspan="4")
                                     span 
                                         input(type="checkbox", id="addComparison") 
-                                        &nbsp; &nbsp; Add Comparison Query
+                                        &nbsp; &nbsp;  Add Comparison Query
 
 
                     div.row.hide2.red#comparisonQuery
-                        table.table
+                        table.table 
                             tr.dummyRow2
                             
                             tr
@@ -86,7 +91,7 @@ block content
 
                 
             div.col-md-8
-                div.row.well
+                div.row.well 
                     h5 Visualization Builder
 
                     
