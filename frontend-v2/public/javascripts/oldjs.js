@@ -21,73 +21,20 @@ $(function(){
   		hideControlOnEnd: true
 	  };
 
-	 var currentschemas = schemas
-
-	//  // load dataset schemas
-	// $.each(currentschemas, function(key, value){
-	// 	console.log(currentschemas);
-	// 	if (key.indexOf("_type") == -1) {
-	// 		// console.log("in load dataset schemas");
-	// 		// console.log("key");
-	// 		// console.log(key);
-	// 		// console.log(key.indexOf("_type"));
-	// 		// populate dataset names
-	// 		var dataset_selector = document.getElementById("datasetSelector");
-	// 		var el = document.createElement("option");
-	// 	    el.textContent = key;
-	// 	    el.value = key;
-	// 	    dataset_selector.appendChild(el);
-	// 	    $("#datasetSelector").val(key);
-	// 	    $("#datasetSelector").trigger("change");
-	// 	}
-	// });
+	 var currentSchema = "schemas"
 
 	$("#getLog").on('click', function (e) {
 		bugout.downloadLog();
 	});
 
 	$("#datasetSelector").change(function (e) {
-		console.log("#datasetSelector");
-		console.log(e);
-		console.log(e.target.selectedIndex);
 		var curr_dataset = e.target[e.target.selectedIndex].value;
 		$(".attributes").empty();
 		$(".attributes").each(function (i, obj){
 			var measures = false;
 			if ($(obj).hasClass("measures")) measures = true;
-			$.each(currentschemas[curr_dataset], function (item, value) {
-				if (measures && currentschemas[curr_dataset + "_type"][item] == "measure") {	
-					var el = document.createElement("option");
-				    el.textContent = item;
-				    el.value = item;
-				    obj.appendChild(el);
-				} else if (!measures) {
-					var el = document.createElement("option");
-				    el.textContent = item;
-				    el.value = item;
-				    obj.appendChild(el);
-				}
-			});
-		});
-
-		// fill in settings
-		$(".rec_settings").each(function(i, obj) {
-			// add stuff
-		});
-	});
-
-	//for filling the attributes arae
-	$("#attributeFiller").change(function (e) {
-		console.log("#attributeFiller");
-		console.log(e);
-		console.log(e.target.selectedIndex);
-		var curr_dataset = e.target[e.target.selectedIndex].value;
-		$(".attributes").empty();
-		$(".attributes").each(function (i, obj){
-			var measures = false;
-			if ($(obj).hasClass("measures")) measures = true;
-			$.each(currentschemas[curr_dataset], function (item, value) {
-				if (measures && currentschemas[curr_dataset + "_type"][item] == "measure") {	
+			$.each(schemas[curr_dataset], function (item, value) {
+				if (measures && schemas[curr_dataset + "_type"][item] == "measure") {	
 					var el = document.createElement("option");
 				    el.textContent = item;
 				    el.value = item;
@@ -123,7 +70,7 @@ $(function(){
 				attribute = $(this).find(".attribute option:selected").text();
 				operator = $(this).find(".operator option:selected").text();
 				value = $(this).find(".value").val();
-				if (currentschemas[dataset][attribute] == "number") {
+				if (schemas[dataset][attribute] == "number") {
 					value = parseFloat(value);
 				}
 				tmp.push([attribute, operator, value]);
@@ -366,8 +313,13 @@ $(function(){
     });
 
 	// load dataset schemas
-	$.each(currentschemas, function(key, value){
+	$.each(schemas, function(key, value){
+		console.log(schemas);
 		if (key.indexOf("_type") == -1) {
+			console.log("in load dataset schemas");
+			console.log("key");
+			console.log(key);
+			console.log(key.indexOf("_type"));
 			// populate dataset names
 			var dataset_selector = document.getElementById("datasetSelector");
 			var el = document.createElement("option");
@@ -376,7 +328,6 @@ $(function(){
 		    dataset_selector.appendChild(el);
 		    $("#datasetSelector").val(key);
 		    $("#datasetSelector").trigger("change");
-		    $("#attributeFiller").trigger("change");
 		}
 	});
 
@@ -400,7 +351,7 @@ $(function(){
 				attribute = $(this).find(".attribute option:selected").text();
 				operator = $(this).find(".operator option:selected").text();
 				value = $(this).find(".value").val();
-				if (currentschemas[dataset][attribute] == "number") {
+				if (schemas[dataset][attribute] == "number") {
 					value = parseFloat(value);
 				}
 				tmp.push([attribute, operator, value]);
@@ -430,14 +381,14 @@ $(function(){
 			if (agg == "NONE") {
 				data.addColumn("number", x);
 			} else {
-				data.addColumn(currentschemas[dataset][x], x);
+				data.addColumn(schemas[dataset][x], x);
 			}
 			
 			if (hasComparison) {
-				data.addColumn(currentschemas[dataset][y], "Query 1");
-				data.addColumn(currentschemas[dataset][y], "Query 2");
+				data.addColumn(schemas[dataset][y], "Query 1");
+				data.addColumn(schemas[dataset][y], "Query 2");
 			} else {
-				data.addColumn(currentschemas[dataset][y], y);
+				data.addColumn(schemas[dataset][y], y);
 			}
 			if (schemas[dataset][x] == "number") {
 				ret["rows2"] = ret["rows2"].map(function(obj) {
@@ -526,7 +477,7 @@ $(function(){
 		el2.insertAfter($(".dummyRow" + idx));
 		$(".removeFilter").on("click", function (e) {
 			var idx = $(this).data('idx');
-			alert(idx);
+			//alert(idx);
 			$(this).closest('.attributeFilter' + idx).remove();
 			e.preventDefault();
 		});

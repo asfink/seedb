@@ -20,6 +20,7 @@ block content
                                 td(colspan="3")
                                     select#datasetSelector
 
+
                     div.row
                         h5 Query Selector
                         div.blue
@@ -72,34 +73,51 @@ block content
                                     input.btn.addAttributeFilter(data-idx=2, type="submit", value="Add Filter", style="background-color: #dc3912")
                     div.row
                         h5 Attributes
-                            input(type='checkbox', name='agreement', checked) 
-                            input(type='checkbox', name='attr1') 
-                            ul.list
-                                //- i need a list passed in of the attributes named something
-                                each attribute in attrlist
-                                    li.list-item 
+                        table.table
+                            tr.dummyRow2
+                                - console.log("MEOW");
+                                - console.log("#databaseSelector");
+                            tr
+                                select#attributeFiller
+
+                        //td(colspan="5")
+                        // ul 
+                        //a(href=url, data-active=isActive)
+                        //label
+                        //  input(type="checkbox", checked)
+                        //  |  yes / no
+
+                        //ul.list
+                        // i need a list passed in of the attributes named something
+                        // each attribute in attrlist
+                        //     li.list-item 
+                        //        div.row
+                        //         h5 Attributes
+                                
+                        //         input(type='checkbox', name='agreement', checked) this thing
+                        //         input(type='checkbox', name='attr1') that thing
 
 
-                                               //each item, index in list
-                        //- li.list-item
-                        //-     input.item-checkbox.js-done-toggle(
-                        //-         type='checkbox'
-                        //-         id='done-toggle-#{index}'
-                        //-         data-index='#{index}'
-                        //-         checked=item.done)
-                        //-     label.item-title(for='done-toggle-#{index}') #{item.title}
-                        //- ul
-                        //-   for attribute in #{attributes}
-                        //-     li= book
-                        //-   else
-                        //-     li sorry, no books!
+                        //each item, index in list
+                        // li.list-item
+                        //     input.item-checkbox.js-done-toggle(
+                        //         type='checkbox'
+                        //         id='done-toggle-#{index}'
+                        //         data-index='#{index}'
+                        //         checked=item.done)
+                        //     label.item-title(for='done-toggle-#{index}') #{item.title}
+                        // ul
+                        //   for attribute in #{attributes}
+                        //     li= book
+                        //   else
+                        //     li sorry, no books!
 
-                        //- mixin book(name, price)
-                        //-       li #{name} for #{price} €
+                        // mixin book(name, price)
+                        //       li #{name} for #{price} €
                               
-                        //-     ul#books
-                        //-       +book("Book A", 12.99)
-                        //-       +book("Book B", 5.99)
+                        //     ul#books
+                        //       +book("Book A", 12.99)
+                        //       +book("Book B", 5.99)
                     div.row
                         br
                         input.btn.addAttributeFilter(id="setQuery", type="submit", value="Get Recommendations", rec_type="seedb") 
