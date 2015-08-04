@@ -54,26 +54,59 @@ $(function(){
 		$(".attributes").each(function (i, obj){
 			var measures = false;
 			if ($(obj).hasClass("measures")) measures = true;
+			console.log($(obj));
 			$.each(schemas[curr_dataset], function (item, value) {
 				if (measures && schemas[curr_dataset + "_type"][item] == "measure") {	
 					var el = document.createElement("option");
 				    el.textContent = item;
 				    el.value = item;
 				    obj.appendChild(el);
+				    // console.log("measurement");
+				    // console.log(obj);
 				} else if (!measures) {
 					var el = document.createElement("option");
 				    el.textContent = item;
 				    el.value = item;
 				    obj.appendChild(el);
+				    // console.log("not measurement");
+				    // console.log(obj);
 				}
+				var attribute_selector = document.getElementById("attributeFilter");
+				console.log(attribute_selector);
+				console.log("ITEM PULLED IS");
+				console.log(item);
 			});
 		});
-
 		// fill in settings
 		$(".rec_settings").each(function(i, obj) {
 			// add stuff
 		});
 	});
+
+		/*
+				if (key.indexOf("_type") == -1) {
+			// populate dataset names
+			var dataset_selector = document.getElementById("datasetSelector");
+			var attribute_selector = document.getElementById("attributeFiller");
+			var el = document.createElement("option");
+			var attrf = document.createElement("input");
+			//var liEle = document.createElement("li");
+		    el.textContent = key;
+		    el.value = key;
+		    attrf.value = key;
+		    attrf.type = "checkbox";
+		    attrf.checked = true;
+		    attrf.className = "attrRadioBox";
+		    dataset_selector.appendChild(el);
+			var inputTxt = document.createTextNode(key);
+			attrf.appendChild(inputTxt)
+			//liEle.appendChild(attrf);
+			console.log(attribute_selector);
+			attribute_selector.appendChild(attrf);
+		    $("#datasetSelector").val(key);
+		    $("#datasetSelector").trigger("change");
+		    $("#attributeFiller").trigger("change");
+		    */
 
 	//for filling the attributes arae
 	$("#attributeFiller").change(function (e) {
@@ -365,15 +398,38 @@ $(function(){
         }
     });
 
+    $('#attributeSubmit').on("click", function(){
+    	console.log("buttonclicked");
+    	$('.attrRadioBox').each(function(){
+    		if (this.checked==false){
+    			//This is where the list of attributes is changed to remove these values
+    			console.log(this.value);
+    		}
+    	})
+
+    });
+
 	// load dataset schemas
 	$.each(schemas, function(key, value){
 		if (key.indexOf("_type") == -1) {
 			// populate dataset names
 			var dataset_selector = document.getElementById("datasetSelector");
+			// var attribute_selector = document.getElementById("attributeFilter");
 			var el = document.createElement("option");
+			// var attrf = document.createElement("input");
+			//var liEle = document.createElement("li");
 		    el.textContent = key;
 		    el.value = key;
+		    // attrf.value = key;
+		    // attrf.type = "checkbox";
+		    // attrf.checked = true;
+		    // attrf.className = "attrRadioBox";
 		    dataset_selector.appendChild(el);
+			// var inputTxt = document.createTextNode(key);
+			// attrf.appendChild(inputTxt)
+			//liEle.appendChild(attrf);
+			// console.log(attribute_selector);
+			// attribute_selector.appendChild(attrf);
 		    $("#datasetSelector").val(key);
 		    $("#datasetSelector").trigger("change");
 		}

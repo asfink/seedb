@@ -1,6 +1,10 @@
 extends layout
 
 block content
+    p #{schemas}
+    p !{schemas}
+    for thing in schemas
+        p #{thing}
     div.container
         div.row.panel
 
@@ -77,11 +81,9 @@ block content
                             tr.dummyRow2
 
                             tr
-                                    // - var currentIndex = $('#datasetSelector').find(":selected").text();
-                                    // - console.log(currentIndex);
                                 ul
                                     li meow
-                                form(name="attributeList")#attributeFiller
+                                form(name="attributeList")#attributeFilter
                                 input(type='submit', value='Submit', id="attributeSubmit") 
 
                         //td(colspan="5")
@@ -90,7 +92,8 @@ block content
                         //label
                         //  input(type="checkbox", checked)
                         //  |  yes / no
-
+                        // - var currentIndex = $('#datasetSelector').find(":selected").text();
+                        // - console.log(currentIndex);
                         //ul.list
                         // i need a list passed in of the attributes named something
                         // each attribute in attrlist
