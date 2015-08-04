@@ -1,15 +1,18 @@
 var express = require('express');
 var router = express.Router();
 var datasets = require('./datasets')
+var schemas = require('./schemas2')
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  res.render('index', { title: 'Express'});
 });
 
 /* GET Hello World page. */
 router.get('/seedb', function(req, res) {
 	// read in data and store
-    res.render('seedb', { title: 'SeeDB' })
+	console.log("in get");
+	console.log(schemas);
+    res.render('seedb', { title: 'SeeDB', dataVals: schemas})
 });
 
 router.get('/seedb_manual', function(req, res) {

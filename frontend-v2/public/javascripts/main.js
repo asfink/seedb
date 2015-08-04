@@ -365,6 +365,17 @@ $(function(){
         }
     });
 
+    $('#attributeSubmit').on("click", function(){
+    	console.log("buttonclicked");
+    	$('.attrRadioBox').each(function(){
+    		if (this.checked==false){
+    			//This is where the list of attributes is changed to remove these values
+    			console.log(this.value);
+    		}
+    	})
+
+    });
+
 	// load dataset schemas
 	$.each(schemas, function(key, value){
 		if (key.indexOf("_type") == -1) {
@@ -373,17 +384,24 @@ $(function(){
 			var attribute_selector = document.getElementById("attributeFiller");
 			var el = document.createElement("option");
 			var attrf = document.createElement("input");
+			//var liEle = document.createElement("li");
+			// var currenthtml = attribute_selector.innerHTML;
+			// var htmlString = "<input type=\"checkbox\" name=\"attribute\" value=\""+key+"\">"+key+"<br>";
+			// attribute_selector.innerHTML=currenthtml+htmlString;
 		    el.textContent = key;
 		    el.value = key;
-		    //attrf.value = a
-		    attrf.textContent = key;
 		    attrf.value = key;
 		    attrf.type = "checkbox";
 		    attrf.checked = true;
-		    // console.log(el);
-		    // console.log(attrf);
+		    attrf.className = "attrRadioBox";
 		    dataset_selector.appendChild(el);
+			// attribute_selector.appendChild(attrf);
+			// attribute_selector.appendChild(htmlString);
+			var inputTxt = document.createTextNode(key);
+			attrf.appendChild(inputTxt)
+			//liEle.appendChild(attrf);
 			attribute_selector.appendChild(attrf);
+			console.log(attribute_selector);
 		    $("#datasetSelector").val(key);
 		    $("#datasetSelector").trigger("change");
 		    $("#attributeFiller").trigger("change");

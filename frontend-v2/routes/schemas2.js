@@ -274,3 +274,5 @@ schemas2 = {
 		"median value of home" : "dimension"
 	}
 };
+
+module.exports=schemas2;

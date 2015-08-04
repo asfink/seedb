@@ -75,11 +75,11 @@ block content
                         h5 Attributes
                         table.table
                             tr.dummyRow2
-                                - console.log("MEOW");
-                                - console.log("#databaseSelector");
+
                             tr
-                                ul#attributeFiller
-                                input(type='submit', value='Submit') 
+                                p #{dataVals}
+                                form(name="attributeList")#attributeFiller
+                                input(type='submit', value='Submit', id="attributeSubmit") 
 
                         //td(colspan="5")
                         // ul 
