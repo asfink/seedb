@@ -2,6 +2,7 @@ extends layout
 
 block content
 
+
     div.container
         div.row.panel
 
@@ -74,15 +75,10 @@ block content
                                     input.btn.addAttributeFilter(data-idx=2, type="submit", value="Add Filter", style="background-color: #dc3912")
                     div.row
                         h5 Attributes
-                        table.table
-                            tr.dummyRow2
-
-                            tr
-                                ul
-                                    li meow
-                                form(name="attributeList")#attributeFilter
-                                input(type='submit', value='Submit', id="attributeSubmit") 
-
+                            form.form(method="post", id="attributeFilter", action="/manualPlot")
+                            input(type='submit', value='Submit', id="attributeSubmit") 
+                            //form.form(name="attributeList")#attributeFilter
+                                           
                         //td(colspan="5")
                         // ul 
                         //a(href=url, data-active=isActive)

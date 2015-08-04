@@ -51,6 +51,7 @@ $(function(){
 		// console.log(e.target);
 		var curr_dataset = e.target[e.target.selectedIndex].value;
 		$(".attributes").empty();
+		$("#attributeFilter").empty();
 		$(".attributes").each(function (i, obj){
 			var measures = false;
 			if ($(obj).hasClass("measures")) measures = true;
@@ -74,9 +75,9 @@ $(function(){
 				var attrf = document.createElement("input");
 			    attrf.type = "checkbox";
 			    attrf.checked = "checked";
-			    attrf.appendChild(document.createTextNode(item));
 				var attribute_selector = document.getElementById("attributeFilter");
 				attribute_selector.appendChild(attrf);
+				attribute_selector.appendChild(document.createTextNode(item));
 				// console.log(attrf);
 				console.log(attribute_selector);
 				// console.log("ITEM PULLED IS");
