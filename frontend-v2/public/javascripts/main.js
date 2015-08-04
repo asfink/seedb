@@ -54,7 +54,7 @@ $(function(){
 		$(".attributes").each(function (i, obj){
 			var measures = false;
 			if ($(obj).hasClass("measures")) measures = true;
-			console.log($(obj));
+			// console.log($(obj));
 			$.each(schemas[curr_dataset], function (item, value) {
 				if (measures && schemas[curr_dataset + "_type"][item] == "measure") {	
 					var el = document.createElement("option");
@@ -71,10 +71,16 @@ $(function(){
 				    // console.log("not measurement");
 				    // console.log(obj);
 				}
+				var attrf = document.createElement("input");
+			    attrf.type = "checkbox";
+			    attrf.checked = "checked";
+			    attrf.appendChild(document.createTextNode(item));
 				var attribute_selector = document.getElementById("attributeFilter");
+				attribute_selector.appendChild(attrf);
+				// console.log(attrf);
 				console.log(attribute_selector);
-				console.log("ITEM PULLED IS");
-				console.log(item);
+				// console.log("ITEM PULLED IS");
+				// console.log(item);
 			});
 		});
 		// fill in settings
@@ -82,6 +88,7 @@ $(function(){
 			// add stuff
 		});
 	});
+
 
 		/*
 				if (key.indexOf("_type") == -1) {
@@ -437,6 +444,7 @@ $(function(){
 
 	// load visualization library
 	google.load('visualization', '1.0', {'packages':['corechart'], callback: function() {}});
+
 
 	// implement manual plotting
 	$("#manualPlot").submit(function (e) {
