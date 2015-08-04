@@ -77,7 +77,10 @@ block content
                             tr.dummyRow2
 
                             tr
-                                p #{dataVals}
+                                    // - var currentIndex = $('#datasetSelector').find(":selected").text();
+                                    // - console.log(currentIndex);
+                                ul
+                                    li meow
                                 form(name="attributeList")#attributeFiller
                                 input(type='submit', value='Submit', id="attributeSubmit") 
 
