@@ -22,25 +22,6 @@ $(function(){
 	  };
 
 
-	//  // load dataset schemas
-	// $.each(schemas, function(key, value){
-	// 	console.log(schemas);
-	// 	if (key.indexOf("_type") == -1) {
-	// 		// console.log("in load dataset schemas");
-	// 		// console.log("key");
-	// 		// console.log(key);
-	// 		// console.log(key.indexOf("_type"));
-	// 		// populate dataset names
-	// 		var dataset_selector = document.getElementById("datasetSelector");
-	// 		var el = document.createElement("option");
-	// 	    el.textContent = key;
-	// 	    el.value = key;
-	// 	    dataset_selector.appendChild(el);
-	// 	    $("#datasetSelector").val(key);
-	// 	    $("#datasetSelector").trigger("change");
-	// 	}
-	// });
-
 	$("#getLog").on('click', function (e) {
 		bugout.downloadLog();
 	});
@@ -91,63 +72,6 @@ $(function(){
 		});
 	});
 
-
-		/*
-				if (key.indexOf("_type") == -1) {
-			// populate dataset names
-			var dataset_selector = document.getElementById("datasetSelector");
-			var attribute_selector = document.getElementById("attributeFiller");
-			var el = document.createElement("option");
-			var attrf = document.createElement("input");
-			//var liEle = document.createElement("li");
-		    el.textContent = key;
-		    el.value = key;
-		    attrf.value = key;
-		    attrf.type = "checkbox";
-		    attrf.checked = true;
-		    attrf.className = "attrRadioBox";
-		    dataset_selector.appendChild(el);
-			var inputTxt = document.createTextNode(key);
-			attrf.appendChild(inputTxt)
-			//liEle.appendChild(attrf);
-			console.log(attribute_selector);
-			attribute_selector.appendChild(attrf);
-		    $("#datasetSelector").val(key);
-		    $("#datasetSelector").trigger("change");
-		    $("#attributeFiller").trigger("change");
-		    */
-
-	//for filling the attributes arae
-	$("#attributeFiller").change(function (e) {
-		// console.log("#attributeFiller");
-		// //console.log(e);
-		// console.log(e.target);
-		// //console.log(e.target[e.target.selectedIndex]);
-		// var curr_dataset = e.target[e.target.selectedIndex];
-		// $(".attributes").empty();
-		// $(".attributes").each(function (i, obj){
-		// 	var measures = false;
-		// 	if ($(obj).hasClass("measures")) measures = true;
-		// 	$.each(schemas[curr_dataset], function (item, value) {
-		// 		if (measures && schemas[curr_dataset + "_type"][item] == "measure") {	
-		// 			var el = document.createElement("option");
-		// 		    el.textContent = item;
-		// 		    el.value = item;
-		// 		    obj.appendChild(el);
-		// 		} else if (!measures) {
-		// 			var el = document.createElement("option");
-		// 		    el.textContent = item;
-		// 		    el.value = item;
-		// 		    obj.appendChild(el);
-		// 		}
-		// 	});
-		// });
-
-		// // fill in settings
-		// $(".rec_settings").each(function(i, obj) {
-		// 	// add stuff
-		// });
-	});
 
 	$("#setQuery").on('click', function (e) {
 		var rec_type = $(this).attr('rec_type');
