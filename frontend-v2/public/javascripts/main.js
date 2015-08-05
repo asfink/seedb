@@ -63,7 +63,33 @@ $(function(){
 		    attrf.className = "attrfBox";
 		    attrf.value = item;
 			attribute_selector.appendChild(attrf);
-			attribute_selector.appendChild(document.createTextNode(item));
+			attribute_selector.appendChild(document.createTextNode(item+" "));
+			// attribute_selector.appendChild(document.createElement("&nbsp"));
+
+			var sumbutton = document.createElement("button");
+			sumbutton.type="button";
+			sumbutton.value = "sum";
+			sumbutton.className="sumButton";
+			//$(".sumButton").addClass('active');
+			sumbutton.appendChild(document.createTextNode("sum"));
+			attribute_selector.appendChild(sumbutton);
+
+			var countbutton = document.createElement("button");
+			countbutton.type="button";
+			countbutton.value = "count";
+			countbutton.className="countButton";
+			//$(".sumButton").addClass('active');
+			countbutton.appendChild(document.createTextNode("count"));
+			attribute_selector.appendChild(countbutton);
+
+			var avgbutton = document.createElement("button");
+			avgbutton.type="button";
+			avgbutton.value = "count";
+			avgbutton.className="avgButton";
+			//$(".sumButton").addClass('active');
+			avgbutton.appendChild(document.createTextNode("avg"));
+			attribute_selector.appendChild(avgbutton);
+
 			attribute_selector.appendChild(document.createElement("br"));
 			// console.log(attrf);
 			// console.log(attribute_selector);
@@ -77,6 +103,7 @@ $(function(){
 		});
 	});
 
+	($)
 
 	$("#setQuery").on('click', function (e) {
 		var rec_type = $(this).attr('rec_type');
@@ -101,7 +128,7 @@ $(function(){
 			});
 			filters.push(tmp);
 		}
-
+		//gets all unchecked boxes for identifying uninterested attributes
 		var unchecked = [];
 		$('.attrfBox').each(function(index, obj){
 			if(!$(obj).is(':checked')){

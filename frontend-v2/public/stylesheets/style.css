@@ -82,3 +82,10 @@ a {
     border: 2px solid #dc3912;
     padding: 20px; 
 }
+
+.sumButton{
+
+}
+.sumButton :active{
+	background-color: blue;
+}
