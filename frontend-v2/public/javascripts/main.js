@@ -34,7 +34,6 @@ $(function(){
 		$(".attributes").empty();
 		$("#attributeFilter").empty();
 		$(".attributes").each(function (i, obj){
-			console.log(obj);
 			var measures = false;
 			if ($(obj).hasClass("measures")) measures = true;
 			// console.log($(obj));
@@ -62,6 +61,7 @@ $(function(){
 		    attrf.type = "checkbox";
 		    attrf.checked = "checked";
 		    attrf.className = "attrfBox";
+		    attrf.value = item;
 			attribute_selector.appendChild(attrf);
 			attribute_selector.appendChild(document.createTextNode(item));
 			attribute_selector.appendChild(document.createElement("br"));
@@ -101,12 +101,20 @@ $(function(){
 			});
 			filters.push(tmp);
 		}
+
+		var unchecked = [];
+		$('.attrfBox').each(function(index, obj){
+			if(!$(obj).is(':checked')){
+				unchecked.push(obj.value);
+			}
+		});
 		
 		var params = {
 			dataset : dataset,
 			hasComparison : hasComparison,
 			filters : JSON.stringify(filters),
-			rec_type : rec_type
+			rec_type : rec_type,
+			remove_attrs  : JSON.stringify(unchecked)
 		};
 
 

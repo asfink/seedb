@@ -37,13 +37,20 @@ router.post('/getRecommendations', function(req, res) {
 	order = datasets.datasets[req.body.dataset].order;
 	console.log(order);
 	col_types = datasets.datasets[req.body.dataset].type;
-	//console.log(col_types);
+
+	//Removes the uninterested attributes for recommendation making
+	var to_remove = JSON.parse(req.body.remove_attrs);
+	//TO HOOK UP ATTRIBUTE SELECTIONS, MUST REMOVE FROM THE COLUMN TYPE OBJECT
+	to_remove.forEach(function(attr){
+		delete col_types[attr];
+		//console.log(attr);
+	});
+
 	hasComparison = (req.body.hasComparison == 'true');
 	agg = req.body.agg;
 	filters = JSON.parse(req.body.filters);
-	//console.log	(filters);
+	//console.log(filters);
 	rec_type = req.body.rec_type;
-
 	// filter has format: [[q1_filters], [q2_filters]]
 	// q_filters is an array of format [attr_name, operator, value]
 
