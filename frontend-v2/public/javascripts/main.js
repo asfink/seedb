@@ -26,7 +26,7 @@ $(function(){
 		bugout.downloadLog();
 	});
 
-		$("#datasetSelector").change(function (e) {
+	$("#datasetSelector").change(function (e) {
 		// console.log("#datasetSelector");
 		// console.log(e);
 		// console.log(e.target);
@@ -34,6 +34,7 @@ $(function(){
 		$(".attributes").empty();
 		$("#attributeFilter").empty();
 		$(".attributes").each(function (i, obj){
+			console.log(obj);
 			var measures = false;
 			if ($(obj).hasClass("measures")) measures = true;
 			// console.log($(obj));
@@ -53,19 +54,23 @@ $(function(){
 				    // console.log("not measurement");
 				    // console.log(obj);
 				}
-				var attrf = document.createElement("input");
-			    attrf.type = "checkbox";
-			    attrf.checked = "checked";
-				var attribute_selector = document.getElementById("attributeFilter");
-				attribute_selector.appendChild(attrf);
-				attribute_selector.appendChild(document.createTextNode(item));
-				attribute_selector.appendChild(document.createElement("br"));
-				// console.log(attrf);
-				console.log(attribute_selector);
-				// console.log("ITEM PULLED IS");
-				// console.log(item);
 			});
 		});
+		$.each(schemas[curr_dataset],function(item,value){
+			var attribute_selector = document.getElementById("attributeFilter");
+			var attrf = document.createElement("input");
+		    attrf.type = "checkbox";
+		    attrf.checked = "checked";
+		    attrf.className = "attrfBox";
+			attribute_selector.appendChild(attrf);
+			attribute_selector.appendChild(document.createTextNode(item));
+			attribute_selector.appendChild(document.createElement("br"));
+			// console.log(attrf);
+			// console.log(attribute_selector);
+			// console.log("ITEM PULLED IS");
+			// console.log(item);
+		});
+
 		// fill in settings
 		$(".rec_settings").each(function(i, obj) {
 			// add stuff
@@ -104,18 +109,17 @@ $(function(){
 			rec_type : rec_type
 		};
 
+
 		$("#recs_div .real_rec").remove();
 		bugout.log({"getRec" : params});
 
-		console.log(params);
 		// make ajax request
 		$.post('/getRecommendations', params, function(ret) {
-			console.log(ret);
+			//console.log(ret);
 			var recs = JSON.parse(ret);
 
 			for (var i = 0; i < recs.length; i++) {
 				var rec = recs[i];
-				console.log(rec);
 				var data = new google.visualization.DataTable();
 				// populate metadata from schema
 				data.addColumn("string", rec.x);
@@ -331,38 +335,16 @@ $(function(){
         }
     });
 
-    $('#attributeSubmit').on("click", function(){
-    	console.log("buttonclicked");
-    	$('.attrRadioBox').each(function(){
-    		if (this.checked==false){
-    			//This is where the list of attributes is changed to remove these values
-    			console.log(this.value);
-    		}
-    	})
-
-    });
 
 	// load dataset schemas
 	$.each(schemas, function(key, value){
 		if (key.indexOf("_type") == -1) {
 			// populate dataset names
 			var dataset_selector = document.getElementById("datasetSelector");
-			// var attribute_selector = document.getElementById("attributeFilter");
 			var el = document.createElement("option");
-			// var attrf = document.createElement("input");
-			//var liEle = document.createElement("li");
 		    el.textContent = key;
 		    el.value = key;
-		    // attrf.value = key;
-		    // attrf.type = "checkbox";
-		    // attrf.checked = true;
-		    // attrf.className = "attrRadioBox";
 		    dataset_selector.appendChild(el);
-			// var inputTxt = document.createTextNode(key);
-			// attrf.appendChild(inputTxt)
-			//liEle.appendChild(attrf);
-			// console.log(attribute_selector);
-			// attribute_selector.appendChild(attrf);
 		    $("#datasetSelector").val(key);
 		    $("#datasetSelector").trigger("change");
 		}
@@ -405,13 +387,13 @@ $(function(){
 			hasComparison : hasComparison,
 			filters : JSON.stringify(filters)
 		};
-		console.log(params);
+		//console.log(params);
 		bugout.log({"manualPlot" : params});
 		
 		$.post('/manualPlot', params, function(ret) {
 			// do the processing and create the chart
 			ret = JSON.parse(ret);
-			console.log(ret);
+			//console.log(ret);
 			
 			var data = new google.visualization.DataTable();
 			// populate metadata from schema

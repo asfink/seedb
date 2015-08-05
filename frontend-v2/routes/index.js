@@ -33,12 +33,15 @@ router.get('/seedb_all', function(req, res) {
 router.post('/getRecommendations', function(req, res) {
 	//rec_type = req.body.rec_type;
 	table = datasets.datasets[req.body.dataset].data;
+	//console.log(table);
 	order = datasets.datasets[req.body.dataset].order;
+	console.log(order);
 	col_types = datasets.datasets[req.body.dataset].type;
+	//console.log(col_types);
 	hasComparison = (req.body.hasComparison == 'true');
 	agg = req.body.agg;
 	filters = JSON.parse(req.body.filters);
-	console.log	(filters);
+	//console.log	(filters);
 	rec_type = req.body.rec_type;
 
 	// filter has format: [[q1_filters], [q2_filters]]
@@ -52,7 +55,7 @@ router.post('/getRecommendations', function(req, res) {
 			attrs[filters[i][j][0]] = true;
 		}	
 	}
-	console.log(attrs);
+	//console.log(attrs);
 
 	// collect all measures and dimensions
 	var measures = [];
@@ -68,8 +71,8 @@ router.post('/getRecommendations', function(req, res) {
 			measures.push(order[t]);
 		}
 	}
-	console.log(measures);
-	console.log(dimensions);
+	//console.log(measures);
+	//console.log(dimensions);
 
 	var views = {};
 	// go through each row
