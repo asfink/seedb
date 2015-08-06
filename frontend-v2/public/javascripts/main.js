@@ -66,29 +66,36 @@ $(function(){
 			attribute_selector.appendChild(document.createTextNode(item+" "));
 			// attribute_selector.appendChild(document.createElement("&nbsp"));
 
+			var grouping = document.createElement("div");
+			grouping.className="btn-group btn-group-xs";
+			grouping.role="group";
+
 			var sumbutton = document.createElement("button");
 			sumbutton.type="button";
 			sumbutton.value = "sum";
-			sumbutton.className="sumButton";
+			sumbutton.className="sumButton btn btn-primary";
 			//$(".sumButton").addClass('active');
 			sumbutton.appendChild(document.createTextNode("sum"));
-			attribute_selector.appendChild(sumbutton);
 
 			var countbutton = document.createElement("button");
 			countbutton.type="button";
 			countbutton.value = "count";
-			countbutton.className="countButton";
+			countbutton.className="countButton btn btn-primary";
 			//$(".sumButton").addClass('active');
 			countbutton.appendChild(document.createTextNode("count"));
-			attribute_selector.appendChild(countbutton);
 
 			var avgbutton = document.createElement("button");
 			avgbutton.type="button";
-			avgbutton.value = "count";
-			avgbutton.className="avgButton";
+			avgbutton.value = "avg";
+			avgbutton.className="avgButton btn btn-primary";
 			//$(".sumButton").addClass('active');
 			avgbutton.appendChild(document.createTextNode("avg"));
-			attribute_selector.appendChild(avgbutton);
+
+			grouping.appendChild(sumbutton);
+			grouping.appendChild(countbutton);
+			grouping.appendChild(avgbutton);
+
+			attribute_selector.appendChild(grouping);
 
 			attribute_selector.appendChild(document.createElement("br"));
 			// console.log(attrf);
@@ -102,8 +109,8 @@ $(function(){
 			// add stuff
 		});
 	});
+	
 
-	($)
 
 	$("#setQuery").on('click', function (e) {
 		var rec_type = $(this).attr('rec_type');
@@ -538,5 +545,14 @@ $(function(){
 		e.preventDefault();
 	});
 
-	
+	$(".sumButton").on("click", function(obj){
+		$(obj.toElement).toggleClass("btn-primary");
+	});
+	$(".countButton").on("click", function(obj){
+		$(obj.toElement).toggleClass("btn-primary");
+	});
+	$(".avgButton").on("click", function(obj){
+		$(obj.toElement).toggleClass("btn-primary");
+	});
+
 });

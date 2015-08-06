@@ -82,10 +82,28 @@ a {
     border: 2px solid #dc3912;
     padding: 20px; 
 }
-
+/*
 .sumButton{
+	background-color: none;
 
 }
-.sumButton :active{
+
+.sumButtonClicked{
 	background-color: blue;
 }
+
+.countButton{
+
+}
+.countButtonClicked{
+	background-color: blue;
+
+}
+
+.avgButton{
+
+}
+
+.avgButtonClicked{
+	background-color: blue;
+}*/
