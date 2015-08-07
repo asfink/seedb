@@ -161,8 +161,9 @@ $(function(){
 			var recs = JSON.parse(ret);
 			var blueString = null;
 			var redString = null;
+			console.log(filters);
 			if (filters[0].length>0){
-				var blueQ = filters[0]
+				var blueQ = filters[0];
 				for (var i=0; i<blueQ.length; i++){
 					if(blueQ[i].length>0){
 						var filterQ = blueQ[i][0]+" "+blueQ[i][1]+" "+blueQ[i][2];
@@ -177,16 +178,16 @@ $(function(){
 				}
 			}
 			if (filters[1].length>0){
-				var redQ = filters[0]
+				var redQ = filters[1];
 				for (var i=0; i<redQ.length; i++){
 					if(redQ[i].length>0){
 						var filterQ = redQ[i][0]+" "+redQ[i][1]+" "+redQ[i][2];
-						if(blueString === null){
-							blueString=filterQ;
+						if(redString === null){
+							redString=filterQ;
 						}
 						else 
 						{
-							blueString = blueString + " & " + filterQ;
+							redString = redString + " & " + filterQ;
 						}
 					}
 				}
@@ -209,14 +210,26 @@ $(function(){
 					data.addColumn("number", "Query 1");
 				} else {
 					if (hasComparison) {
-						data.addColumn("number", blueString);
-						data.addColumn("number", RedString);
+						if(blueString!==null&&redString!==null){
+							data.addColumn("number", blueString);
+							data.addColumn("number", redString);		
+						}
+						else if (blueString===null&redString!==null)
+						{
+							data.addColumn("number", "Full");
+							data.addColumn("number", redString);
+						}
+						else
+						{
+							data.addColumn("number", "Query");
+							data.addColumn("number", "Full");	
+						}
 					} else {
-						if(blueString===null){
+						if(blueString===null&&redString!==null){
 							data.addColumn("number", "Full");
 							data.addColumn("number", RedString);
 						}
-						else if (redString===null){
+						else if (redString===null&&blueString!==null){
 							data.addColumn("number", blueString);
 							data.addColumn("number", "Full");
 						}
