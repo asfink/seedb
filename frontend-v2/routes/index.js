@@ -35,7 +35,7 @@ router.post('/getRecommendations', function(req, res) {
 	table = datasets.datasets[req.body.dataset].data;
 	//console.log(table);
 	order = datasets.datasets[req.body.dataset].order;
-	console.log(order);
+	//console.log(order);
 	col_types = datasets.datasets[req.body.dataset].type;
 
 	//Removes the uninterested attributes for recommendation making
@@ -138,7 +138,7 @@ router.post('/getRecommendations', function(req, res) {
 		for (var i = 0; i < aggs.length; i++) {
 			// get dimension
 			dim = viewKey.split('_')[0];
-			console.log(dim);
+			//console.log(dim);
 			
 			if (i == 0) {
 				if (dim in count_done) {
@@ -150,7 +150,7 @@ router.post('/getRecommendations', function(req, res) {
 			} else {
 				var finalKey = viewKey + "__" + aggs[i];
 			}
-			console.log(finalKey);
+			//console.log(finalKey);
 			var dist = [];
 			for (key in views[viewKey]) {
 				dist.push([key, 
@@ -258,7 +258,7 @@ router.post('/getRecommendations', function(req, res) {
 	} else {
 		var tmp = intermediates.slice(0, 15);
 		for (var m = 0; m < tmp.length; m++) {
-			console.log([intermediates[m].utility, intermediates[m].type]);
+			//console.log([intermediates[m].utility, intermediates[m].type]);
 		}
 	}
 
@@ -288,8 +288,8 @@ router.post('/manualPlot', function(req, res) {
 		}	
 	}
 
-	console.log(filters);
-	console.log(req.body);
+	//console.log(filters);
+	//console.log(req.body);
 	
 	// format of answer is key: [[q1_sum, q1_count], [q2_sum, q2_count]]
 	var answer = {};

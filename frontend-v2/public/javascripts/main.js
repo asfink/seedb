@@ -72,21 +72,21 @@ $(function(){
 
 			var sumbutton = document.createElement("button");
 			sumbutton.type="button";
-			sumbutton.value = "sum";
+			sumbutton.value = item;
 			sumbutton.className="sumButton btn btn-primary";
 			//$(".sumButton").addClass('active');
 			sumbutton.appendChild(document.createTextNode("sum"));
 
 			var countbutton = document.createElement("button");
 			countbutton.type="button";
-			countbutton.value = "count";
+			countbutton.value = item;
 			countbutton.className="countButton btn btn-primary";
 			//$(".sumButton").addClass('active');
 			countbutton.appendChild(document.createTextNode("count"));
 
 			var avgbutton = document.createElement("button");
 			avgbutton.type="button";
-			avgbutton.value = "avg";
+			avgbutton.value = item;
 			avgbutton.className="avgButton btn btn-primary";
 			//$(".sumButton").addClass('active');
 			avgbutton.appendChild(document.createTextNode("avg"));
@@ -159,6 +159,46 @@ $(function(){
 		$.post('/getRecommendations', params, function(ret) {
 			//console.log(ret);
 			var recs = JSON.parse(ret);
+			var blueString = null;
+			var redString = null;
+			if (filters[0].length>0){
+				var blueQ = filters[0]
+				for (var i=0; i<blueQ.length; i++){
+					if(blueQ[i].length>0){
+						var filterQ = blueQ[i][0]+" "+blueQ[i][1]+" "+blueQ[i][2];
+						if(blueString === null){
+							blueString=filterQ;
+						}
+						else 
+						{
+							blueString = blueString + " & " + filterQ;
+						}
+					}
+				}
+			}
+			if (filters[1].length>0){
+				var redQ = filters[0]
+				for (var i=0; i<redQ.length; i++){
+					if(redQ[i].length>0){
+						var filterQ = redQ[i][0]+" "+redQ[i][1]+" "+redQ[i][2];
+						if(blueString === null){
+							blueString=filterQ;
+						}
+						else 
+						{
+							blueString = blueString + " & " + filterQ;
+						}
+					}
+				}
+			}
+			console.log(blueString);
+			console.log(redString);
+			// for (var i=0; i < filters[0].length; i++){
+			// 	if(filters[0][i].length>0){
+			// 		//
+			// 	}
+			// }
+
 
 			for (var i = 0; i < recs.length; i++) {
 				var rec = recs[i];
@@ -169,11 +209,22 @@ $(function(){
 					data.addColumn("number", "Query 1");
 				} else {
 					if (hasComparison) {
-						data.addColumn("number", "Query 1");
-						data.addColumn("number", "Query 2");
+						data.addColumn("number", blueString);
+						data.addColumn("number", RedString);
 					} else {
-						data.addColumn("number", "Query");
-						data.addColumn("number", "Full");
+						if(blueString===null){
+							data.addColumn("number", "Full");
+							data.addColumn("number", RedString);
+						}
+						else if (redString===null){
+							data.addColumn("number", blueString);
+							data.addColumn("number", "Full");
+						}
+						else
+						{
+							data.addColumn("number", "Query");
+							data.addColumn("number", "Full");	
+						}
 					}
 				}
 				
@@ -255,7 +306,8 @@ $(function(){
 			    	$('#x_axis option[value="' + options.x + '"]').attr('selected', 'selected');
         			$('#y_axis option[value="' + options.y + '"]').attr('selected', 'selected');
         			$('#y_aggregate option[value="' + options.agg + '"]').attr('selected', 'selected');
-			    	
+
+
 			    	var chart;
 			    	if (options['agg'] == "NONE") {
 			    		chart = new google.visualization.ScatterChart(document.getElementById("big_viz"));
@@ -263,6 +315,7 @@ $(function(){
 			    		chart = new google.visualization.ColumnChart(document.getElementById("big_viz"));
 			    	}
 			    	chart.draw(data, options);
+			    	// console.log(chart);
 			    	$('#big_viz').data('image_raw_data', data);
 			    	$('#big_viz').data('image_options', options);
 			    	$(".bookmark").removeClass('bookmarked');
