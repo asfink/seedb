@@ -10,7 +10,7 @@ router.get('/', function(req, res, next) {
 /* GET Hello World page. */
 router.get('/seedb', function(req, res) {
 	// read in data and store
-    res.render('seedb', { title: 'SeeDB', schemas: schemas})
+    res.render('seedb', { title: 'SeeDB'})
 });
 
 router.get('/seedb_manual', function(req, res) {

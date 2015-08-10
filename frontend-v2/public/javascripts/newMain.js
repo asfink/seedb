@@ -1,3 +1,168 @@
+
+
+$(function(){
+	$('#bookmarked').hide();
+	$('#seeRecommendations').hide();
+	$('#big_viz').hide();
+	$('#vis_builder').hide();
+	$('#rec_settings').hide();
+	$('#submitRec').hide();
+	$('#attributeFilter').hide();
+	$('#comparisonQuery').hide();
+	$('#comparisonSelector').hide();
+	$('#querySelector').hide();
+	$('#dataSetSelector').hide();
+	$('#bookmarkButton').hide();
+	$('#logger').hide();
+	$('#dataHide').hide();
+});
+$(document).ready(function(){
+	// load dataset schemas
+	var dbSelect = document.getElementById("databaseSelector");
+	var base1 = document.createElement("option");
+	base1.textContent = 'test';
+	base1.value = 'test';
+	dbSelect.appendChild(base1);
+	$("#databaseSelector").val('test');
+	var blankOne = document.createElement("option");
+	blankOne.textContent = '';
+	blankOne.value = '';
+	dbSelect.appendChild(blankOne);
+	$("#databaseSelector").val('');
+
+	$('#databaseSelector').change(function(eventObj){	
+		var lastV = null;
+		//gets the name of the selected DB
+		var selectedDB = eventObj.target[eventObj.target.selectedIndex].value;
+		console.log(selectedDB);
+		$('#dataHide').show("slow");
+		//Use an AJAX call to get the list of tables from the database
+		$.ajax({
+			url: 'www.meow.meow',
+			method: 'GET',
+			data: {},
+			success: function(data) {
+				console.log("success");
+				//console.log(data);
+					// load dataset schemas
+				$.each(data, function(key, value){
+					if (key.indexOf("_type") == -1) {
+						// populate dataset names
+						var dataset_selector = document.getElementById("datasetSelector");
+						var el = document.createElement("option");
+					    el.textContent = key;
+					    el.value = key;
+					    dataset_selector.appendChild(el);
+					    $("#datasetSelector").val(key);
+					    $("#datasetSelector").trigger("change");
+					}
+				});
+				$('#querySelector').show("slow");
+			},
+			error: function(){
+				console.log("failure!");
+				// load dataset schemas
+				var dataset_selector = document.getElementById("datasetSelector");
+				$.each(schemas, function(key, value){
+					if (key.indexOf("_type") == -1) {
+						// populate dataset names
+						var el = document.createElement("option");
+					    el.textContent = key;
+					    el.value = key;
+					    dataset_selector.appendChild(el);
+					    lastV = key;
+					}
+				});
+			    $("#datasetSelector").val(lastV);
+			    $("#datasetSelector").trigger("change");
+			}
+		});
+	});
+
+	$("#datasetSelector").change(function (e) {
+		// console.log("#datasetSelector");
+		console.log(e);
+		// console.log(e.target);
+		var curr_dataset = e.target[e.target.selectedIndex].value;
+		$(".attributes").empty();
+		$("#attributeFilter").empty();
+		$(".attributes").each(function (i, obj){
+			var measures = false;
+			if ($(obj).hasClass("measures")) measures = true;
+			// console.log($(obj));
+			$.each(schemas[curr_dataset], function (item, value) {
+				if (measures && schemas[curr_dataset + "_type"][item] == "measure") {	
+					var el = document.createElement("option");
+				    el.textContent = item;
+				    el.value = item;
+				    obj.appendChild(el);
+				    // console.log("measurement");
+				    // console.log(obj);
+				} else if (!measures) {
+					var el = document.createElement("option");
+				    el.textContent = item;
+				    el.value = item;
+				    obj.appendChild(el);
+				    // console.log("not measurement");
+				    // console.log(obj);
+				}
+			});
+		});
+		$.each(schemas[curr_dataset],function(item,value){
+			var attribute_selector = document.getElementById("attributeFilter");
+			var attrf = document.createElement("input");
+		    attrf.type = "checkbox";
+		    attrf.checked = "checked";
+		    attrf.className = "attrfBox";
+		    attrf.value = item;
+			attribute_selector.appendChild(attrf);
+			attribute_selector.appendChild(document.createTextNode(item+" "));
+			// attribute_selector.appendChild(document.createElement("&nbsp"));
+
+			var grouping = document.createElement("div");
+			grouping.className="btn-group btn-group-xs";
+			grouping.role="group";
+
+			var sumbutton = document.createElement("button");
+			sumbutton.type="button";
+			sumbutton.value = item;
+			sumbutton.className="sumButton btn btn-primary";
+			//$(".sumButton").addClass('active');
+			sumbutton.appendChild(document.createTextNode("sum"));
+
+			var countbutton = document.createElement("button");
+			countbutton.type="button";
+			countbutton.value = item;
+			countbutton.className="countButton btn btn-primary";
+			//$(".sumButton").addClass('active');
+			countbutton.appendChild(document.createTextNode("count"));
+
+			var avgbutton = document.createElement("button");
+			avgbutton.type="button";
+			avgbutton.value = item;
+			avgbutton.className="avgButton btn btn-primary";
+			//$(".sumButton").addClass('active');
+			avgbutton.appendChild(document.createTextNode("avg"));
+
+			grouping.appendChild(sumbutton);
+			grouping.appendChild(countbutton);
+			grouping.appendChild(avgbutton);
+
+			attribute_selector.appendChild(grouping);
+
+			attribute_selector.appendChild(document.createElement("br"));
+			// console.log(attrf);
+			// console.log(attribute_selector);
+			// console.log("ITEM PULLED IS");
+			// console.log(item);
+		});
+
+		// fill in settings
+		$(".rec_settings").each(function(i, obj) {
+			// add stuff
+		});
+	});
+});
 $(function(){
 
 	var big_width = 700;
@@ -21,38 +186,14 @@ $(function(){
   		hideControlOnEnd: true
 	  };
 
-	 var currentSchema = "schemas"
 
 	$("#getLog").on('click', function (e) {
 		bugout.downloadLog();
 	});
 
-	$("#datasetSelector").change(function (e) {
-		var curr_dataset = e.target[e.target.selectedIndex].value;
-		$(".attributes").empty();
-		$(".attributes").each(function (i, obj){
-			var measures = false;
-			if ($(obj).hasClass("measures")) measures = true;
-			$.each(schemas[curr_dataset], function (item, value) {
-				if (measures && schemas[curr_dataset + "_type"][item] == "measure") {	
-					var el = document.createElement("option");
-				    el.textContent = item;
-				    el.value = item;
-				    obj.appendChild(el);
-				} else if (!measures) {
-					var el = document.createElement("option");
-				    el.textContent = item;
-				    el.value = item;
-				    obj.appendChild(el);
-				}
-			});
-		});
+	
+	
 
-		// fill in settings
-		$(".rec_settings").each(function(i, obj) {
-			// add stuff
-		});
-	});
 
 	$("#setQuery").on('click', function (e) {
 		var rec_type = $(this).attr('rec_type');
@@ -77,26 +218,74 @@ $(function(){
 			});
 			filters.push(tmp);
 		}
+		//gets all unchecked boxes for identifying uninterested attributes
+		var unchecked = [];
+		$('.attrfBox').each(function(index, obj){
+			if(!$(obj).is(':checked')){
+				unchecked.push(obj.value);
+			}
+		});
 		
 		var params = {
 			dataset : dataset,
 			hasComparison : hasComparison,
 			filters : JSON.stringify(filters),
-			rec_type : rec_type
+			rec_type : rec_type,
+			remove_attrs  : JSON.stringify(unchecked)
 		};
+
 
 		$("#recs_div .real_rec").remove();
 		bugout.log({"getRec" : params});
 
-		console.log(params);
 		// make ajax request
 		$.post('/getRecommendations', params, function(ret) {
-			console.log(ret);
+			//console.log(ret);
 			var recs = JSON.parse(ret);
+			var blueString = null;
+			var redString = null;
+			console.log(filters);
+			if (filters[0].length>0){
+				var blueQ = filters[0];
+				for (var i=0; i<blueQ.length; i++){
+					if(blueQ[i].length>0){
+						var filterQ = blueQ[i][0]+" "+blueQ[i][1]+" "+blueQ[i][2];
+						if(blueString === null){
+							blueString=filterQ;
+						}
+						else 
+						{
+							blueString = blueString + " & " + filterQ;
+						}
+					}
+				}
+			}
+			if (filters[1].length>0){
+				var redQ = filters[1];
+				for (var i=0; i<redQ.length; i++){
+					if(redQ[i].length>0){
+						var filterQ = redQ[i][0]+" "+redQ[i][1]+" "+redQ[i][2];
+						if(redString === null){
+							redString=filterQ;
+						}
+						else 
+						{
+							redString = redString + " & " + filterQ;
+						}
+					}
+				}
+			}
+			console.log(blueString);
+			console.log(redString);
+			// for (var i=0; i < filters[0].length; i++){
+			// 	if(filters[0][i].length>0){
+			// 		//
+			// 	}
+			// }
+
 
 			for (var i = 0; i < recs.length; i++) {
 				var rec = recs[i];
-				console.log(rec);
 				var data = new google.visualization.DataTable();
 				// populate metadata from schema
 				data.addColumn("string", rec.x);
@@ -104,11 +293,34 @@ $(function(){
 					data.addColumn("number", "Query 1");
 				} else {
 					if (hasComparison) {
-						data.addColumn("number", "Query 1");
-						data.addColumn("number", "Query 2");
+						if(blueString!==null&&redString!==null){
+							data.addColumn("number", blueString);
+							data.addColumn("number", redString);		
+						}
+						else if (blueString===null&redString!==null)
+						{
+							data.addColumn("number", "Full");
+							data.addColumn("number", redString);
+						}
+						else
+						{
+							data.addColumn("number", "Query");
+							data.addColumn("number", "Full");	
+						}
 					} else {
-						data.addColumn("number", "Query");
-						data.addColumn("number", "Full");
+						if(blueString===null&&redString!==null){
+							data.addColumn("number", "Full");
+							data.addColumn("number", RedString);
+						}
+						else if (redString===null&&blueString!==null){
+							data.addColumn("number", blueString);
+							data.addColumn("number", "Full");
+						}
+						else
+						{
+							data.addColumn("number", "Query");
+							data.addColumn("number", "Full");	
+						}
 					}
 				}
 				
@@ -190,7 +402,8 @@ $(function(){
 			    	$('#x_axis option[value="' + options.x + '"]').attr('selected', 'selected');
         			$('#y_axis option[value="' + options.y + '"]').attr('selected', 'selected');
         			$('#y_aggregate option[value="' + options.agg + '"]').attr('selected', 'selected');
-			    	
+
+
 			    	var chart;
 			    	if (options['agg'] == "NONE") {
 			    		chart = new google.visualization.ScatterChart(document.getElementById("big_viz"));
@@ -198,6 +411,7 @@ $(function(){
 			    		chart = new google.visualization.ColumnChart(document.getElementById("big_viz"));
 			    	}
 			    	chart.draw(data, options);
+			    	// console.log(chart);
 			    	$('#big_viz').data('image_raw_data', data);
 			    	$('#big_viz').data('image_options', options);
 			    	$(".bookmark").removeClass('bookmarked');
@@ -311,28 +525,9 @@ $(function(){
         	$("#comparisonQuery").hide();
         }
     });
-
-	// load dataset schemas
-	$.each(schemas, function(key, value){
-		console.log(schemas);
-		if (key.indexOf("_type") == -1) {
-			console.log("in load dataset schemas");
-			console.log("key");
-			console.log(key);
-			console.log(key.indexOf("_type"));
-			// populate dataset names
-			var dataset_selector = document.getElementById("datasetSelector");
-			var el = document.createElement("option");
-		    el.textContent = key;
-		    el.value = key;
-		    dataset_selector.appendChild(el);
-		    $("#datasetSelector").val(key);
-		    $("#datasetSelector").trigger("change");
-		}
-	});
-
 	// load visualization library
 	google.load('visualization', '1.0', {'packages':['corechart'], callback: function() {}});
+
 
 	// implement manual plotting
 	$("#manualPlot").submit(function (e) {
@@ -367,13 +562,13 @@ $(function(){
 			hasComparison : hasComparison,
 			filters : JSON.stringify(filters)
 		};
-		console.log(params);
+		//console.log(params);
 		bugout.log({"manualPlot" : params});
 		
 		$.post('/manualPlot', params, function(ret) {
 			// do the processing and create the chart
 			ret = JSON.parse(ret);
-			console.log(ret);
+			//console.log(ret);
 			
 			var data = new google.visualization.DataTable();
 			// populate metadata from schema
@@ -477,12 +672,34 @@ $(function(){
 		el2.insertAfter($(".dummyRow" + idx));
 		$(".removeFilter").on("click", function (e) {
 			var idx = $(this).data('idx');
-			//alert(idx);
 			$(this).closest('.attributeFilter' + idx).remove();
 			e.preventDefault();
 		});
 		e.preventDefault();
 	});
 
-	
+	$(".sumButton").on("click", function(obj){
+		$(obj.toElement).toggleClass("btn-primary");
+	});
+	$(".countButton").on("click", function(obj){
+		$(obj.toElement).toggleClass("btn-primary");
+	});
+	$(".avgButton").on("click", function(obj){
+		$(obj.toElement).toggleClass("btn-primary");
+	});
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

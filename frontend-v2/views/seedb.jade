@@ -17,13 +17,13 @@ block content
                                 td Database
                                 td(colspan="3")
                                     select#databaseSelector
-                            tr
+                            tr#dataHide
                                 td Dataset
                                 td(colspan="3")
                                     select#datasetSelector
 
 
-                    div.row
+                    div.row#querySelector
                         h5 Query Selector
                         div.blue
                             table.table
@@ -57,7 +57,7 @@ block content
                                 tr
                                     td(colspan="4")
                                         input.btn.addAttributeFilter(data-idx=1, type="submit", value="Add Filter", style="background-color: #3366cc")
-                    div.row
+                    div.row#comparisonSelector
                         table.table
                             tr
                                 td(colspan="4")
@@ -73,12 +73,12 @@ block content
                             tr
                                 td(colspan="4")
                                     input.btn.addAttributeFilter(data-idx=2, type="submit", value="Add Filter", style="background-color: #dc3912")
-                    div.row
+                    div.row#attributeFilter
                         h5 Attributes
                         form.form(method="post", id="attributeFilter", action="/manualPlot")
                         //input(type='submit', value='Submit', id="attributeSubmit") 
 
-                    div.row
+                    div.row#submitRec
                         br
                         input.btn.addAttributeFilter(id="setQuery", type="submit", value="Get Recommendations", rec_type="seedb") 
                         //&nbsp;
@@ -97,7 +97,7 @@ block content
 
                 
             div.col-md-8
-                div.row.well 
+                div.row.well#vis_builder
                     h5 Visualization Builder
 
                     
@@ -129,13 +129,13 @@ block content
 
                 div.row
                     div.col-md-11#big_viz
-                    div.col-md-1
+                    div.col-md-1#bookmarkButton
                         input.btn.bookmark(value="Bookmark", type="submit")
                         br
                         br
                         //input.btn.normalize(value="Normalize", type="submit")
 
-        div.row
+        div.row#seeRecommendations
             h5 SeeDB Recommendations
             div.row#recs(data-num=0)
                 div.col-md-3.padded.template_rec
@@ -148,7 +148,7 @@ block content
 
 
         hr
-        div.row.outline
+        div.row.outline#bookmarked
             h5 Bookmarks
             div.row#bookmarks(data-num=0)
                 div.btn.col-md-3.padded.template_bookmark
@@ -156,7 +156,7 @@ block content
                     input.btn.zoom(value="Zoom", type="submit") 
                     span &nbsp; &nbsp;
                     input.btn.delete(value="Delete", type="submit")
-        div.row
+        div.row#logger
             div.dummy3
             hr
             input.btn#getLog(value="Get Log", type="submit")
