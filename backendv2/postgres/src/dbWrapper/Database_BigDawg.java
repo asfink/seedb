@@ -132,14 +132,14 @@ public class Database_BigDawg implements Database {
 		}
 
 		// creates table if it doesnt exist already
-		String tableCreationStatement = "CREATE TABLE IF NOT EXISTS seeDB_schema ("
-				+ "tableName TEXT, "
-				+ "columnName TEXT, "
-				+ "columnType TEXT, "
-				+ "seebdType TEXT,"
-				+ "numDistinctVals NUMERIC" + ");";
+//		String tableCreationStatement = "CREATE TABLE IF NOT EXISTS seeDB_schema ("
+//				+ "tableName TEXT, "
+//				+ "columnName TEXT, "
+//				+ "columnType TEXT, "
+//				+ "seebdType TEXT,"
+//				+ "numDistinctVals NUMERIC" + ");";
 
-		executeStatement(databaseName, tableCreationStatement);
+//		executeStatement(databaseName, tableCreationStatement);
 		System.out.println("seeDB_schema table created");
 
 		tablesInDB = getTables(databaseName);
@@ -182,6 +182,7 @@ public class Database_BigDawg implements Database {
 	@Override
 	public ResultSet executeQueryWithResult(String databaseName, String query) {
 		String url = connectionKeeper.get(databaseName);
+		url = url+databaseName;
 		CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
 		verifyInternalConnection(httpclient, url);
 		BigDawgResultSet queryResultSet = null;

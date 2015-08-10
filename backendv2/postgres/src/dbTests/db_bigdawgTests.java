@@ -25,7 +25,7 @@ public class db_bigdawgTests {
 	@BeforeClass
 	public static void setUpBefore() {
 		functional = new Database_BigDawg();
-		functional.connectToDB("booktown", "jdbc:postgresql://localhost/",
+		functional.connectToDB("bigdawg/query", "http://172.16.4.57/",
 				"postgres", "123");
 	}
 
@@ -35,21 +35,6 @@ public class db_bigdawgTests {
 		assertTrue(functional.verifyConnection(DBNAME));
 	}
 
-	// Testing if connection is not established with a nonreal DB
-	@Test
-	public void testWrongDB() {
-		functional.connectToDB("boktown", "jdbc:postgresql://localhost/",
-				"postgres", "123");
-		assert (functional.verifyConnection(DBNAME));
-	}
-
-	// Testing if connection is not established using wrong user
-	@Test
-	public void testWrongUserDB() {
-		functional.connectToDB("booktown", "jdbc:postgresql://localhost/",
-				"meow", "123");
-		assert (functional.verifyConnection(DBNAME));
-	}
 
 	// should make to try catch
 	@Test
