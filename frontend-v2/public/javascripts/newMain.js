@@ -5,6 +5,8 @@ var big_height = 300;
 
 var small_width = 250;
 var small_height = 200;
+var current_database;
+var current_dataset;
 $(function(){
 	$('#bookmarked').hide();
 	$('#seeRecommendations').hide();
@@ -39,10 +41,11 @@ $(document).ready(function(){
 
 $('#databaseSelector').change(function(eventObj){	
 		//gets the name of the selected DB
-		var selectedDB = eventObj.target[eventObj.target.selectedIndex].value;
-		console.log(selectedDB);
+		current_database = eventObj.target[eventObj.target.selectedIndex].value;
+		console.log(current_database);
 		$('#dataHide').show("slow");
 		$('#datasetSelector').empty();
+
 		//Use an AJAX call to get the list of tables from the database
 		$.ajax({
 			url: 'www.meow.meow',
@@ -97,22 +100,28 @@ $('#databaseSelector').change(function(eventObj){
 			    $('#comparisonSelector').show('slow');
 			    $('#vis_builder').show('slow');
 			    $('#submitRec').show('slow');
+			    $('#big_viz').show();
+		    	$('#bookmarked').show();
+				$('#seeRecommendations').show();
+				$('#querySelector').show();
+				$('#bookmarkButton').show("slow");
 			}
 		});
 	});
 
 	$("#datasetSelector").change(function (e) {
 		// console.log("#datasetSelector");
-		var curr_dataset = e.target[e.target.selectedIndex].value;
+		current_dataset = e.target[e.target.selectedIndex].value;
 
 		$(".attributes").empty();
 		$("#attributeFilter").empty();
+
 		$(".attributes").each(function (i, obj){
 			var measures = false;
 			if ($(obj).hasClass("measures")) measures = true;
 			// console.log($(obj));
-			$.each(schemas[curr_dataset], function (item, value) {
-				if (measures && schemas[curr_dataset + "_type"][item] == "measure") {	
+			$.each(schemas[current_dataset], function (item, value) {
+				if (measures && schemas[current_dataset + "_type"][item] == "measure") {	
 					var el = document.createElement("option");
 				    el.textContent = item;
 				    el.value = item;
@@ -129,7 +138,7 @@ $('#databaseSelector').change(function(eventObj){
 				}
 			});
 		});
-		$.each(schemas[curr_dataset],function(item,value){
+		$.each(schemas[current_dataset],function(item,value){
 			var attribute_selector = document.getElementById("attributeFilter");
 			var attrf = document.createElement("input");
 		    attrf.type = "checkbox";
