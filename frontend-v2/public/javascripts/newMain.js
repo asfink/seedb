@@ -1,5 +1,10 @@
 
 
+var big_width = 700;
+var big_height = 300;
+
+var small_width = 250;
+var small_height = 200;
 $(function(){
 	$('#bookmarked').hide();
 	$('#seeRecommendations').hide();
@@ -16,6 +21,7 @@ $(function(){
 	$('#logger').hide();
 	$('#dataHide').hide();
 });
+
 $(document).ready(function(){
 	// load dataset schemas
 	var dbSelect = document.getElementById("databaseSelector");
@@ -30,12 +36,13 @@ $(document).ready(function(){
 	dbSelect.appendChild(blankOne);
 	$("#databaseSelector").val('');
 
-	$('#databaseSelector').change(function(eventObj){	
-		var lastV = null;
+
+$('#databaseSelector').change(function(eventObj){	
 		//gets the name of the selected DB
 		var selectedDB = eventObj.target[eventObj.target.selectedIndex].value;
 		console.log(selectedDB);
 		$('#dataHide').show("slow");
+		$('#datasetSelector').empty();
 		//Use an AJAX call to get the list of tables from the database
 		$.ajax({
 			url: 'www.meow.meow',
@@ -45,6 +52,7 @@ $(document).ready(function(){
 				console.log("success");
 				//console.log(data);
 					// load dataset schemas
+				var lastV = null;
 				$.each(data, function(key, value){
 					if (key.indexOf("_type") == -1) {
 						// populate dataset names
@@ -53,15 +61,23 @@ $(document).ready(function(){
 					    el.textContent = key;
 					    el.value = key;
 					    dataset_selector.appendChild(el);
-					    $("#datasetSelector").val(key);
-					    $("#datasetSelector").trigger("change");
+					    lastV = key
+
 					}
 				});
-				$('#querySelector').show("slow");
+			    $("#datasetSelector").val(lastV);
+			   	$("#datasetSelector").trigger("change");
+
+			    $('#querySelector').show("slow");
+			    $('#attributeFilter').show('slow');
+			    $('#comparisonSelector').show('slow');
+			    $('#vis_builder').show('slow');
+			    $('#submitRec').show('slow');
 			},
 			error: function(){
 				console.log("failure!");
 				// load dataset schemas
+				var lastV = null;
 				var dataset_selector = document.getElementById("datasetSelector");
 				$.each(schemas, function(key, value){
 					if (key.indexOf("_type") == -1) {
@@ -75,15 +91,20 @@ $(document).ready(function(){
 				});
 			    $("#datasetSelector").val(lastV);
 			    $("#datasetSelector").trigger("change");
+
+			    $('#querySelector').show("slow");
+			    $('#attributeFilter').show('slow');
+			    $('#comparisonSelector').show('slow');
+			    $('#vis_builder').show('slow');
+			    $('#submitRec').show('slow');
 			}
 		});
 	});
 
 	$("#datasetSelector").change(function (e) {
 		// console.log("#datasetSelector");
-		console.log(e);
-		// console.log(e.target);
 		var curr_dataset = e.target[e.target.selectedIndex].value;
+
 		$(".attributes").empty();
 		$("#attributeFilter").empty();
 		$(".attributes").each(function (i, obj){
@@ -156,21 +177,25 @@ $(document).ready(function(){
 			// console.log("ITEM PULLED IS");
 			// console.log(item);
 		});
-
-		// fill in settings
-		$(".rec_settings").each(function(i, obj) {
-			// add stuff
-		});
 	});
+
+
 });
+
+		
+	
 $(function(){
 
-	var big_width = 700;
-	var big_height = 300;
-
-	var small_width = 250;
-	var small_height = 200;
-
+	$(".sumButton").on("click", function(obj){
+			console.log("CLICKED");
+		    $(obj.toElement).toggleClass("btn-primary");
+	});
+	$(".countButton").on("click", function(obj){
+	    $(obj.toElement).toggleClass("btn-primary");
+	});
+	$(".avgButton").on("click", function(obj){
+	    $(obj.toElement).toggleClass("btn-primary");
+	}); 
 	var bugout = new debugout();
 	bugout.useTimestamps = true;
 	bugout.logFilename = 'log-10.txt'; // update this
@@ -678,15 +703,6 @@ $(function(){
 		e.preventDefault();
 	});
 
-	$(".sumButton").on("click", function(obj){
-		$(obj.toElement).toggleClass("btn-primary");
-	});
-	$(".countButton").on("click", function(obj){
-		$(obj.toElement).toggleClass("btn-primary");
-	});
-	$(".avgButton").on("click", function(obj){
-		$(obj.toElement).toggleClass("btn-primary");
-	});
 });
 
 
