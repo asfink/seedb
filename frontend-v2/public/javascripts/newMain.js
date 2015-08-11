@@ -185,6 +185,7 @@ $(document).ready(function(){
 			// attribute_selector.appendChild(grouping);
 			var getItTogether = document.createElement("div");
 			getItTogether.className="getItTogether";
+			getItTogether.value=item;
 
 			getItTogether.appendChild(attrCheckHolder);
 			getItTogether.appendChild(groupingHolder);
@@ -210,6 +211,15 @@ $(function(){
 	$("#attributeFilter").on("click", ".countButton", function(obj){
 		$(obj.toElement).toggleClass("btn-primary");
 	}); 
+
+	$("#attributeFilter").on("click",".attrfBox",function(obj){
+		//value of object is: obj.toElement.value
+		console.log(obj.toElement.value);
+		var thingy = $('.getItTogether').attr({value: obj.toElement.value});
+		console.log($('.getItTogether').prop({
+			value: obj.toElement.value
+		}));
+	});
 });
 
 $(function(){
@@ -316,12 +326,6 @@ $(function(){
 			}
 			console.log(blueString);
 			console.log(redString);
-			// for (var i=0; i < filters[0].length; i++){
-			// 	if(filters[0][i].length>0){
-			// 		//
-			// 	}
-			// }
-
 
 			for (var i = 0; i < recs.length; i++) {
 				var rec = recs[i];

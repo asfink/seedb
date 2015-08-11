@@ -77,8 +77,8 @@ router.post('/getRecommendations', function(req, res) {
 			measures.push(order[t]);
 		}
 	}
-	//console.log(measures);
-	//console.log(dimensions);
+	console.log(measures);
+	console.log(dimensions);
 
 	var views = {};
 	// go through each row
