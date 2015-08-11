@@ -82,3 +82,22 @@ a {
     border: 2px solid #dc3912;
     padding: 20px; 
 }
+#titleHolder{
+	margin-left:10px;
+	margin-right: 10px;
+}
+#titleA{
+	float:left;
+}
+#reloadA{
+	float:right;
+}
+.getItTogether{
+	margin: 5px 5px 7px 5px;
+}
+.attrButtonHolder{
+	float:right;
+}
+.attrHolder{
+	float:left;
+}

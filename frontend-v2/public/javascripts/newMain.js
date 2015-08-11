@@ -134,20 +134,23 @@ $(document).ready(function(){
 			});
 		});
 		$.each(schemas[current_dataset],function(item,value){
+			var attrCheckHolder = document.createElement("span");
 			var attribute_selector = document.getElementById("attributeFilter");
 			var attrf = document.createElement("input");
 			attrf.type = "checkbox";
 			attrf.checked = "checked";
 			attrf.className = "attrfBox";
 			attrf.value = item;
-			attribute_selector.appendChild(attrf);
-			attribute_selector.appendChild(document.createTextNode(item+" "));
-			// attribute_selector.appendChild(document.createElement("&nbsp"));
+			attrCheckHolder.appendChild(attrf);
+			attrCheckHolder.appendChild(document.createTextNode(item+" "));
+			attrCheckHolder.className = "attrHolder";
+			// attribute_selector.appendChild(attrf);
+			// attribute_selector.appendChild(document.createTextNode(item+" "));
 
 			//the buttons are still broken.
 
 			var grouping = document.createElement("div");
-			grouping.className="btn-group btn-group-xs";
+			grouping.className="btn-group btn-group-xs btnGroup";
 			grouping.role="group";
 
 			var sumbutton = document.createElement("button");
@@ -175,7 +178,21 @@ $(document).ready(function(){
 			grouping.appendChild(countbutton);
 			grouping.appendChild(avgbutton);
 
-			attribute_selector.appendChild(grouping);
+			var groupingHolder = document.createElement("span");
+			groupingHolder.appendChild(grouping);
+			groupingHolder.className = "attrButtonHolder";
+
+			// attribute_selector.appendChild(grouping);
+			var getItTogether = document.createElement("div");
+			getItTogether.className="getItTogether";
+
+			getItTogether.appendChild(attrCheckHolder);
+			getItTogether.appendChild(groupingHolder);
+
+			attribute_selector.appendChild(getItTogether);
+
+			// attribute_selector.appendChild(attrCheckHolder);
+			// attribute_selector.appendChild(groupingHolder);
 
 			attribute_selector.appendChild(document.createElement("br"));
 		});
