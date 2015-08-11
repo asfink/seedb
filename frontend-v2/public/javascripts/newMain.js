@@ -144,6 +144,8 @@ $(document).ready(function(){
 			attribute_selector.appendChild(document.createTextNode(item+" "));
 			// attribute_selector.appendChild(document.createElement("&nbsp"));
 
+			//the buttons are still broken.
+
 			var grouping = document.createElement("div");
 			grouping.className="btn-group btn-group-xs";
 			grouping.role="group";
