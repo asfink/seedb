@@ -37,7 +37,6 @@ router.post('/getRecommendations', function(req, res) {
 	order = datasets.datasets[req.body.dataset].order;
 	//console.log(order);
 	col_types = datasets.datasets[req.body.dataset].type;
-
 	//Removes the uninterested attributes for recommendation making
 	var to_remove = JSON.parse(req.body.remove_attrs);
 	//TO HOOK UP ATTRIBUTE SELECTIONS, MUST REMOVE FROM THE COLUMN TYPE OBJECT
