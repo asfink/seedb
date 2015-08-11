@@ -178,28 +178,25 @@ $(document).ready(function(){
 			attribute_selector.appendChild(grouping);
 
 			attribute_selector.appendChild(document.createElement("br"));
-			// console.log(attrf);
-			// console.log(attribute_selector);
-			// console.log("ITEM PULLED IS");
-			// console.log(item);
 		});
 	});
 });
 
-
+$(function(){
+	//Event Binding for dynamically created elements -> because dynamically created, must use a delegated events
+	$("#attributeFilter").on("click",".sumButton",function(obj){
+		$(obj.toElement).toggleClass("btn-primary");
+	});
+	$("#attributeFilter").on("click",".avgButton",function(obj){
+		$(obj.toElement).toggleClass("btn-primary");
+	});
+	$("#attributeFilter").on("click", ".countButton", function(obj){
+		$(obj.toElement).toggleClass("btn-primary");
+	}); 
+});
 
 $(function(){
 
-	$(".sumButton").on("click", function(obj){
-		console.log("CLICKED");
-		$(obj.toElement).toggleClass("btn-primary");
-	});
-	$(".countButton").on("click", function(obj){
-		$(obj.toElement).toggleClass("btn-primary");
-	});
-	$(".avgButton").on("click", function(obj){
-		$(obj.toElement).toggleClass("btn-primary");
-	}); 
 	var bugout = new debugout();
 	bugout.useTimestamps = true;
 	bugout.logFilename = 'log-10.txt'; // update this
