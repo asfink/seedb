@@ -24,58 +24,53 @@ $(function(){
 	$('#dataHide').hide();
 });
 
+//prefunction for loading the values of the possible databases into the db list table
+$(function(){
+	//Use an AJAX call to get the list of databases to select from
+	$.ajax({
+		url: 'www.meow.meow/getDBS',
+		method: 'GET',
+		data: {},
+		success: function(data) {
+			console.log("success");
+			$.each(data, function(key,value){
+				console.log("KEY");
+				console.log(key);
+				console.log("VALUE");
+				console.log(value);
+			});
+		},
+		error: function(){
+			// load dataset schemas
+			var dbSelect = document.getElementById("databaseSelector");
+			var base1 = document.createElement("option");
+			base1.textContent = 'test';
+			base1.value = 'test';
+			dbSelect.appendChild(base1);
+			$("#databaseSelector").val('test');
+			var blankOne = document.createElement("option");
+			blankOne.textContent = '';
+			blankOne.value = '';
+			dbSelect.appendChild(blankOne);
+			$("#databaseSelector").val('');
+		}
+	});
+});
+
 $(document).ready(function(){
-	// load dataset schemas
-	var dbSelect = document.getElementById("databaseSelector");
-	var base1 = document.createElement("option");
-	base1.textContent = 'test';
-	base1.value = 'test';
-	dbSelect.appendChild(base1);
-	$("#databaseSelector").val('test');
-	var blankOne = document.createElement("option");
-	blankOne.textContent = '';
-	blankOne.value = '';
-	dbSelect.appendChild(blankOne);
-	$("#databaseSelector").val('');
-
-
-$('#databaseSelector').change(function(eventObj){	
+	$('#databaseSelector').change(function(eventObj){	
 		//gets the name of the selected DB
 		current_database = eventObj.target[eventObj.target.selectedIndex].value;
-		console.log(current_database);
 		$('#dataHide').show("slow");
 		$('#datasetSelector').empty();
 
 		//Use an AJAX call to get the list of tables from the database
 		$.ajax({
-			url: 'www.meow.meow',
+			url: 'www.meow.meow/getTables',
 			method: 'GET',
 			data: {},
 			success: function(data) {
 				console.log("success");
-				//console.log(data);
-					// load dataset schemas
-				var lastV = null;
-				$.each(data, function(key, value){
-					if (key.indexOf("_type") == -1) {
-						// populate dataset names
-						var dataset_selector = document.getElementById("datasetSelector");
-						var el = document.createElement("option");
-					    el.textContent = key;
-					    el.value = key;
-					    dataset_selector.appendChild(el);
-					    lastV = key
-
-					}
-				});
-			    $("#datasetSelector").val(lastV);
-			   	$("#datasetSelector").trigger("change");
-
-			    $('#querySelector').show("slow");
-			    $('#attributeFilter').show('slow');
-			    $('#comparisonSelector').show('slow');
-			    $('#vis_builder').show('slow');
-			    $('#submitRec').show('slow');
 			},
 			error: function(){
 				console.log("failure!");
@@ -86,22 +81,22 @@ $('#databaseSelector').change(function(eventObj){
 					if (key.indexOf("_type") == -1) {
 						// populate dataset names
 						var el = document.createElement("option");
-					    el.textContent = key;
-					    el.value = key;
-					    dataset_selector.appendChild(el);
-					    lastV = key;
+						el.textContent = key;
+						el.value = key;
+						dataset_selector.appendChild(el);
+						lastV = key;
 					}
 				});
-			    $("#datasetSelector").val(lastV);
-			    $("#datasetSelector").trigger("change");
+				$("#datasetSelector").val(lastV);
+				$("#datasetSelector").trigger("change");
 
-			    $('#querySelector').show("slow");
-			    $('#attributeFilter').show('slow');
-			    $('#comparisonSelector').show('slow');
-			    $('#vis_builder').show('slow');
-			    $('#submitRec').show('slow');
-			    $('#big_viz').show();
-		    	$('#bookmarked').show();
+				$('#querySelector').show("slow");
+				$('#attributeFilter').show('slow');
+				$('#comparisonSelector').show('slow');
+				$('#vis_builder').show('slow');
+				$('#submitRec').show('slow');
+				$('#big_viz').show();
+				$('#bookmarked').show();
 				$('#seeRecommendations').show();
 				$('#querySelector').show();
 				$('#bookmarkButton').show("slow");
@@ -123,16 +118,16 @@ $('#databaseSelector').change(function(eventObj){
 			$.each(schemas[current_dataset], function (item, value) {
 				if (measures && schemas[current_dataset + "_type"][item] == "measure") {	
 					var el = document.createElement("option");
-				    el.textContent = item;
-				    el.value = item;
-				    obj.appendChild(el);
+					el.textContent = item;
+					el.value = item;
+					obj.appendChild(el);
 				    // console.log("measurement");
 				    // console.log(obj);
 				} else if (!measures) {
 					var el = document.createElement("option");
-				    el.textContent = item;
-				    el.value = item;
-				    obj.appendChild(el);
+					el.textContent = item;
+					el.value = item;
+					obj.appendChild(el);
 				    // console.log("not measurement");
 				    // console.log(obj);
 				}
@@ -141,10 +136,10 @@ $('#databaseSelector').change(function(eventObj){
 		$.each(schemas[current_dataset],function(item,value){
 			var attribute_selector = document.getElementById("attributeFilter");
 			var attrf = document.createElement("input");
-		    attrf.type = "checkbox";
-		    attrf.checked = "checked";
-		    attrf.className = "attrfBox";
-		    attrf.value = item;
+			attrf.type = "checkbox";
+			attrf.checked = "checked";
+			attrf.className = "attrfBox";
+			attrf.value = item;
 			attribute_selector.appendChild(attrf);
 			attribute_selector.appendChild(document.createTextNode(item+" "));
 			// attribute_selector.appendChild(document.createElement("&nbsp"));
@@ -187,23 +182,21 @@ $('#databaseSelector').change(function(eventObj){
 			// console.log(item);
 		});
 	});
-
-
 });
 
-		
-	
+
+
 $(function(){
 
 	$(".sumButton").on("click", function(obj){
-			console.log("CLICKED");
-		    $(obj.toElement).toggleClass("btn-primary");
+		console.log("CLICKED");
+		$(obj.toElement).toggleClass("btn-primary");
 	});
 	$(".countButton").on("click", function(obj){
-	    $(obj.toElement).toggleClass("btn-primary");
+		$(obj.toElement).toggleClass("btn-primary");
 	});
 	$(".avgButton").on("click", function(obj){
-	    $(obj.toElement).toggleClass("btn-primary");
+		$(obj.toElement).toggleClass("btn-primary");
 	}); 
 	var bugout = new debugout();
 	bugout.useTimestamps = true;
@@ -211,23 +204,19 @@ $(function(){
 
 	var slider = $('.slider1').bxSlider();
 	var slider_options = {
-	    controls : true,
-	    slideWidth: 270,
-	    minSlides: 6,
-	    maxSlides: 6,
-	    slideMargin: 10,
-	    infiniteLoop: false,
-  		hideControlOnEnd: true
-	  };
+		controls : true,
+		slideWidth: 270,
+		minSlides: 6,
+		maxSlides: 6,
+		slideMargin: 10,
+		infiniteLoop: false,
+		hideControlOnEnd: true
+	};
 
 
 	$("#getLog").on('click', function (e) {
 		bugout.downloadLog();
 	});
-
-	
-	
-
 
 	$("#setQuery").on('click', function (e) {
 		var rec_type = $(this).attr('rec_type');
@@ -367,28 +356,28 @@ $(function(){
 				var new_data = [];
 				for (var row = 0; row < old_data.length; row++) {
 					var tmp = []
-	        		for (var col = 0; col < old_data[row].length; col++) {
-	        			tmp.push(old_data[row][col]);
-	        		}
-	        		new_data.push(tmp);
-	        	}
+					for (var col = 0; col < old_data[row].length; col++) {
+						tmp.push(old_data[row][col]);
+					}
+					new_data.push(tmp);
+				}
 
-	        	var totals = [];
-	        	for (var row = 0; row < old_data.length; row++) {
-	        		for (var col = 1; col < old_data[row].length; col++) {
-	        			if (row == 0) {
-	        				totals.push(0);
-	        			}
-	        			totals[col-1] = totals[col-1] + old_data[row][col];
-	        		}
-	        	}
-	        	for (var row = 0; row < old_data.length; row++) {
-	        		for (var col = 1; col < old_data[row].length; col++) {
-	        			new_data[row][col] = old_data[row][col] / totals[col-1];
-	        		}
-	        	}
+				var totals = [];
+				for (var row = 0; row < old_data.length; row++) {
+					for (var col = 1; col < old_data[row].length; col++) {
+						if (row == 0) {
+							totals.push(0);
+						}
+						totals[col-1] = totals[col-1] + old_data[row][col];
+					}
+				}
+				for (var row = 0; row < old_data.length; row++) {
+					for (var col = 1; col < old_data[row].length; col++) {
+						new_data[row][col] = old_data[row][col] / totals[col-1];
+					}
+				}
 
-	        	var title;
+				var title;
 				var vAxis;
 				if (rec.agg == "COUNT") {
 					title = rec.x + " vs. COUNT(*)";
@@ -399,81 +388,81 @@ $(function(){
 				}
 
 				// Set chart options
-	        	var options = {'title': title,
-	                    	'height':small_height,
-	                   		'width' : small_width,
-	                   		vAxis: { title: vAxis },
-	                   		hAxis: {title : rec.x},
-	                   		agg : rec.agg,
-	                   		titleFontSize:12, 
-	                   		orig_data : rec.dist,
-	                   		norm_data : new_data,
-	                   		x : rec.x,
-	                   		y : rec.y
-	                   };
-               	bugout.log({"rec" : options['title']});
+				var options = {'title': title,
+				'height':small_height,
+				'width' : small_width,
+				vAxis: { title: vAxis },
+				hAxis: {title : rec.x},
+				agg : rec.agg,
+				titleFontSize:12, 
+				orig_data : rec.dist,
+				norm_data : new_data,
+				x : rec.x,
+				y : rec.y
+			};
+			bugout.log({"rec" : options['title']});
 
-               	var el = $(".template_rec").clone();
-				el.removeClass("template_rec");
-				el.addClass("real_rec");
-				
-				var b = ($("#recs").data("num") + 1);
-				$("#recs").data("num", b);
-				var rec_id = "rec_" + b;
-				
-				el.find(".rec_viz").last().attr("id", rec_id);
-				el.data('image_options', options);
-				el.data('image_raw_data', data);
-				el.addClass('slide');
+			var el = $(".template_rec").clone();
+			el.removeClass("template_rec");
+			el.addClass("real_rec");
 
-				el.find(".zoom").on('click', function (e) {
-					var el = $(this).parent();
-					var data = el.data('image_raw_data');
-			    	var options = el.data('image_options');
-			    	options['height'] = big_height;
-			    	options['width'] = big_width;
-			    	bugout.log({"rec_zoom" : options['title']});
-			    	$('#x_axis option[value="' + options.x + '"]').attr('selected', 'selected');
-        			$('#y_axis option[value="' + options.y + '"]').attr('selected', 'selected');
-        			$('#y_aggregate option[value="' + options.agg + '"]').attr('selected', 'selected');
+			var b = ($("#recs").data("num") + 1);
+			$("#recs").data("num", b);
+			var rec_id = "rec_" + b;
+
+			el.find(".rec_viz").last().attr("id", rec_id);
+			el.data('image_options', options);
+			el.data('image_raw_data', data);
+			el.addClass('slide');
+
+			el.find(".zoom").on('click', function (e) {
+				var el = $(this).parent();
+				var data = el.data('image_raw_data');
+				var options = el.data('image_options');
+				options['height'] = big_height;
+				options['width'] = big_width;
+				bugout.log({"rec_zoom" : options['title']});
+				$('#x_axis option[value="' + options.x + '"]').attr('selected', 'selected');
+				$('#y_axis option[value="' + options.y + '"]').attr('selected', 'selected');
+				$('#y_aggregate option[value="' + options.agg + '"]').attr('selected', 'selected');
 
 
-			    	var chart;
-			    	if (options['agg'] == "NONE") {
-			    		chart = new google.visualization.ScatterChart(document.getElementById("big_viz"));
-			    	} else {
-			    		chart = new google.visualization.ColumnChart(document.getElementById("big_viz"));
-			    	}
-			    	chart.draw(data, options);
+				var chart;
+				if (options['agg'] == "NONE") {
+					chart = new google.visualization.ScatterChart(document.getElementById("big_viz"));
+				} else {
+					chart = new google.visualization.ColumnChart(document.getElementById("big_viz"));
+				}
+				chart.draw(data, options);
 			    	// console.log(chart);
 			    	$('#big_viz').data('image_raw_data', data);
 			    	$('#big_viz').data('image_options', options);
 			    	$(".bookmark").removeClass('bookmarked');
 			    	$(".normalize").removeClass('normalized');
-				});
+			    });
 
 				//$("#recs").append(el);
 				$(".slider1").append(el);
 
 				var chart = new google.visualization.ColumnChart(document.getElementById(rec_id));
-	        	chart.draw(data, options);
+				chart.draw(data, options);
 			}
 			slider.reloadSlider(slider_options);	
 		});
-	});
+});
 
-	$(".normalize").on("click", function (e) {
-		$(this).toggleClass('normalized');
-		var data = $("#big_viz").data('image_raw_data');
-    	var options = $("#big_viz").data('image_options');
-    	bugout.log({"normalize" : options['title']});
-		if ($(this).hasClass('normalized')) {
-        	data.removeRows(0, data.getNumberOfRows());
-        	data.addRows(options.norm_data);
-        } else {
-        	data.removeRows(0, data.getNumberOfRows());
-        	data.addRows(options.orig_data);
-        }
+$(".normalize").on("click", function (e) {
+	$(this).toggleClass('normalized');
+	var data = $("#big_viz").data('image_raw_data');
+	var options = $("#big_viz").data('image_options');
+	bugout.log({"normalize" : options['title']});
+	if ($(this).hasClass('normalized')) {
+		data.removeRows(0, data.getNumberOfRows());
+		data.addRows(options.norm_data);
+	} else {
+		data.removeRows(0, data.getNumberOfRows());
+		data.addRows(options.orig_data);
+	}
     	// MANASI
     	options['height'] = big_height;
     	options['width'] = big_width;
@@ -488,18 +477,18 @@ $(function(){
     	$('#big_viz').data('image_raw_data', data);
     	$('#big_viz').data('image_options', options);
     	$(".bookmark").removeClass('bookmarked');
-	});
+    });
 
-	$(".bookmark").on('click', function (e) {
+$(".bookmark").on('click', function (e) {
 		// flip background color of button
 		$(this).toggleClass('bookmarked');
 		if ($(this).hasClass('bookmarked')) {
 			var data = $("#big_viz").data('image_raw_data');
-        	var options = $("#big_viz").data('image_options');
-        	bugout.log({"bookmark_add" : options['title']});
+			var options = $("#big_viz").data('image_options');
+			bugout.log({"bookmark_add" : options['title']});
 
-        	options['height'] = small_height;
-        	options['width'] = small_width;
+			options['height'] = small_height;
+			options['width'] = small_width;
 
 			var el = $(".template_bookmark").clone();
 			el.removeClass("template_bookmark");
@@ -515,26 +504,26 @@ $(function(){
 			el.find(".zoom").on('click', function (e) {
 				var el = $(this).parent();
 				var data = el.data('image_raw_data');
-		    	var options = el.data('image_options');
-		    	options['height'] = big_height;
-		    	options['width'] = big_width;
-		    	bugout.log({"bookmark_zoom" : options['title']});
-		    	
-		    	var chart;
-		    	if (options['agg'] == "NONE") {
-		    		chart = new google.visualization.ScatterChart(document.getElementById("big_viz"));
-		    	} else {
-		    		chart = new google.visualization.ColumnChart(document.getElementById("big_viz"));
-		    	}
-		    	$('#x_axis option[value="' + options.x + '"]').attr('selected', 'selected');
-    			$('#y_axis option[value="' + options.y + '"]').attr('selected', 'selected');
-    			$('#y_aggregate option[value="' + options.agg + '"]').attr('selected', 'selected');
-			    	
-		    	chart.draw(data, options);
-		    	$('#big_viz').data('image_raw_data', data);
-		    	$('#big_viz').data('image_options', options);
-		    	$(".bookmark").removeClass('bookmarked');
-		    	$(".normalize").removeClass('normalized');
+				var options = el.data('image_options');
+				options['height'] = big_height;
+				options['width'] = big_width;
+				bugout.log({"bookmark_zoom" : options['title']});
+
+				var chart;
+				if (options['agg'] == "NONE") {
+					chart = new google.visualization.ScatterChart(document.getElementById("big_viz"));
+				} else {
+					chart = new google.visualization.ColumnChart(document.getElementById("big_viz"));
+				}
+				$('#x_axis option[value="' + options.x + '"]').attr('selected', 'selected');
+				$('#y_axis option[value="' + options.y + '"]').attr('selected', 'selected');
+				$('#y_aggregate option[value="' + options.agg + '"]').attr('selected', 'selected');
+
+				chart.draw(data, options);
+				$('#big_viz').data('image_raw_data', data);
+				$('#big_viz').data('image_options', options);
+				$(".bookmark").removeClass('bookmarked');
+				$(".normalize").removeClass('normalized');
 			});
 			el.find(".delete").on('click', function (e) {
 				bugout.log({"bookmark_delete" : options['title']});
@@ -544,21 +533,21 @@ $(function(){
 			$("#bookmarks").append(el);
 			var chart;
 			if (options['agg'] == "NONE") {
-	    		chart = new google.visualization.ScatterChart(document.getElementById(bookmark_id));
-	    	} else {
-	    		chart = new google.visualization.ColumnChart(document.getElementById(bookmark_id));
-	    	}
-	    	chart.draw(data, options);		
+				chart = new google.visualization.ScatterChart(document.getElementById(bookmark_id));
+			} else {
+				chart = new google.visualization.ColumnChart(document.getElementById(bookmark_id));
+			}
+			chart.draw(data, options);		
 		}
 	});
 
-	$('#addComparison').change(function(e){
-        if ($(this).is(':checked')) {
-            $("#comparisonQuery").show();
-        } else {
-        	$("#comparisonQuery").hide();
-        }
-    });
+$('#addComparison').change(function(e){
+	if ($(this).is(':checked')) {
+		$("#comparisonQuery").show();
+	} else {
+		$("#comparisonQuery").hide();
+	}
+});
 	// load visualization library
 	google.load('visualization', '1.0', {'packages':['corechart'], callback: function() {}});
 
@@ -635,26 +624,26 @@ $(function(){
 			var new_data = [];
 			for (var row = 0; row < old_data.length; row++) {
 				var tmp = []
-        		for (var col = 0; col < old_data[row].length; col++) {
-        			tmp.push(old_data[row][col]);
-        		}
-        		new_data.push(tmp);
-        	}
+				for (var col = 0; col < old_data[row].length; col++) {
+					tmp.push(old_data[row][col]);
+				}
+				new_data.push(tmp);
+			}
 
-        	var totals = [];
-        	for (var row = 0; row < old_data.length; row++) {
-        		for (var col = 1; col < old_data[row].length; col++) {
-        			if (row == 0) {
-        				totals.push(0);
-        			}
-        			totals[col-1] = totals[col-1] + old_data[row][col];
-        		}
-        	}
-        	for (var row = 0; row < old_data.length; row++) {
-        		for (var col = 1; col < old_data[row].length; col++) {
-        			new_data[row][col] = old_data[row][col] / totals[col-1];
-        		}
-        	}
+			var totals = [];
+			for (var row = 0; row < old_data.length; row++) {
+				for (var col = 1; col < old_data[row].length; col++) {
+					if (row == 0) {
+						totals.push(0);
+					}
+					totals[col-1] = totals[col-1] + old_data[row][col];
+				}
+			}
+			for (var row = 0; row < old_data.length; row++) {
+				for (var col = 1; col < old_data[row].length; col++) {
+					new_data[row][col] = old_data[row][col] / totals[col-1];
+				}
+			}
 
 			var title;
 			var vAxis;
@@ -670,47 +659,47 @@ $(function(){
 			}
 
 			// Set chart options
-        	var options = {'title': title,
-                    	'height':big_height,
-                   		'width' : big_width,
-                   		vAxis: { title: vAxis},
-                   		hAxis: {title : x},
-                   		agg : agg,
-                   		orig_data : ret["rows2"],
-                   		norm_data : new_data,
-                   		x : x,
-                   		y : y
-                   };
-			var chart;
-			if (agg == "NONE") {
-				chart = new google.visualization.ScatterChart(document.getElementById('big_viz'));
-			} else {
-				chart = new google.visualization.ColumnChart(document.getElementById('big_viz'));
-			}
-			chart.draw(data, options);
-        	$('#big_viz').data('image_raw_data', data);
-        	$('#big_viz').data('image_options', options);
-        	$(".bookmark").removeClass('bookmarked');
-        	$(".normalize").removeClass('normalized');
-		});
-		e.preventDefault();
+			var options = {'title': title,
+			'height':big_height,
+			'width' : big_width,
+			vAxis: { title: vAxis},
+			hAxis: {title : x},
+			agg : agg,
+			orig_data : ret["rows2"],
+			norm_data : new_data,
+			x : x,
+			y : y
+		};
+		var chart;
+		if (agg == "NONE") {
+			chart = new google.visualization.ScatterChart(document.getElementById('big_viz'));
+		} else {
+			chart = new google.visualization.ColumnChart(document.getElementById('big_viz'));
+		}
+		chart.draw(data, options);
+		$('#big_viz').data('image_raw_data', data);
+		$('#big_viz').data('image_options', options);
+		$(".bookmark").removeClass('bookmarked');
+		$(".normalize").removeClass('normalized');
 	});
+e.preventDefault();
+});
 
-	$(".addAttributeFilter").on("click", function (e) {
+$(".addAttributeFilter").on("click", function (e) {
+	var idx = $(this).data('idx');
+	var el = $(".templateAttributeFilter");
+	var el2 = el.clone();
+	el2.addClass("attributeFilter" + idx);
+	el2.removeClass("templateAttributeFilter");
+	el2.find(".removeFilter").data('idx', idx);
+	el2.insertAfter($(".dummyRow" + idx));
+	$(".removeFilter").on("click", function (e) {
 		var idx = $(this).data('idx');
-		var el = $(".templateAttributeFilter");
-		var el2 = el.clone();
-		el2.addClass("attributeFilter" + idx);
-		el2.removeClass("templateAttributeFilter");
-		el2.find(".removeFilter").data('idx', idx);
-		el2.insertAfter($(".dummyRow" + idx));
-		$(".removeFilter").on("click", function (e) {
-			var idx = $(this).data('idx');
-			$(this).closest('.attributeFilter' + idx).remove();
-			e.preventDefault();
-		});
+		$(this).closest('.attributeFilter' + idx).remove();
 		e.preventDefault();
 	});
+	e.preventDefault();
+});
 
 });
 
