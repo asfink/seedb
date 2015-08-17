@@ -1,5 +1,17 @@
 
+/*
+Log entries: 
+	Line 1: log type
+	LINE 2: Enter Time: x
+	Line 2: Exit Time: x
+*/
 
+var bugout = new debugout();
+bugout.useTimestamps = true;
+bugout.logFilename = 'log-10.txt'; // update this
+
+var timeHolder = new Date();
+var zoomTimer = null;
 var big_width = 700;
 var big_height = 300;
 
@@ -100,6 +112,7 @@ $(document).ready(function(){
 				$('#seeRecommendations').show();
 				$('#querySelector').show();
 				$('#bookmarkButton').show("slow");
+				bugout.log({"database": current_database});
 			}
 		});
 	});
@@ -224,9 +237,7 @@ $(function(){
 
 $(function(){
 
-	var bugout = new debugout();
-	bugout.useTimestamps = true;
-	bugout.logFilename = 'log-10.txt'; // update this
+
 
 	var slider = $('.slider1').bxSlider();
 	var slider_options = {
@@ -282,7 +293,7 @@ $(function(){
 			rec_type : rec_type,
 			remove_attrs  : JSON.stringify(unchecked)
 		};
-
+		var rec_titles = [];
 
 		$("#recs_div .real_rec").remove();
 		bugout.log({"getRec" : params});
@@ -408,20 +419,21 @@ $(function(){
 				}
 
 				// Set chart options
-				var options = {'title': title,
-				'height':small_height,
-				'width' : small_width,
-				vAxis: { title: vAxis },
-				hAxis: {title : rec.x},
-				agg : rec.agg,
-				titleFontSize:12, 
-				orig_data : rec.dist,
-				norm_data : new_data,
-				x : rec.x,
-				y : rec.y
-			};
-			bugout.log({"rec" : options['title']});
-
+				var options = {
+					'title': title,
+					'height':small_height,
+					'width' : small_width,
+					vAxis: { title: vAxis },
+					hAxis: {title : rec.x},
+					agg : rec.agg,
+					titleFontSize:12, 
+					orig_data : rec.dist,
+					norm_data : new_data,
+					x : rec.x,
+					y : rec.y
+				};
+			//all recommended thigns
+			rec_titles.push( options['title'])
 			var el = $(".template_rec").clone();
 			el.removeClass("template_rec");
 			el.addClass("real_rec");
@@ -441,7 +453,26 @@ $(function(){
 				var options = el.data('image_options');
 				options['height'] = big_height;
 				options['width'] = big_width;
-				bugout.log({"rec_zoom" : options['title']});
+				if (zoomTimer==null){
+					zoomTimer = timeHolder.getTime();
+					bugout.log({"bookmark_zoom" : options['title']});
+				}
+				else
+				{
+					var newTime = timeHolder.getTime();
+					var diff = newTime-zoomTimer;
+					zoomTimer = newTime;
+					console.log({"bookmark_zoom" : options['title'],"previousViewTime":diff});
+					bugout.log({"bookmark_zoom" : options['title'],"previousViewTime":diff});
+				}
+
+				/*
+
+					var timeHolder = new Date();
+					var zoomTimer = null;
+				*/
+
+
 				$('#x_axis option[value="' + options.x + '"]').attr('selected', 'selected');
 				$('#y_axis option[value="' + options.y + '"]').attr('selected', 'selected');
 				$('#y_aggregate option[value="' + options.agg + '"]').attr('selected', 'selected');
@@ -467,7 +498,8 @@ $(function(){
 				var chart = new google.visualization.ColumnChart(document.getElementById(rec_id));
 				chart.draw(data, options);
 			}
-			slider.reloadSlider(slider_options);	
+			slider.reloadSlider(slider_options);
+			bugout.log({"recommendations": rec_titles});
 		});
 });
 
@@ -506,6 +538,7 @@ $(".bookmark").on('click', function (e) {
 			var data = $("#big_viz").data('image_raw_data');
 			var options = $("#big_viz").data('image_options');
 			bugout.log({"bookmark_add" : options['title']});
+			console.log({"bookmark_add" : options['title']});
 
 			options['height'] = small_height;
 			options['width'] = small_width;
@@ -527,6 +560,9 @@ $(".bookmark").on('click', function (e) {
 				var options = el.data('image_options');
 				options['height'] = big_height;
 				options['width'] = big_width;
+				if (zoomView===null){
+					zoomView = Date();
+				}
 				bugout.log({"bookmark_zoom" : options['title']});
 
 				var chart;
@@ -561,13 +597,13 @@ $(".bookmark").on('click', function (e) {
 		}
 	});
 
-$('#addComparison').change(function(e){
-	if ($(this).is(':checked')) {
-		$("#comparisonQuery").show();
-	} else {
-		$("#comparisonQuery").hide();
-	}
-});
+	$('#addComparison').change(function(e){
+		if ($(this).is(':checked')) {
+			$("#comparisonQuery").show();
+		} else {
+			$("#comparisonQuery").hide();
+		}
+	});
 	// load visualization library
 	google.load('visualization', '1.0', {'packages':['corechart'], callback: function() {}});
 
@@ -719,6 +755,8 @@ $(".addAttributeFilter").on("click", function (e) {
 		e.preventDefault();
 	});
 	e.preventDefault();
+
+
 });
 
 });
