@@ -39,8 +39,9 @@ $(function(){
 	$('#dataHide').hide();
 });
 
-//prefunction for loading the values of the possible databases into the db list table
-$(function(){
+
+function loadDBs(){
+	$("#databaseSelector").empty();
 	//Use an AJAX call to get the list of databases to select from
 	$.ajax({
 		url: 'www.meow.meow/getDBS',
@@ -70,9 +71,37 @@ $(function(){
 			$("#databaseSelector").val('');
 		}
 	});
-});
+}
+
+//prefunction for loading the values of the possible databases into the db list table
+loadDBs();
+// $(function(){
+// });
 
 $(document).ready(function(){
+	$("#reloadA").on("click", function(eventObj){
+		$('#bookmarked').hide();
+		$('#seeRecommendations').hide();
+		$('#big_viz').hide();
+		$('#vis_builder').hide();
+		$('#rec_settings').hide();
+		$('#submitRec').hide();
+		$('#attributeFilter').hide();
+		$('#comparisonQuery').hide();
+		$('#comparisonSelector').hide();
+		$('#querySelector').hide();
+		$('#dataSetSelector').hide();
+		$('#bookmarkButton').hide();
+		$('#logger').hide();
+		$('#dataHide').hide();
+		loadDBs();
+		zoomRecTime = null;
+		zoomBookMarkTime = null;
+		zoomManualPlotTime=null;
+		previousChartInfo = null;
+		markTime = null;
+		bugout.log({"action": "reload", "time": Date.now()});
+	});
 	$('#databaseSelector').change(function(eventObj){	
 		//gets the name of the selected DB
 		current_database = eventObj.target[eventObj.target.selectedIndex].value;
@@ -115,7 +144,7 @@ $(document).ready(function(){
 				$('#seeRecommendations').show();
 				$('#querySelector').show();
 				$('#bookmarkButton').show("slow");
-				bugout.log({"database": current_database});
+				bugout.log({"action": "load_database","database": current_database, "time": Date.now()});
 			}
 		});
 	});
@@ -213,6 +242,7 @@ $(document).ready(function(){
 
 			attribute_selector.appendChild(document.createElement("br"));
 		});
+		bugout.log({"action": "load_dataset","database": current_dataset, "time": Date.now()});
 	});
 });
 
@@ -227,21 +257,9 @@ $(function(){
 	$("#attributeFilter").on("click", ".countButton", function(obj){
 		$(obj.toElement).toggleClass("btn-primary");
 	}); 
-
-	$("#attributeFilter").on("click",".attrfBox",function(obj){
-		//value of object is: obj.toElement.value
-		console.log(obj.toElement.value);
-		var thingy = $('.getItTogether').attr({value: obj.toElement.value});
-		console.log($('.getItTogether').prop({
-			value: obj.toElement.value
-		}));
-	});
 });
 
 $(function(){
-
-
-
 	var slider = $('.slider1').bxSlider();
 	var slider_options = {
 		controls : true,
@@ -299,7 +317,7 @@ $(function(){
 		var rec_titles = [];
 
 		$("#recs_div .real_rec").remove();
-		bugout.log({"getRec" : params});
+		bugout.log({"action": "getRecommendations", "parameters" : params, "time": Date.now()});
 
 		// make ajax request
 		$.post('/getRecommendations', params, function(ret) {
@@ -454,19 +472,19 @@ $(function(){
 				var options = el.data('image_options');
 				options['height'] = big_height;
 				options['width'] = big_width;
-				var nowTime = Date.now();
+
 				//in zoomRecTime;
+				var nowTime = Date.now();
 				switch (markTime){
 					case "zoomRecTime":
 						var diff = nowTime-zoomRecTime;
-						bugout.log({"recommendation_zoom" : previousChartInfo,"viewtime":diff});
+						bugout.log({"action": "view_recommendation","chart_title" : previousChartInfo,"viewtime":diff, "time":Date.now()});
 						zoomRecTime = nowTime;
 						previousChartInfo=options['title'];
-						console.log(diff);
 						break;
 					case "zoomBookMarkTime":
 						var diff = nowTime - zoomBookMarkTime;
-						bugout.log({"bookmark_zoom":previousChartInfo,"viewtime":diff});
+						bugout.log({"action": "view_bookmark", "chart_title":previousChartInfo,"viewtime":diff, "time":Date.now()});
 						zoomBookMarkTime=null;
 						markTime = "zoomRecTime";
 						previousChartInfo = options['title'];
@@ -474,34 +492,17 @@ $(function(){
 						break;
 					case "zoomManualPlotTime":
 						var diff = nowTime - zoomManualPlotTime;
-						bugout.log({"manualplot_zoom":previousChartInfo,"viewtime":diff});
+						bugout.log({"action": "view_manualPlot","chart_title":previousChartInfo,"viewtime":diff, "time": Date.now()});
 						zoomManualPlotTime=null;
 						markTime = "zoomRecTime";
 						previousChartInfo = options['title'];
 						zoomRecTime = nowTime;
 						break;
 					default:
-						console.log("IN RECOMMENDATIONS");
 						previousChartInfo=options['title'];
-						console.log()
 						markTime = "zoomRecTime";
 						zoomRecTime=Date.now();
-				}	
-
-				// var zoomRecTime = null;
-				// var zoomBookMarkTime = null;
-				// var zoomManualPlotTime=null;
-				// var previousChartInfo = null;
-				// if (zoomRecTime==null){
-				// 	zoomRecTime = Date.now();
-				// 	bugout.log({"recommendation_zoom" : options['title']});
-				// }
-				// else{
-				// 	var newTime = Date.now();
-				// 	var diff = newTime-zoomRecTime;
-				// 	zoomRecTime = newTime;
-				// 	bugout.log({"recommendation_zoom" : options['title'],"previousViewTime":diff});
-				// }
+				};
 
 				$('#x_axis option[value="' + options.x + '"]').attr('selected', 'selected');
 				$('#y_axis option[value="' + options.y + '"]').attr('selected', 'selected');
@@ -529,7 +530,7 @@ $(function(){
 				chart.draw(data, options);
 			}
 			slider.reloadSlider(slider_options);
-			bugout.log({"recommendations": rec_titles});
+			bugout.log({"action": "list_recommendations","list": rec_titles, "time": Date.now()});
 		});
 });
 
@@ -537,7 +538,7 @@ $(".normalize").on("click", function (e) {
 	$(this).toggleClass('normalized');
 	var data = $("#big_viz").data('image_raw_data');
 	var options = $("#big_viz").data('image_options');
-	bugout.log({"normalize" : options['title']});
+	bugout.log({"action": "normalize_chart","chart_title" : options['title'],"time":Date.now()});
 	if ($(this).hasClass('normalized')) {
 		data.removeRows(0, data.getNumberOfRows());
 		data.addRows(options.norm_data);
@@ -567,8 +568,7 @@ $(".bookmark").on('click', function (e) {
 		if ($(this).hasClass('bookmarked')) {
 			var data = $("#big_viz").data('image_raw_data');
 			var options = $("#big_viz").data('image_options');
-			bugout.log({"bookmark_add" : options['title']});
-			console.log({"bookmark_add" : options['title']});
+			bugout.log({"action": "add_bookmark","chart_title" : options['title'],"time":Date.now()});
 
 			options['height'] = small_height;
 			options['width'] = small_width;
@@ -596,7 +596,7 @@ $(".bookmark").on('click', function (e) {
 				switch (markTime){
 					case "zoomRecTime":
 						var diff = nowTime - zoomRecTime;
-						bugout.log({"recommendation_zoom":previousChartInfo,"viewtime":diff});
+						bugout.log({"action": "view_recommendation","chart_title" : previousChartInfo,"viewtime":diff, "time":Date.now()});
 						zoomRecTime=null;
 						markTime = "zoomBookMarkTime";
 						previousChartInfo = options['title'];
@@ -604,13 +604,13 @@ $(".bookmark").on('click', function (e) {
 						break;
 					case "zoomBookMarkTime":
 						var diff = nowTime-zoomBookMarkTime;
-						bugout.log({"bookmark_zoom" : previousChartInfo,"viewtime":diff});
+						bugout.log({"action": "view_bookmark", "chart_title":previousChartInfo,"viewtime":diff, "time":Date.now()});
 						zoomBookMarkTime = nowTime;
 						previousChartInfo=options['title'];
 						break;
 					case "zoomManualPlotTime":
 						var diff = nowTime - zoomManualPlotTime;
-						bugout.log({"manualplot_zoom":previousChartInfo,"viewtime":diff});
+						bugout.log({"action": "view_manualPlot","chart_title":previousChartInfo,"viewtime":diff, "time": Date.now()});
 						zoomManualPlotTime=null;
 						markTime = "zoomBookMarkTime";
 						previousChartInfo = options['title'];
@@ -620,21 +620,7 @@ $(".bookmark").on('click', function (e) {
 						previousChartInfo=options['title'];
 						markTime = "zoomBookMarkTime";
 						zoomBookMarkTime=Date.now();
-					}
-				// if (zoomBookMarkTime===null){
-				// 	zoomBookMarkTime = Date.now();
-				// 	bugout.log({"bookmark_zoom" : options['title']});
-				// }
-				// else
-				// {
-				// 	var newTime = Date.now();
-				// 	var diff = newTime-zoomBookMarkTime;
-				// 	zoomBookMarkTime = newTime;
-				// 	console.log(diff);
-				// 	console.log({"bookmark_zoom" : options['title'],"previousViewTime":diff});
-				// 	bugout.log({"bookmark_zoom" : options['title'],"previousViewTime":diff});
-				// }
-				// bugout.log({"bookmark_zoom" : options['title']});
+					};
 
 				var chart;
 				if (options['agg'] == "NONE") {
@@ -653,7 +639,7 @@ $(".bookmark").on('click', function (e) {
 				$(".normalize").removeClass('normalized');
 			});
 			el.find(".delete").on('click', function (e) {
-				bugout.log({"bookmark_delete" : options['title']});
+				bugout.log({"action":"bookmark_delete", "chart_title" : options['title'],"time":Date.now()});
 				$(this).parent().remove();
 			});
 
@@ -713,7 +699,7 @@ $(".bookmark").on('click', function (e) {
 			filters : JSON.stringify(filters)
 		};
 		//console.log(params);
-		bugout.log({"manualPlot" : params});
+		bugout.log({"action":"manual_plot", "parameters" : params, "time": Date.now()});
 		
 		$.post('/manualPlot', params, function(ret) {
 			// do the processing and create the chart
@@ -809,7 +795,7 @@ $(".bookmark").on('click', function (e) {
 		switch (markTime){
 			case "zoomRecTime":
 				var diff = nowTime - zoomRecTime;
-				bugout.log({"recommendation_zoom":previousChartInfo,"viewtime":diff});
+				bugout.log({"action": "view_recommendation","chart_title" : previousChartInfo,"viewtime":diff, "time":Date.now()});
 				zoomRecTime=null;
 				markTime = "zoomManualPlotTime";
 				previousChartInfo = options['title'];
@@ -817,7 +803,7 @@ $(".bookmark").on('click', function (e) {
 				break;
 			case "zoomBookMarkTime":
 				var diff = nowTime - zoomBookMarkTime;
-				bugout.log({"bookmark_zoom":previousChartInfo,"viewtime":diff});
+				bugout.log({"action": "view_bookmark", "chart_title":previousChartInfo,"viewtime":diff, "time":Date.now()});
 				zoomBookMarkTime=null;
 				markTime = "zoomManualPlotTime";
 				previousChartInfo = options['title'];
@@ -825,7 +811,7 @@ $(".bookmark").on('click', function (e) {
 				break;
 			case "zoomManualPlotTime":
 				var diff = nowTime-zoomManualPlotTime;
-				bugout.log({"manualplot_zoom" : previousChartInfo,"viewtime":diff});
+				bugout.log({"action": "view_manualPlot","chart_title":previousChartInfo,"viewtime":diff, "time": Date.now()});
 				zoomManualPlotTime = nowTime;
 				previousChartInfo=options['title'];
 				break;
@@ -833,7 +819,7 @@ $(".bookmark").on('click', function (e) {
 				previousChartInfo=options['title'];
 				markTime = "zoomManualPlotTime";
 				zoomManualPlotTime=Date.now();
-			}
+			};
 
 		chart.draw(data, options);
 		$('#big_viz').data('image_raw_data', data);
