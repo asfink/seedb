@@ -12,6 +12,9 @@ bugout.logFilename = 'log-10.txt'; // update this
 
 var zoomRecTime = null;
 var zoomBookMarkTime = null;
+var zoomManualPlotTime=null;
+var previousChartInfo = null;
+var markTime = null;
 var big_width = 700;
 var big_height = 300;
 
@@ -335,8 +338,6 @@ $(function(){
 					}
 				}
 			}
-			console.log(blueString);
-			console.log(redString);
 
 			for (var i = 0; i < recs.length; i++) {
 				var rec = recs[i];
@@ -453,16 +454,54 @@ $(function(){
 				var options = el.data('image_options');
 				options['height'] = big_height;
 				options['width'] = big_width;
-				if (zoomRecTime==null){
-					zoomRecTime = Date.now();
-					bugout.log({"recommendation_zoom" : options['title']});
-				}
-				else{
-					var newTime = Date.now();
-					var diff = newTime-zoomRecTime;
-					zoomRecTime = newTime;
-					bugout.log({"recommendation_zoom" : options['title'],"previousViewTime":diff});
-				}
+				var nowTime = Date.now();
+				//in zoomRecTime;
+				switch (markTime){
+					case "zoomRecTime":
+						var diff = nowTime-zoomRecTime;
+						bugout.log({"recommendation_zoom" : previousChartInfo,"viewtime":diff});
+						zoomRecTime = nowTime;
+						previousChartInfo=options['title'];
+						console.log(diff);
+						break;
+					case "zoomBookMarkTime":
+						var diff = nowTime - zoomBookMarkTime;
+						bugout.log({"bookmark_zoom":previousChartInfo,"viewtime":diff});
+						zoomBookMarkTime=null;
+						markTime = "zoomRecTime";
+						previousChartInfo = options['title'];
+						zoomRecTime = nowTime;
+						break;
+					case "zoomManualPlotTime":
+						var diff = nowTime - zoomManualPlotTime;
+						bugout.log({"manualplot_zoom":previousChartInfo,"viewtime":diff});
+						zoomManualPlotTime=null;
+						markTime = "zoomRecTime";
+						previousChartInfo = options['title'];
+						zoomRecTime = nowTime;
+						break;
+					default:
+						console.log("IN RECOMMENDATIONS");
+						previousChartInfo=options['title'];
+						console.log()
+						markTime = "zoomRecTime";
+						zoomRecTime=Date.now();
+				}	
+
+				// var zoomRecTime = null;
+				// var zoomBookMarkTime = null;
+				// var zoomManualPlotTime=null;
+				// var previousChartInfo = null;
+				// if (zoomRecTime==null){
+				// 	zoomRecTime = Date.now();
+				// 	bugout.log({"recommendation_zoom" : options['title']});
+				// }
+				// else{
+				// 	var newTime = Date.now();
+				// 	var diff = newTime-zoomRecTime;
+				// 	zoomRecTime = newTime;
+				// 	bugout.log({"recommendation_zoom" : options['title'],"previousViewTime":diff});
+				// }
 
 				$('#x_axis option[value="' + options.x + '"]').attr('selected', 'selected');
 				$('#y_axis option[value="' + options.y + '"]').attr('selected', 'selected');
@@ -551,20 +590,51 @@ $(".bookmark").on('click', function (e) {
 				var options = el.data('image_options');
 				options['height'] = big_height;
 				options['width'] = big_width;
-				if (zoomBookMarkTime===null){
-					zoomBookMarkTime = Date.now();
-					bugout.log({"bookmark_zoom" : options['title']});
-				}
-				else
-				{
-					var newTime = Date.now();
-					var diff = newTime-zoomBookMarkTime;
-					zoomBookMarkTime = newTime;
-					console.log(diff);
-					console.log({"bookmark_zoom" : options['title'],"previousViewTime":diff});
-					bugout.log({"bookmark_zoom" : options['title'],"previousViewTime":diff});
-				}
-				bugout.log({"bookmark_zoom" : options['title']});
+
+				//in zoomBookMarkTime
+				var nowTime = Date.now();
+				switch (markTime){
+					case "zoomRecTime":
+						var diff = nowTime - zoomRecTime;
+						bugout.log({"recommendation_zoom":previousChartInfo,"viewtime":diff});
+						zoomRecTime=null;
+						markTime = "zoomBookMarkTime";
+						previousChartInfo = options['title'];
+						zoomBookMarkTime = nowTime;
+						break;
+					case "zoomBookMarkTime":
+						var diff = nowTime-zoomBookMarkTime;
+						bugout.log({"bookmark_zoom" : previousChartInfo,"viewtime":diff});
+						zoomBookMarkTime = nowTime;
+						previousChartInfo=options['title'];
+						break;
+					case "zoomManualPlotTime":
+						var diff = nowTime - zoomManualPlotTime;
+						bugout.log({"manualplot_zoom":previousChartInfo,"viewtime":diff});
+						zoomManualPlotTime=null;
+						markTime = "zoomBookMarkTime";
+						previousChartInfo = options['title'];
+						zoomBookMarkTime = nowTime;
+						break;
+					default:
+						previousChartInfo=options['title'];
+						markTime = "zoomBookMarkTime";
+						zoomBookMarkTime=Date.now();
+					}
+				// if (zoomBookMarkTime===null){
+				// 	zoomBookMarkTime = Date.now();
+				// 	bugout.log({"bookmark_zoom" : options['title']});
+				// }
+				// else
+				// {
+				// 	var newTime = Date.now();
+				// 	var diff = newTime-zoomBookMarkTime;
+				// 	zoomBookMarkTime = newTime;
+				// 	console.log(diff);
+				// 	console.log({"bookmark_zoom" : options['title'],"previousViewTime":diff});
+				// 	bugout.log({"bookmark_zoom" : options['title'],"previousViewTime":diff});
+				// }
+				// bugout.log({"bookmark_zoom" : options['title']});
 
 				var chart;
 				if (options['agg'] == "NONE") {
@@ -733,6 +803,38 @@ $(".bookmark").on('click', function (e) {
 		} else {
 			chart = new google.visualization.ColumnChart(document.getElementById('big_viz'));
 		}
+
+		//in zoomBookMarkTime
+		var nowTime = Date.now();
+		switch (markTime){
+			case "zoomRecTime":
+				var diff = nowTime - zoomRecTime;
+				bugout.log({"recommendation_zoom":previousChartInfo,"viewtime":diff});
+				zoomRecTime=null;
+				markTime = "zoomManualPlotTime";
+				previousChartInfo = options['title'];
+				zoomBookMarkTime = nowTime;
+				break;
+			case "zoomBookMarkTime":
+				var diff = nowTime - zoomBookMarkTime;
+				bugout.log({"bookmark_zoom":previousChartInfo,"viewtime":diff});
+				zoomBookMarkTime=null;
+				markTime = "zoomManualPlotTime";
+				previousChartInfo = options['title'];
+				zoomRecTime = nowTime;
+				break;
+			case "zoomManualPlotTime":
+				var diff = nowTime-zoomManualPlotTime;
+				bugout.log({"manualplot_zoom" : previousChartInfo,"viewtime":diff});
+				zoomManualPlotTime = nowTime;
+				previousChartInfo=options['title'];
+				break;
+			default:
+				previousChartInfo=options['title'];
+				markTime = "zoomManualPlotTime";
+				zoomManualPlotTime=Date.now();
+			}
+
 		chart.draw(data, options);
 		$('#big_viz').data('image_raw_data', data);
 		$('#big_viz').data('image_options', options);
