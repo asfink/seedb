@@ -10,8 +10,8 @@ var bugout = new debugout();
 bugout.useTimestamps = true;
 bugout.logFilename = 'log-10.txt'; // update this
 
-var timeHolder = new Date();
-var zoomTimer = null;
+var zoomRecTime = null;
+var zoomBookMarkTime = null;
 var big_width = 700;
 var big_height = 300;
 
@@ -453,25 +453,16 @@ $(function(){
 				var options = el.data('image_options');
 				options['height'] = big_height;
 				options['width'] = big_width;
-				if (zoomTimer==null){
-					zoomTimer = timeHolder.getTime();
-					bugout.log({"bookmark_zoom" : options['title']});
+				if (zoomRecTime==null){
+					zoomRecTime = Date.now();
+					bugout.log({"recommendation_zoom" : options['title']});
 				}
-				else
-				{
-					var newTime = timeHolder.getTime();
-					var diff = newTime-zoomTimer;
-					zoomTimer = newTime;
-					console.log({"bookmark_zoom" : options['title'],"previousViewTime":diff});
-					bugout.log({"bookmark_zoom" : options['title'],"previousViewTime":diff});
+				else{
+					var newTime = Date.now();
+					var diff = newTime-zoomRecTime;
+					zoomRecTime = newTime;
+					bugout.log({"recommendation_zoom" : options['title'],"previousViewTime":diff});
 				}
-
-				/*
-
-					var timeHolder = new Date();
-					var zoomTimer = null;
-				*/
-
 
 				$('#x_axis option[value="' + options.x + '"]').attr('selected', 'selected');
 				$('#y_axis option[value="' + options.y + '"]').attr('selected', 'selected');
@@ -560,8 +551,18 @@ $(".bookmark").on('click', function (e) {
 				var options = el.data('image_options');
 				options['height'] = big_height;
 				options['width'] = big_width;
-				if (zoomView===null){
-					zoomView = Date();
+				if (zoomBookMarkTime===null){
+					zoomBookMarkTime = Date.now();
+					bugout.log({"bookmark_zoom" : options['title']});
+				}
+				else
+				{
+					var newTime = Date.now();
+					var diff = newTime-zoomBookMarkTime;
+					zoomBookMarkTime = newTime;
+					console.log(diff);
+					console.log({"bookmark_zoom" : options['title'],"previousViewTime":diff});
+					bugout.log({"bookmark_zoom" : options['title'],"previousViewTime":diff});
 				}
 				bugout.log({"bookmark_zoom" : options['title']});
 
