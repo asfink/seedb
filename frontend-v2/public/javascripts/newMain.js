@@ -515,6 +515,7 @@ $(function(){
 				} else {
 					chart = new google.visualization.ColumnChart(document.getElementById("big_viz"));
 				}
+
 				chart.draw(data, options);
 			    	// console.log(chart);
 			    	$('#big_viz').data('image_raw_data', data);
@@ -789,8 +790,14 @@ $(".bookmark").on('click', function (e) {
 		} else {
 			chart = new google.visualization.ColumnChart(document.getElementById('big_viz'));
 		}
+		console.log("alksdf;alkjoiawn;lknav;lknaev;");
+		console.log(data);
+		console.log(typeof data);
+		console.log("x");
+		console.log(x);
 
-		//in zoomBookMarkTime
+
+		//in manualPlot
 		var nowTime = Date.now();
 		switch (markTime){
 			case "zoomRecTime":
