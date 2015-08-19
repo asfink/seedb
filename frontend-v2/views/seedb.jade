@@ -136,7 +136,8 @@ block content
                         br
                         br
                         //input.btn.normalize(value="Normalize", type="submit")
-
+                div.row
+                    div(id="vis")#vis
         div.row#seeRecommendations
             h5 SeeDB Recommendations
             div.row#recs(data-num=0)
@@ -162,4 +163,8 @@ block content
             div.dummy3
             hr
             input.btn#getLog(value="Get Log", type="submit")
- 
+    script(type='text/javascript').
+        function parse(spec) {
+            vg.parse.spec(spec, function(chart) { chart({el:"#vis"}).update(); });
+        }
+        parse("uri/to/your/vega/spec.json");
