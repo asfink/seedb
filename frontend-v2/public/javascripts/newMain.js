@@ -784,19 +784,55 @@ $(".bookmark").on('click', function (e) {
 			x : x,
 			y : y
 		};
+
+		//new data is the list of x and y data.
+
+		// console.log("normdata");
+		// console.log(new_data);
+		var vega_data = [];
+		$.each(new_data, function(index, entry){
+			var group = {"x": entry[0], "y": entry[1]};
+			vega_data.push(group);
+		});
+		// console.log("NEW VEGA DATA");
+		// console.log(vega_data);
+
+		// var vega_example =[
+		// 	        {"category":"A", "amount":28},
+		// 	        {"category":"B", "amount":55},
+		// 	        {"category":"C", "amount":43},
+		// 	        {"category":"D", "amount":91},
+		// 	        {"category":"E", "amount":81},
+		// 	        {"category":"F", "amount":53},
+		// 	        {"category":"G", "amount":19},
+		// 	        {"category":"H", "amount":87},
+		// 	        {"category":"I", "amount":52}
+		// 	      ];
+		// console.log(vega_example);
 		var chart;
 		if (agg == "NONE") {
 			chart = new google.visualization.ScatterChart(document.getElementById('big_viz'));
 		} else {
 			chart = new google.visualization.ColumnChart(document.getElementById('big_viz'));
 		}
-		console.log("alksdf;alkjoiawn;lknav;lknaev;");
-		console.log(data);
-		console.log(typeof data);
-		console.log("x");
-		console.log(x);
+		// console.log("alksdf;alkjoiawn;lknav;lknaev;");
+		// console.log(data);
+		// console.log(typeof data);
+		// console.log("x");
+		// console.log(x);
 
+		var vega ={
+			  "data": {
+			    "values": vega_data
+			  },
+			  "marktype": "bar",
+			  "encoding": {
+			    "y": {"type": "Q","name": "y"},
+			    "x": {"type": "O","name": "x"}
+			  }
+			}
 
+		parse(vega);
 		//in manualPlot
 		var nowTime = Date.now();
 		switch (markTime){
@@ -854,6 +890,10 @@ $(".addAttributeFilter").on("click", function (e) {
 
 
 });
+
+function parse(spec) {
+	vg.parse.spec(spec, function(chart) { chart({el:"#vis"}).update(); });
+};
 
 });
 
