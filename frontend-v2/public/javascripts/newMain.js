@@ -867,8 +867,8 @@ $(".bookmark").on('click', function (e) {
 
 		var vega =
 		{
-		  "width": 400,
-		  "height": 200,
+		  "width": big_width,
+		  "height": big_height,
 		  "padding": {"top": 10, "left": 30, "bottom": 20, "right": 10},
 
 		  "data": [
@@ -899,7 +899,7 @@ $(".bookmark").on('click', function (e) {
 		  "scales": [
 		    { "name": "xscale", "type": "ordinal", "range": "width",
 		      "domain": {"data": "table", "field": "x"} },
-		    { "name": "yscale", "range": "height", "nice": true,
+		    { "name": "yscale", "range": "height", "nice": false,
 		      "domain": {"data": "table", "field": "y"} }
 		  ],
 
