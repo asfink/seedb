@@ -70,7 +70,7 @@ loadDBs();
 // $(function(){
 // });
 
-$(document).ready(function(){
+$(function(){
 	$("#reloadA").on("click", function(eventObj){
 		$('#bookmarked').hide();
 		$('#seeRecommendations').hide();
@@ -698,7 +698,10 @@ $(".bookmark").on('click', function (e) {
 			// do the processing and create the chart
 			ret = JSON.parse(ret);
 			//console.log(ret);
-			
+			console.log("params");
+			console.log(params.data);
+			console.log("ret");
+			console.log(ret);
 			var data = new google.visualization.DataTable();
 			// populate metadata from schema
 			
@@ -781,176 +784,15 @@ $(".bookmark").on('click', function (e) {
 
 		// console.log("normdata");
 		// console.log(new_data);
-		var vega_data = [];
-		$.each(new_data, function(index, entry){
-			if(index<10){
-				console.log(x);
-				var group = {"x": entry[0], "y": entry[1]};
-				vega_data.push(group);
-			}	
-		});
-		console.log("NEW VEGA DATA");
-		console.log(vega_data);
 
-		var vega_example =[
-			        {"category":1.0, "amount":28},
-			        {"category":0.2, "amount":55},
-			        {"category":0.3, "amount":43},
-			        {"category":4, "amount":91},
-			        {"category":4, "amount":81},
-			        {"category":5, "amount":53},
-			        {"category":6, "amount":19},
-			        {"category":8, "amount":87},
-			        {"category":1, "amount":52}
-			      ];
-  		console.log("old VEGA DATA");
-		console.log(vega_example);
 		var chart;
 		if (agg == "NONE") {
 			chart = new google.visualization.ScatterChart(document.getElementById('big_viz'));
 		} else {
 			chart = new google.visualization.ColumnChart(document.getElementById('big_viz'));
 		}
-		// console.log("alksdf;alkjoiawn;lknav;lknaev;");
-		// console.log(data);
-		// console.log(typeof data);
-		// console.log("x");
-		// console.log(x);
-		// {
-		//   "width": small_width,
-		//   "height": small_width,
-		//   "data": [{"name": "table","values":vega_data}],
-		//   "scales": [
-		//     {
-		//       "name": "x",
-		//       "range": "width",
-		//     },
-		//     {
-		//       "name": "y",
-		//       "range": "height",
-		//     }
-		//   ],
-		//   "axes": [
-		//     {"type": "x", "scale": "x", "title": options.x},
-		//     {"type": "y", "scale": "y", "title": options.y}
-		//   ],
-		//   "legends": [
-		//     {
-		//       "fill": "c",
-		//       "title": options.title,
-		//       "properties": {
-		//         "symbols": {
-		//           "fillOpacity": {"value": 100},
-		//           "stroke": {"value": "transparent"}
-		//         }
-		//       }
-		//     }
-		//   ],
-		//   "marks": [
-		//     {
-		//       "type": "symbol",
-		//       "from": {"data": "table"},
-		//       "properties": {
-		//         "enter": {
-		//           "x": {"scale": "x", "field": "data."+options.x},
-		//           "y": {"scale": "y", "field": "data."+options.y},
-		//           "fill": {
-		// 				 "r": {"value": 255},
-		// 				 "g": {"scale": "green", "field": "g"},
-		// 				 "b": {"value": 0}
-		// 			}
-		//         }
-		//       }
-		//     }
-		//   ]
-		// };
+		// console.log(chart);
 
-		var vega =
-		{
-		  "width": big_width,
-		  "height": big_height,
-		  "padding": {"top": 10, "left": 30, "bottom": 20, "right": 10},
-
-		  "data": [
-		    {
-		      "name": "table",
-		      "values": vega_data
-		    }
-		  ],
-
-		  "signals": [
-		    {
-		      "name": "tooltip",
-		      "init": {},
-		      "streams": [
-		        {"type": "rect:mouseover", "expr": "datum"},
-		        {"type": "rect:mouseout", "expr": "{}"}
-		      ]
-		    }
-		  ],
-
-		  "predicates": [
-		    {
-		      "name": "tooltip", "type": "==", 
-		      "operands": [{"signal": "tooltip._id"}, {"arg": "id"}]
-		    }
-		  ],
-
-		  "scales": [
-		    { "name": "xscale", "type": "ordinal", "range": "width",
-		      "domain": {"data": "table", "field": "x"} },
-		    { "name": "yscale", "range": "height", "nice": false,
-		      "domain": {"data": "table", "field": "y"} }
-		  ],
-
-		  "axes": [
-		    { "type": "x", "scale": "xscale" },
-		    { "type": "y", "scale": "yscale" }
-		  ],
-
-		  "marks": [
-		    {
-		      "type": "symbol",
-		      "from": {"data":"table"},
-		      "properties": {
-		        "enter": {
-		          "x": {"scale": "xscale", "field": "x"},
-		          "width": {"scale": "xscale", "band": true, "offset": -1},
-		          "y": {"scale": "yscale", "field": "y"},
-		          "y2": {"scale": "yscale", "value":0}
-		        },
-		        "update": { "fill": {"value": "steelblue"} },
-		        "hover": { "fill": {"value": "red"} }
-		      }
-		    },
-		    {
-		      "type": "text",
-		      "properties": {
-		        "enter": {
-		          "align": {"value": "center"},
-		          "fill": {"value": "#333"}
-		        },
-		        "update": {
-		          "x": {"scale": "xscale", "signal": "tooltip.x"},
-		          "dx": {"scale": "xscale", "band": true, "mult": 0.5},
-		          "y": {"scale": "yscale", "signal": "tooltip.y", "offset": -5},
-		          "text": {"signal": "tooltip.y"},
-		          "fillOpacity": {
-		            "rule": [
-		              {
-		                "predicate": {"name": "tooltip", "id": {"value": null}},
-		                "value": 0
-		              },
-		              {"value": 1}
-		            ]
-		          }
-		        }
-		      }
-		    }
-		  ]
-		}
-
-		parse(vega);
 		//in manualPlot
 		var nowTime = Date.now();
 		switch (markTime){
@@ -983,6 +825,140 @@ $(".bookmark").on('click', function (e) {
 			};
 
 		chart.draw(data, options);
+
+		console.log("THE DATA PASSED TO GCHART IS");
+		console.log(data);
+
+		var vega_data = [];
+		var data_to_parse = data.Cc;
+		$.each(data_to_parse, function(index, entry){
+			if(index<50){
+				// console.log(x);
+				var group = {"x": entry[0].ef, "y": entry[1].ef};
+				vega_data.push(group);
+			}	
+		});
+		// console.log("NEW VEGA DATA");
+		// console.log(vega_data);
+
+		// var vega_example =[
+		// 	        {"category":1.0, "amount":28},
+		// 	        {"category":0.2, "amount":55},
+		// 	        {"category":0.3, "amount":43},
+		// 	        {"category":4, "amount":91},
+		// 	        {"category":4, "amount":81},
+		// 	        {"category":5, "amount":53},
+		// 	        {"category":6, "amount":19},
+		// 	        {"category":8, "amount":87},
+		// 	        {"category":1, "amount":52}
+		// 	      ];
+  // 		console.log("old VEGA DATA");
+		// console.log(vega_example);
+
+
+		var vega =
+		{
+		  "width": big_width,
+		  "height": big_height,
+
+		  "data": [
+		    {
+		      "name": "table",
+		      "values": vega_data
+		    }
+		  ],
+		  "signals": [
+		    {
+		      "name": "tooltip",
+		      "init": {},
+		      "streams": [
+		        {"type": "rect:mouseover", "expr": "datum"},
+		        {"type": "rect:mouseout", "expr": "{}"}
+		      ]
+		    }
+		  ],
+		  "predicates": [
+		    {
+		      "name": "tooltip", "type": "==", 
+		      "operands": [{"signal": "tooltip._id"}, {"arg": "id"}]
+		    }
+		  ],
+		  "scales": [
+		    {
+		      "name": "x",
+		      "type": "linear",
+		      "range": "width",
+		      "domain": {"data": "table", "field": "x"}
+		    },
+		    {
+		      "name": "y",
+		      "type": "linear",
+		      "range": "height",
+		      "domain": {"data": "table", "field": "y"},
+		      "nice": true
+		    }
+		  ],
+
+		  "axes": [{"type": "x", "scale": "x"}, {"type": "y", "scale": "y"}],
+
+		  "marks": [
+		    {
+		      "type": "rect",
+		      "from": {"data": "table"},
+		      "properties": {
+		        "enter": {
+		          "x": {"scale": "x", "field": "x"},
+		          "width": {"value":1},
+		          "y": {"scale": "y", "field": "y"},
+		          "y2": {"scale": "y", "value": 0}
+		        },
+		        "update": {
+		          "fill": {
+		            "rule": [
+		              {
+		                "predicate": {
+		                  "name": "tooltip",
+		                  "id": {"field": "_id"}
+		                },
+		                "value": "red"
+		              },
+		              {"value": "steelblue"}
+		            ]
+		          }
+		        }
+		      }
+		    },
+		    {
+		      "type": "text",
+		      "properties": {
+		        "enter": {
+		          "align": {"value": "center"},
+		          "fill": {"value": "#333"}
+		        },
+		        "update": {
+		          "x": {"scale": "x", "signal": "tooltip.x"},
+		          "y": {"scale": "y", "signal": "tooltip.y", "offset": -5},
+		          "text": {"signal": "tooltip.y"},
+		          "fillOpacity": {
+		            "rule": [
+		              {
+		                "predicate": {
+		                  "name": "tooltip",
+		                  "id": {"value": null}
+		                },
+		                "value": 0
+		              },
+		              {"value": 1}
+		            ]
+		          }
+		        }
+		      }
+		    }
+		  ]
+		};
+		//console.log(vega);
+
+		parse(vega);
 		$('#big_viz').data('image_raw_data', data);
 		$('#big_viz').data('image_options', options);
 		$(".bookmark").removeClass('bookmarked');

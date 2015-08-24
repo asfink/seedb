@@ -1,0 +1,213 @@
+{
+  "width": 700,
+  "height": 300,
+  "data": [
+    {
+      "name": "table",
+      "values": [
+        {
+          "x": "0.00632",
+          "y": "0.00632"
+        },
+        {
+          "x": "0.00906",
+          "y": "0.00906"
+        },
+        {
+          "x": "0.01096",
+          "y": "0.01096"
+        },
+        {
+          "x": "0.01301",
+          "y": "0.01301"
+        },
+        {
+          "x": "0.01311",
+          "y": "0.01311"
+        },
+        {
+          "x": "0.0136",
+          "y": "0.0136"
+        },
+        {
+          "x": "0.01381",
+          "y": "0.01381"
+        },
+        {
+          "x": "0.01432",
+          "y": "0.01432"
+        },
+        {
+          "x": "0.01439",
+          "y": "0.01439"
+        },
+        {
+          "x": "0.01501",
+          "y": "0.01501"
+        }
+      ]
+    }
+  ],
+  "signals": [
+    {
+      "name": "tooltip",
+      "init": {},
+      "streams": [
+        {
+          "type": "rect:mouseover",
+          "expr": "datum"
+        },
+        {
+          "type": "rect:mouseout",
+          "expr": "{}"
+        }
+      ]
+    }
+  ],
+  "predicates": [
+    {
+      "name": "tooltip",
+      "type": "==",
+      "operands": [
+        {
+          "signal": "tooltip._id"
+        },
+        {
+          "arg": "id"
+        }
+      ]
+    }
+  ],
+  "scales": [
+    {
+      "name": "xscale",
+      "type": "ordinal",
+      "range": "width",
+      "domain": {
+        "data": "table",
+        "field": "x"
+      }
+    },
+    {
+      "name": "yscale",
+      "range": "height",
+      "nice": false,
+      "domain": {
+        "data": "table",
+        "field": "y"
+      }
+    }
+  ],
+  "axes": [
+    {
+      "type": "x",
+      "scale": "xscale"
+    },
+    {
+      "type": "y",
+      "scale": "yscale"
+    }
+  ],
+  "marks": [
+    {
+      "type": "symbol",
+      "from": {
+        "data": "table"
+      },
+      "properties": {
+        "enter": {
+          "x": {
+            "scale": "xscale",
+            "field": "x"
+          },
+          "width": {
+            "scale": "xscale",
+            "band": true,
+            "offset": -1
+          },
+          "y": {
+            "scale": "yscale",
+            "field": "y"
+          },
+          "y2": {
+            "scale": "yscale",
+            "value": 0
+          }
+        },
+        "update": {
+          "fill": {
+            "value": "steelblue"
+          }
+        },
+        "hover": {
+          "fill": {
+            "value": "red"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "properties": {
+        "enter": {
+          "align": {
+            "value": "center"
+          },
+          "fill": {
+            "value": "#333"
+          }
+        },
+        "update": {
+          "x": {
+            "scale": "xscale",
+            "signal": "tooltip.x"
+          },
+          "dx": {
+            "scale": "xscale",
+            "band": true,
+            "mult": 0.5
+          },
+          "y": {
+            "scale": "yscale",
+            "signal": "tooltip.y",
+            "offset": -5
+          },
+          "text": {
+            "signal": "tooltip.y"
+          },
+          "fillOpacity": {
+            "rule": [
+              {
+                "predicate": {
+                  "name": "tooltip",
+                  "id": {
+                    "value": null
+                  }
+                },
+                "value": 0
+              },
+              {
+                "value": 1
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
+
+
+
+[
+  { "x": "0.00632", "y": "0.00632"},
+  { "x": "0.00906", "y": "0.00906"},
+  { "x": "0.01096", "y": "0.01096"},
+  { "x": "0.01301", "y": "0.01301"},
+  { "x": "0.01311", "y": "0.01311"},
+  { "x": "0.01360", "y": "0.01360"},
+  { "x": "0.01381", "y": "0.01381"},
+  { "x": "0.01432", "y": "0.01432"},
+  { "x": "0.01439", "y": "0.01439"},
+  { "x": "0.01501", "y": "0.01501"}
+]
