@@ -846,145 +846,187 @@ $(".bookmark").on('click', function (e) {
 		var vega_data = [];
 		var data_to_parse = ret["rows2"];
 		$.each(data_to_parse, function(index, entry){
-			// if(index<50){
-				// console.log(x);
 				var group = {"x": entry[0], "y": entry[1]};
-				vega_data.push(group);
-			// }	
+				vega_data.push(group);	
 		});
-		// console.log("NEW VEGA DATA");
-		// console.log(vega_data);
-
-		// var vega_example =[
-		// 	        {"category":1.0, "amount":28},
-		// 	        {"category":0.2, "amount":55},
-		// 	        {"category":0.3, "amount":43},
-		// 	        {"category":4, "amount":91},
-		// 	        {"category":4, "amount":81},
-		// 	        {"category":5, "amount":53},
-		// 	        {"category":6, "amount":19},
-		// 	        {"category":8, "amount":87},
-		// 	        {"category":1, "amount":52}
-		// 	      ];
-  // 		console.log("old VEGA DATA");
-		// console.log(vega_example);
-			var vega =
-					{
-		  "width": big_width,
-		  "height": big_height,
-
-		  "data": [
-		    {
-		      "name": "table",
-		      "values": vega_data
-		    }
-		  ], "signals": [
-    {
-      "name": "tooltip",
-      "init": {},
-      "streams": [
-        {"type": "rect:mouseover", "expr": "datum"},
-        {"type": "rect:mouseout", "expr": "{}"}
-      ]
-    }
-  ],
-  "predicates": [
-    {
-      "name": "tooltipP", "type": "==", 
-      "operands": [{"signal": "tooltip._id"}, {"arg": "id"}]
-    }
-  ],
-  "scales": [
-    {
-      "name": "x",
-      "type": "linear",
-      "range": "width",
-      "domain": {"data": "table", "field": "x"}
-    },
-    {
-      "name": "xscale",
-      "type": "ordinal",
-      "range": "width",
-      "domain": {"data": "table", "field": "x"},
-      "sort":{
-        "field":"y",
-        "op": "average",
-        "order": "asc"
-      }
-    },
-    {
-      "name": "y",
-      "type": "linear",
-      "range": "height",
-      "domain": {"data": "table", "field": "y"},
-      "nice": true
-    }
-  ],
-
-  "axes": [
-    {"type": "x", "scale": "x", "ticks": 10,"title": "X TITLE"}, 
-    {"type": "y", "scale": "y", "title": "Y TITILELKNFE"}
-    ],
-
-  "marks": [
-    {
-      "type": "rect",
-      "from": {"data": "table"},
-      "properties": {
-        "enter": {
-          "x": {"scale": "x", "field": "x"},
-          "width": {"value":1},
-          "y": {"scale": "y", "field": "y"},
-          "y2": {"scale": "y", "value": 0}
-        },
-        "update": {
-          "fill": {
-            "rule": [
-              {
-                "predicate": {
-                  "name": "tooltipP",
-                  "id": {"field": "_id"}
-                },
-                "value": "red"
-              },
-              {"value": "steelblue"}
-            ]
-          }
-        }
-      }
-    },
-    {
-      "type": "text",
-      "properties": {
-        "enter": {
-          "align": {"value": "center"},
-          "fill": {"value": "#333"}
-        },
-        "update": {
-          "x": {"scale": "x", "signal": "tooltip.x"},
-          "y": {"scale": "y", "signal": "tooltip.y", "offset": -5},
-          "text": {"signal": "tooltip.y",
-            "template":"{{datum.x}} and {{datum.y}}"
-          },
-          "fillOpacity": {
-            "rule": [
-              {
-                "predicate": {
-                  "name": "tooltipP",
-                  "id": {"value": null}
-                },
-                "value": 0
-              },
-              {"value": 1}
-            ]
-          }
-        }
-      }
-    }
-  ]
-};
-
-
+		var vega =
+			{
+			  "width": big_width,
+			  "height": big_height,
+			  "data": [
+			    {
+			      "name": "table",
+			      "values":  vega_data
+			    }
+			  ],
+			  "signals": [
+			    {
+			      "name": "tooltip",
+			      "init": {},
+			      "streams": [
+			        {
+			          "type": "rect:mouseover",
+			          "expr": "datum"
+			        },
+			        {
+			          "type": "rect:mouseout",
+			          "expr": "{}"
+			        }
+			      ]
+			    }
+			  ],
+			  "predicates": [
+			    {
+			      "name": "tooltipP",
+			      "type": "==",
+			      "operands": [
+			        {
+			          "signal": "tooltip._id"
+			        },
+			        {
+			          "arg": "id"
+			        }
+			      ]
+			    }
+			  ],
+			  "scales": [
+			    {
+			      "name": "x",
+			      "type": "linear",
+			      "range": "width",
+			      "domain": {
+			        "data": "table",
+			        "field": "x"
+			      }
+			    },
+			    {
+			      "name": "xscale",
+			      "type": "ordinal",
+			      "range": "width",
+			      "domain": {
+			        "data": "table",
+			        "field": "x"
+			      },
+			      "sort": {
+			        "field": "y",
+			        "op": "average",
+			        "order": "asc"
+			      }
+			    },
+			    {
+			      "name": "y",
+			      "type": "linear",
+			      "range": "height",
+			      "domain": {
+			        "data": "table",
+			        "field": "y"
+			      },
+			      "nice": true
+			    }
+			  ],
+			  "axes": [
+			    {
+			      "type": "x",
+			      "scale": "x",
+			      "ticks": 10,
+			      "title": "X TITLE"
+			    },
+			    {
+			      "type": "y",
+			      "scale": "y",
+			      "title": "Y TITILELKNFE"
+			    }
+			  ],
+			  "marks": [
+			    {
+			      "type": "rect",
+			      "from": {
+			        "data": "table"
+			      },
+			      "properties": {
+			        "enter": {
+			          "x": {
+			            "scale": "x",
+			            "field": "x"
+			          },
+			          "width": {
+			            "value": 1
+			          },
+			          "y": {
+			            "scale": "y",
+			            "field": "y"
+			          },
+			          "y2": {
+			            "scale": "y",
+			            "value": 0
+			          }
+			        },
+			        "update": {
+			          "fill": {
+			            "rule": [
+			              {
+			                "predicate": {
+			                  "name": "tooltipP",
+			                  "id": {
+			                    "field": "_id"
+			                  }
+			                },
+			                "value": "red"
+			              },
+			              {
+			                "value": "steelblue"
+			              }
+			            ]
+			          }
+			        }
+			      }
+			    },
+			    {
+			      "type": "text",
+			      "properties": {
+			        "enter": {
+			          "align": {
+			            "value": "center"
+			          },
+			          "fill": {
+			            "value": "#333"
+			          }
+			        },
+			        "update": {
+			          "x": {
+			            "scale": "x",
+			            "signal": "tooltip.x"
+			          },
+			          "y": {
+			            "scale": "y",
+			            "signal": "tooltip.y",
+			            "offset": -5
+			          },
+			          "text": {
+			            "signal": "tooltip.y",
+			            "template": "{{datum.x}} and {{datum.y}}"
+			          },
+			          "fillOpacity": {
+			            "rule": [
+			              {
+			                "predicate": {
+			                  "name": "tooltipP",
+			                  "id": {
+			                    "value": null
+			                  }
+			                },
+			                "value": 0
+			              },
+			              {
+			                "value": 1
+			              }
+			            ]
+			          }
+			        }
+			      }
+			    }
+			  ]
+			};
 
 		// 	{
 		// 	  "width": big_width,
