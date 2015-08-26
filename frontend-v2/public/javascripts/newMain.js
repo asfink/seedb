@@ -707,8 +707,15 @@ $(".bookmark").on('click', function (e) {
 			
 			if (agg == "NONE") {
 				data.addColumn("number", x);
+				console.log("agg = NONE");
+				console.log("number added is ");
+				console.log(x);
+
 			} else {
 				data.addColumn(schemas[dataset][x], x);
+				console.log("agg = none else");
+				console.log("number added is "+schemas[dataset][x]);
+				console.log('haskd;lmf');
 			}
 			
 			if (hasComparison) {
@@ -754,6 +761,9 @@ $(".bookmark").on('click', function (e) {
 				}
 			}
 
+			console.log("New normalized data");
+			console.log(new_data);
+
 			var title;
 			var vAxis;
 			if (agg == "NONE") {
@@ -766,7 +776,8 @@ $(".bookmark").on('click', function (e) {
 				title = x + " vs. " + agg + '(' + y + ")";
 				vAxis = agg + '(' + y + ")" ;
 			}
-
+			console.log("agg value");
+			console.log(agg);
 			// Set chart options
 			var options = {'title': title,
 			'height':big_height,
@@ -792,6 +803,9 @@ $(".bookmark").on('click', function (e) {
 			chart = new google.visualization.ColumnChart(document.getElementById('big_viz'));
 		}
 		// console.log(chart);
+
+		console.log("plotted chart is");
+		console.log(chart);
 
 		//in manualPlot
 		var nowTime = Date.now();
@@ -830,13 +844,13 @@ $(".bookmark").on('click', function (e) {
 		console.log(data);
 
 		var vega_data = [];
-		var data_to_parse = data.Cc;
+		var data_to_parse = ret["rows2"];
 		$.each(data_to_parse, function(index, entry){
-			if(index<50){
+			// if(index<50){
 				// console.log(x);
-				var group = {"x": entry[0].ef, "y": entry[1].ef};
+				var group = {"x": entry[0], "y": entry[1]};
 				vega_data.push(group);
-			}	
+			// }	
 		});
 		// console.log("NEW VEGA DATA");
 		// console.log(vega_data);
@@ -854,10 +868,8 @@ $(".bookmark").on('click', function (e) {
 		// 	      ];
   // 		console.log("old VEGA DATA");
 		// console.log(vega_example);
-
-
-		var vega =
-		{
+			var vega =
+					{
 		  "width": big_width,
 		  "height": big_height,
 
@@ -866,97 +878,308 @@ $(".bookmark").on('click', function (e) {
 		      "name": "table",
 		      "values": vega_data
 		    }
-		  ],
-		  "signals": [
-		    {
-		      "name": "tooltip",
-		      "init": {},
-		      "streams": [
-		        {"type": "rect:mouseover", "expr": "datum"},
-		        {"type": "rect:mouseout", "expr": "{}"}
-		      ]
-		    }
-		  ],
-		  "predicates": [
-		    {
-		      "name": "tooltip", "type": "==", 
-		      "operands": [{"signal": "tooltip._id"}, {"arg": "id"}]
-		    }
-		  ],
-		  "scales": [
-		    {
-		      "name": "x",
-		      "type": "linear",
-		      "range": "width",
-		      "domain": {"data": "table", "field": "x"}
-		    },
-		    {
-		      "name": "y",
-		      "type": "linear",
-		      "range": "height",
-		      "domain": {"data": "table", "field": "y"},
-		      "nice": true
-		    }
-		  ],
+		  ], "signals": [
+    {
+      "name": "tooltip",
+      "init": {},
+      "streams": [
+        {"type": "rect:mouseover", "expr": "datum"},
+        {"type": "rect:mouseout", "expr": "{}"}
+      ]
+    }
+  ],
+  "predicates": [
+    {
+      "name": "tooltipP", "type": "==", 
+      "operands": [{"signal": "tooltip._id"}, {"arg": "id"}]
+    }
+  ],
+  "scales": [
+    {
+      "name": "x",
+      "type": "linear",
+      "range": "width",
+      "domain": {"data": "table", "field": "x"}
+    },
+    {
+      "name": "xscale",
+      "type": "ordinal",
+      "range": "width",
+      "domain": {"data": "table", "field": "x"},
+      "sort":{
+        "field":"y",
+        "op": "average",
+        "order": "asc"
+      }
+    },
+    {
+      "name": "y",
+      "type": "linear",
+      "range": "height",
+      "domain": {"data": "table", "field": "y"},
+      "nice": true
+    }
+  ],
 
-		  "axes": [{"type": "x", "scale": "x"}, {"type": "y", "scale": "y"}],
+  "axes": [
+    {"type": "x", "scale": "x", "ticks": 10,"title": "X TITLE"}, 
+    {"type": "y", "scale": "y", "title": "Y TITILELKNFE"}
+    ],
 
-		  "marks": [
-		    {
-		      "type": "rect",
-		      "from": {"data": "table"},
-		      "properties": {
-		        "enter": {
-		          "x": {"scale": "x", "field": "x"},
-		          "width": {"value":1},
-		          "y": {"scale": "y", "field": "y"},
-		          "y2": {"scale": "y", "value": 0}
-		        },
-		        "update": {
-		          "fill": {
-		            "rule": [
-		              {
-		                "predicate": {
-		                  "name": "tooltip",
-		                  "id": {"field": "_id"}
-		                },
-		                "value": "red"
-		              },
-		              {"value": "steelblue"}
-		            ]
-		          }
-		        }
-		      }
-		    },
-		    {
-		      "type": "text",
-		      "properties": {
-		        "enter": {
-		          "align": {"value": "center"},
-		          "fill": {"value": "#333"}
-		        },
-		        "update": {
-		          "x": {"scale": "x", "signal": "tooltip.x"},
-		          "y": {"scale": "y", "signal": "tooltip.y", "offset": -5},
-		          "text": {"signal": "tooltip.y"},
-		          "fillOpacity": {
-		            "rule": [
-		              {
-		                "predicate": {
-		                  "name": "tooltip",
-		                  "id": {"value": null}
-		                },
-		                "value": 0
-		              },
-		              {"value": 1}
-		            ]
-		          }
-		        }
-		      }
-		    }
-		  ]
-		};
-		//console.log(vega);
+  "marks": [
+    {
+      "type": "rect",
+      "from": {"data": "table"},
+      "properties": {
+        "enter": {
+          "x": {"scale": "x", "field": "x"},
+          "width": {"value":1},
+          "y": {"scale": "y", "field": "y"},
+          "y2": {"scale": "y", "value": 0}
+        },
+        "update": {
+          "fill": {
+            "rule": [
+              {
+                "predicate": {
+                  "name": "tooltipP",
+                  "id": {"field": "_id"}
+                },
+                "value": "red"
+              },
+              {"value": "steelblue"}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "properties": {
+        "enter": {
+          "align": {"value": "center"},
+          "fill": {"value": "#333"}
+        },
+        "update": {
+          "x": {"scale": "x", "signal": "tooltip.x"},
+          "y": {"scale": "y", "signal": "tooltip.y", "offset": -5},
+          "text": {"signal": "tooltip.y",
+            "template":"{{datum.x}} and {{datum.y}}"
+          },
+          "fillOpacity": {
+            "rule": [
+              {
+                "predicate": {
+                  "name": "tooltipP",
+                  "id": {"value": null}
+                },
+                "value": 0
+              },
+              {"value": 1}
+            ]
+          }
+        }
+      }
+    }
+  ]
+};
+
+
+
+		// 	{
+		// 	  "width": big_width,
+		// 	  "height": big_height,
+		// 	  "padding": {"top": 10, "left": 30, "bottom": 30, "right": 10},
+
+		// 	  "data": [
+		// 	    {
+		// 	      "name": "table",
+		// 	      "values": vega_data,
+		// 	      "transform":
+		// 		      [
+		// 		        {
+		// 		          "type": "aggregate", 
+		// 		          "summarize": {"x": "average"}
+		// 		        }
+		// 		      ]
+		// 	    }
+		// 	  ],
+		// 	  "scales": [
+		// 	    {
+		// 	      "name": "x",
+		// 	      "type": "linear",
+		// 	      "range": "width",
+		// 	      "domain": {"data": "table", "field": "x"}, 
+		// 	      "properties": {
+		// 	        "points": true,
+		// 	        "sort":{
+		// 	          "field":"x",
+		// 	          "op":"mean"
+		// 	        }
+		// 	      }
+		// 	    },
+		// 	    {
+		// 	      "name": "y",
+		// 	      "type": "linear",
+		// 	      "range": "height",
+		// 	      "domain": {"data": "table", "field": "y"},
+		// 	      "nice": true
+		// 	    }
+		// 	  ],
+
+		// 	  "axes": [
+		// 	  	{"type": "x", "scale": "x", "title": options.x}, 
+		// 	  	{"type": "y", "scale": "y", "title": options.y}
+		// 	  ]
+		// 	};
+
+
+		// if (agg=="NONE"){
+		// 	vega["signals"]=[
+		// 	    {
+		// 	      "name": "tooltip",
+		// 	      "init": {},
+		// 	      "streams": [
+		// 	        {"type": "rect:mouseover", "expr": "datum"},
+		// 	        {"type": "rect:mouseout", "expr": "{}"}
+		// 	      ]
+		// 	    }
+		// 	  ];
+		// 	vega["predicates"]=[
+		// 	    {
+		// 	      "name": "tooltip", "type": "==", 
+		// 	      "operands": [{"signal": "tooltip._id"}, {"arg": "id"}]
+		// 	    }
+		// 	];
+		// 	vega["marks"]=
+		// 	[
+		// 	    {
+		// 	      "type": "symbol",
+		// 	      "from": {"data": "table"},
+		// 	      "properties": {
+		// 	        "enter": {
+		// 	          "x": {"scale": "x", "field": "x"},
+		// 	          "y": {"scale": "y", "field": "y"},
+		// 	          "y2": {"scale": "y", "value": 0}
+		// 	        },
+		// 	        "update": {
+		// 	          "fill": {
+		// 	            "rule": [
+		// 	              {
+		// 	                "predicate": {
+		// 	                  "name": "tooltip",
+		// 	                  "id": {"field": "_id"}
+		// 	                },
+		// 	                "value": "red"
+		// 	              },
+		// 	              {"value": "steelblue"}
+		// 	            ]
+		// 	          }
+		// 	        }
+		// 	      }
+		// 	    },
+		// 	    {
+		// 	      "type": "text",
+		// 	      "properties": {
+		// 	        "enter": {
+		// 	          "align": {"value": "center"},
+		// 	          "fill": {"value": "#333"}
+		// 	        },
+		// 	        "update": {
+		// 	          "x": {"scale": "x", "signal": "tooltip.x"},
+		// 	          "y": {"scale": "y", "signal": "tooltip.y", "offset": -5},
+		// 	          "text": {"signal": "tooltip.y"},
+		// 	          "fillOpacity": {
+		// 	            "rule": [
+		// 	              {
+		// 	                "predicate": {
+		// 	                  "name": "tooltip",
+		// 	                  "id": {"value": null}
+		// 	                },
+		// 	                "value": 0
+		// 	              },
+		// 	              {"value": 1}
+		// 	            ]
+		// 	          }
+		// 	        }
+		// 	      }
+		// 	    }
+		// 	  ];
+		// } else {
+		// 	vega["signals"]=[
+		// 	    {
+		// 	      "name": "tooltip",
+		// 	      "init": {},
+		// 	      "streams": [
+		// 	        {"type": "rect:mouseover", "expr": "datum"},
+		// 	        {"type": "rect:mouseout", "expr": "{}"}
+		// 	      ]
+		// 	    }
+		// 	  ];
+		// 	vega["predicates"]=[
+		// 	    {
+		// 	      "name": "tooltip", "type": "==", 
+		// 	      "operands": [{"signal": "tooltip._id"}, {"arg": "id"}]
+		// 	    }
+		// 	];
+		// 	vega["marks"]=
+		// 	[
+		// 	    {
+		// 	      "type": "rect",
+		// 	      "from": {"data": "table"},
+		// 	      "properties": {
+		// 	        "enter": {
+		// 	          "x": {"scale": "x", "field": "x"},
+		// 	          "width": {"value":1},
+		// 	          "y": {"scale": "y", "field": "y"},
+		// 	          "y2": {"scale": "y", "value": 0}
+		// 	        },
+		// 	        "update": {
+		// 	          "fill": {
+		// 	            "rule": [
+		// 	              {
+		// 	                "predicate": {
+		// 	                  "name": "tooltip",
+		// 	                  "id": {"field": "_id"}
+		// 	                },
+		// 	                "value": "red"
+		// 	              },
+		// 	              {"value": "steelblue"}
+		// 	            ]
+		// 	          }
+		// 	        }
+		// 	      }
+		// 	    },
+		// 	    {
+		// 	      "type": "text",
+		// 	      "properties": {
+		// 	        "enter": {
+		// 	          "align": {"value": "center"},
+		// 	          "fill": {"value": "#333"}
+		// 	        },
+		// 	        "update": {
+		// 	          "x": {"scale": "x", "signal": "tooltip.x"},
+		// 	          "y": {"scale": "y", "signal": "tooltip.y", "offset": -5},
+		// 	          "text": {"signal": "tooltip.y"},
+		// 	          "fillOpacity": {
+		// 	            "rule": [
+		// 	              {
+		// 	                "predicate": {
+		// 	                  "name": "tooltip",
+		// 	                  "id": {"value": null}
+		// 	                },
+		// 	                "value": 0
+		// 	              },
+		// 	              {"value": 1}
+		// 	            ]
+		// 	          }
+		// 	        }
+		// 	      }
+		// 	    }
+		// 	  ];
+		// 	}
+
+		console.log(vega);
 
 		parse(vega);
 		$('#big_viz').data('image_raw_data', data);

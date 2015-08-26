@@ -1,51 +1,12 @@
 {
   "width": 700,
   "height": 300,
+
   "data": [
     {
       "name": "table",
-      "values": [
-        {
-          "x": "0.00632",
-          "y": "0.00632"
-        },
-        {
-          "x": "0.00906",
-          "y": "0.00906"
-        },
-        {
-          "x": "0.01096",
-          "y": "0.01096"
-        },
-        {
-          "x": "0.01301",
-          "y": "0.01301"
-        },
-        {
-          "x": "0.01311",
-          "y": "0.01311"
-        },
-        {
-          "x": "0.0136",
-          "y": "0.0136"
-        },
-        {
-          "x": "0.01381",
-          "y": "0.01381"
-        },
-        {
-          "x": "0.01432",
-          "y": "0.01432"
-        },
-        {
-          "x": "0.01439",
-          "y": "0.01439"
-        },
-        {
-          "x": "0.01501",
-          "y": "0.01501"
-        }
-      ]
+      "values": [{"x":"0.00632","y":"0.00632"},{"x":"0.00906","y":"0.00906"},{"x":"0.01096","y":"0.01096"},{"x":"0.01301","y":"0.01301"},{"x":"0.01311","y":"0.01311"},{"x":"0.0136","y":"0.0136"},{"x":"0.01381","y":"0.01381"},{"x":"0.01432","y":"0.01432"},{"x":"0.01439","y":"0.01439"},{"x":"0.01501","y":"0.01501"},{"x":"0.01538","y":"0.01538"},{"x":"0.01709","y":"0.01709"},{"x":"0.01778","y":"0.01778"},{"x":"0.0187","y":"0.0187"},{"x":"0.01951","y":"0.01951"},{"x":"0.01965","y":"0.01965"},{"x":"0.02009","y":"0.02009"},{"x":"0.02055","y":"0.02055"},{"x":"0.02177","y":"0.02177"},{"x":"0.02187","y":"0.02187"},{"x":"0.02498","y":"0.02498"},{"x":"0.02543","y":"0.02543"},{"x":"0.02729","y":"0.02729"},{"x":"0.02731","y":"0.02731"},{"x":"0.02763","y":"0.02763"},{"x":"0.02875","y":"0.02875"},{"x":"0.02899","y":"0.02899"},{"x":"0.02985","y":"0.02985"},{"x":"0.03041","y":"0.03041"},{"x":"0.03049","y":"0.03049"},{"x":"0.03113","y":"0.03113"},{"x":"0.0315","y":"0.0315"},{"x":"0.03237","y":"0.03237"},{"x":"0.03306","y":"0.03306"},{"x":"0.03359","y":"0.03359"},{"x":"0.03427","y":"0.03427"},{"x":"0.03445","y":"0.03445"},{"x":"0.03466","y":"0.03466"},{"x":"0.03502","y":"0.03502"},{"x":"0.0351","y":"0.0351"},{"x":"0.03537","y":"0.03537"},{"x":"0.03548","y":"0.03548"},{"x":"0.03551","y":"0.03551"},{"x":"0.03578","y":"0.03578"},{"x":"0.03584","y":"0.03584"},{"x":"0.03615","y":"0.03615"},{"x":"0.03659","y":"0.03659"},{"x":"0.03705","y":"0.03705"},{"x":"0.03738","y":"0.03738"},{"x":"0.03768","y":"0.03768"}]
+
     }
   ],
   "signals": [
@@ -53,95 +14,58 @@
       "name": "tooltip",
       "init": {},
       "streams": [
-        {
-          "type": "rect:mouseover",
-          "expr": "datum"
-        },
-        {
-          "type": "rect:mouseout",
-          "expr": "{}"
-        }
+        {"type": "rect:mouseover", "expr": "datum"},
+        {"type": "rect:mouseout", "expr": "{}"}
       ]
     }
   ],
   "predicates": [
     {
-      "name": "tooltip",
-      "type": "==",
-      "operands": [
-        {
-          "signal": "tooltip._id"
-        },
-        {
-          "arg": "id"
-        }
-      ]
+      "name": "tooltip", "type": "==", 
+      "operands": [{"signal": "tooltip._id"}, {"arg": "id"}]
     }
   ],
   "scales": [
     {
-      "name": "xscale",
-      "type": "ordinal",
+      "name": "x",
+      "type": "linear",
       "range": "width",
-      "domain": {
-        "data": "table",
-        "field": "x"
-      }
+      "domain": {"data": "table", "field": "x"}
     },
     {
-      "name": "yscale",
+      "name": "y",
+      "type": "linear",
       "range": "height",
-      "nice": false,
-      "domain": {
-        "data": "table",
-        "field": "y"
-      }
+      "domain": {"data": "table", "field": "y"},
+      "nice": true
     }
   ],
-  "axes": [
-    {
-      "type": "x",
-      "scale": "xscale"
-    },
-    {
-      "type": "y",
-      "scale": "yscale"
-    }
-  ],
+
+  "axes": [{"type": "x", "scale": "x"}, {"type": "y", "scale": "y"}],
+
   "marks": [
     {
-      "type": "symbol",
-      "from": {
-        "data": "table"
-      },
+      "type": "rect",
+      "from": {"data": "table"},
       "properties": {
         "enter": {
-          "x": {
-            "scale": "xscale",
-            "field": "x"
-          },
-          "width": {
-            "scale": "xscale",
-            "band": true,
-            "offset": -1
-          },
-          "y": {
-            "scale": "yscale",
-            "field": "y"
-          },
-          "y2": {
-            "scale": "yscale",
-            "value": 0
-          }
+          "x": {"scale": "x", "field": "x"},
+          "width": {"value":1},
+          "y": {"scale": "y", "field": "y"},
+          "y2": {"scale": "y", "value": 0}
         },
         "update": {
           "fill": {
-            "value": "steelblue"
-          }
-        },
-        "hover": {
-          "fill": {
-            "value": "red"
+            "rule": [
+              {
+                "predicate": {
+                  "name": "tooltip",
+                  "id": {"field": "_id"}
+                },
+                "value": "red"
+              },
+              {"value": "steelblue"}
+            ]
           }
         }
       }
@@ -150,45 +74,23 @@
       "type": "text",
       "properties": {
         "enter": {
-          "align": {
-            "value": "center"
-          },
-          "fill": {
-            "value": "#333"
-          }
+          "align": {"value": "center"},
+          "fill": {"value": "#333"}
         },
         "update": {
-          "x": {
-            "scale": "xscale",
-            "signal": "tooltip.x"
-          },
-          "dx": {
-            "scale": "xscale",
-            "band": true,
-            "mult": 0.5
-          },
-          "y": {
-            "scale": "yscale",
-            "signal": "tooltip.y",
-            "offset": -5
-          },
-          "text": {
-            "signal": "tooltip.y"
-          },
+          "x": {"scale": "x", "signal": "tooltip.x"},
+          "y": {"scale": "y", "signal": "tooltip.y", "offset": -5},
+          "text": {"signal": "tooltip.y"},
           "fillOpacity": {
             "rule": [
               {
                 "predicate": {
                   "name": "tooltip",
-                  "id": {
-                    "value": null
-                  }
+                  "id": {"value": null}
                 },
                 "value": 0
               },
-              {
-                "value": 1
-              }
+              {"value": 1}
             ]
           }
         }
@@ -196,7 +98,6 @@
     }
   ]
 }
-
 
 
 [
