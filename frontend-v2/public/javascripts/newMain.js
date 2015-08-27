@@ -322,13 +322,16 @@ $(function(){
 				var blueQ = filters[0];
 				for (var i=0; i<blueQ.length; i++){
 					if(blueQ[i].length>0){
-						var filterQ = blueQ[i][0]+" "+blueQ[i][1]+" "+blueQ[i][2];
-						if(blueString === null){
-							blueString=filterQ;
-						}
-						else 
-						{
-							blueString = blueString + " & " + filterQ;
+						if (!isNaN(blueQ[i][2])){
+							var filterQ = blueQ[i][0]+" "+blueQ[i][1]+" "+blueQ[i][2];
+
+							if(blueString === null){
+								blueString=filterQ;
+							}
+							else 
+							{
+								blueString = blueString + " & " + filterQ;
+							}
 						}
 					}
 				}
@@ -337,6 +340,7 @@ $(function(){
 				var redQ = filters[1];
 				for (var i=0; i<redQ.length; i++){
 					if(redQ[i].length>0){
+						if (!isNaN(redQ[i][2])){
 						var filterQ = redQ[i][0]+" "+redQ[i][1]+" "+redQ[i][2];
 						if(redString === null){
 							redString=filterQ;
@@ -345,6 +349,7 @@ $(function(){
 						{
 							redString = redString + " & " + filterQ;
 						}
+					}
 					}
 				}
 			}
@@ -429,6 +434,7 @@ $(function(){
 					vAxis = rec.agg + '(' + rec.y + ")" ;
 				}
 
+				//in zoomRecTime;
 				// Set chart options
 				var options = {
 					'title': title,
@@ -508,6 +514,7 @@ $(function(){
 					chart = new google.visualization.ColumnChart(document.getElementById("big_viz"));
 				}
 
+				//draw large
 				chart.draw(data, options);
 			    	// console.log(chart);
 			    	$('#big_viz').data('image_raw_data', data);
@@ -519,6 +526,7 @@ $(function(){
 				//$("#recs").append(el);
 				$(".slider1").append(el);
 
+				//draw small
 				var chart = new google.visualization.ColumnChart(document.getElementById(rec_id));
 				chart.draw(data, options);
 			}
@@ -705,6 +713,97 @@ $(".bookmark").on('click', function (e) {
 			var data = new google.visualization.DataTable();
 			// populate metadata from schema
 			
+			var blueString = null;
+			var redString = null;
+			console.log(filters);
+			// do the processing and create the chart
+			// console.log("params");
+			// console.log(params.data);
+			// console.log("ret");
+			// console.log(ret);
+			var data = new google.visualization.DataTable();
+
+			if (filters[0].length>0){
+				var blueQ = filters[0];
+				for (var i=0; i<blueQ.length; i++){
+					if(blueQ[i].length>0){
+						// console.log(";lidksfma");
+						// console.log(blueQ[i][2]);
+						// console.log(isNaN(blueQ[i][2]));
+						if (!isNaN(blueQ[i][2])){
+							var filterQ = blueQ[i][0]+" "+blueQ[i][1]+" "+blueQ[i][2];
+							console.log("WE IN");
+							if(blueString === null){
+								blueString=filterQ;
+							}
+							else 
+							{
+								blueString = blueString + " & " + filterQ;
+							}
+						}
+					}
+				}
+			if (filters[1].length>0){
+				var redQ = filters[1];
+				for (var i=0; i<redQ.length; i++){
+					if(redQ[i].length>0){
+						if (!isNaN(redQ[i][2])){
+						var filterQ = redQ[i][0]+" "+redQ[i][1]+" "+redQ[i][2];
+						if(redString === null){
+							redString=filterQ;
+						}
+						else 
+						{
+							redString = redString + " & " + filterQ;
+						}
+					}
+					}
+				}
+			}
+		}
+
+			// for (var i = 0; i < recs.length; i++) {
+			// 	var rec = recs[i];
+			// 	var data = new google.visualization.DataTable();
+			// 	// populate metadata from schema
+			// 	data.addColumn("string", rec.x);
+			// 	if (rec.type == "single") {
+			// 		data.addColumn("number", "Query 1");
+			// 	} else {
+			// 		if (hasComparison) {
+			// 			if(blueString!==null&&redString!==null){
+			// 				data.addColumn("number", blueString);
+			// 				data.addColumn("number", redString);		
+			// 			}
+			// 			else if (blueString===null&redString!==null)
+			// 			{
+			// 				data.addColumn("number", "Full");
+			// 				data.addColumn("number", redString);
+			// 			}
+			// 			else
+			// 			{
+			// 				data.addColumn("number", "Query");
+			// 				data.addColumn("number", "Full");	
+			// 			}
+			// 		} else {
+			// 			if(blueString===null&&redString!==null){
+			// 				data.addColumn("number", "Full");
+			// 				data.addColumn("number", RedString);
+			// 			}
+			// 			else if (redString===null&&blueString!==null){
+			// 				data.addColumn("number", blueString);
+			// 				data.addColumn("number", "Full");
+			// 			}
+			// 			else
+			// 			{
+			// 				data.addColumn("number", "Query");
+			// 				data.addColumn("number", "Full");	
+			// 			}
+			// 		}
+			// 	}
+			
+			// populate metadata from schema
+
 			if (agg == "NONE") {
 				data.addColumn("number", x);
 				console.log("agg = NONE");
@@ -717,10 +816,32 @@ $(".bookmark").on('click', function (e) {
 				console.log("number added is "+schemas[dataset][x]);
 				console.log('haskd;lmf');
 			}
-			
+			console.log("schemas[dataset][y]");
+			console.log(schemas[dataset][y]);
 			if (hasComparison) {
-				data.addColumn(schemas[dataset][y], "Query 1");
-				data.addColumn(schemas[dataset][y], "Query 2");
+				if(blueString!==null&&redString!==null){
+					data.addColumn(schemas[dataset][y], blueString);
+					data.addColumn(schemas[dataset][y], redString);	
+					// console.log("A");	
+				}
+				else if (blueString===null&redString!==null)
+				{
+					data.addColumn(schemas[dataset][y], "Full");
+					data.addColumn(schemas[dataset][y], redString);
+					// console.log("B");
+				}
+				else
+				{
+					data.addColumn(schemas[dataset][y], "Query");
+					data.addColumn(schemas[dataset][y], "Full");	
+					// console.log("C");
+				}
+
+				// data.addColumn(schemas[dataset][y], "Query 1");
+				// data.addColumn(schemas[dataset][y], "Query 2");
+				console.log("HAS COMPARISON");
+				console.log(data);
+				console.log(schemas[dataset][y]);
 			} else {
 				data.addColumn(schemas[dataset][y], y);
 			}
@@ -731,6 +852,9 @@ $(".bookmark").on('click', function (e) {
 				});
 			}
 
+
+		
+		
 			// populate data from results
 			data.addRows(ret["rows2"]);
 			data.sort([{column: 0}])
@@ -761,8 +885,8 @@ $(".bookmark").on('click', function (e) {
 				}
 			}
 
-			console.log("New normalized data");
-			console.log(new_data);
+			// console.log("New normalized data");
+			// console.log(new_data);
 
 			var title;
 			var vAxis;
@@ -790,6 +914,8 @@ $(".bookmark").on('click', function (e) {
 			x : x,
 			y : y
 		};
+
+		console.log(options.orig_data);
 
 		//new data is the list of x and y data.
 
@@ -845,11 +971,16 @@ $(".bookmark").on('click', function (e) {
 
 		var vega_data = [];
 		var data_to_parse = ret["rows2"];
+		console.log(data_to_parse);
 		$.each(data_to_parse, function(index, entry){
 				var group = {"x": entry[0], "y": entry[1]};
 				vega_data.push(group);	
 		});
-		var vega =
+
+		var vega = vega_builder(data_to_parse, options, hasComparison);
+		console.log(vega);
+		// console.log(JSON.stringify(vega_data));
+		var vegaMOO =
 			{
 			  "width": big_width,
 			  "height": big_height,
@@ -912,11 +1043,6 @@ $(".bookmark").on('click', function (e) {
 			      "domain": {
 			        "data": "table",
 			        "field": "x"
-			      },
-			      "sort": {
-			        "field": "y",
-			        "op": "average",
-			        "order": "asc"
 			      }
 			    },
 			    {
@@ -955,7 +1081,11 @@ $(".bookmark").on('click', function (e) {
 			            "field": "x"
 			          },
 			          "width": {
-			            "value": 1
+			            // "value": 1
+			            "scale":"xscale",
+			            "band":"true",
+			            "mult":"0.50"
+			            // "value":0
 			          },
 			          "y": {
 			            "scale": "y",
@@ -1032,54 +1162,7 @@ $(".bookmark").on('click', function (e) {
 			    }
 			  ]
 			};
-
-		// 	{
-		// 	  "width": big_width,
-		// 	  "height": big_height,
-		// 	  "padding": {"top": 10, "left": 30, "bottom": 30, "right": 10},
-
-		// 	  "data": [
-		// 	    {
-		// 	      "name": "table",
-		// 	      "values": vega_data,
-		// 	      "transform":
-		// 		      [
-		// 		        {
-		// 		          "type": "aggregate", 
-		// 		          "summarize": {"x": "average"}
-		// 		        }
-		// 		      ]
-		// 	    }
-		// 	  ],
-		// 	  "scales": [
-		// 	    {
-		// 	      "name": "x",
-		// 	      "type": "linear",
-		// 	      "range": "width",
-		// 	      "domain": {"data": "table", "field": "x"}, 
-		// 	      "properties": {
-		// 	        "points": true,
-		// 	        "sort":{
-		// 	          "field":"x",
-		// 	          "op":"mean"
-		// 	        }
-		// 	      }
-		// 	    },
-		// 	    {
-		// 	      "name": "y",
-		// 	      "type": "linear",
-		// 	      "range": "height",
-		// 	      "domain": {"data": "table", "field": "y"},
-		// 	      "nice": true
-		// 	    }
-		// 	  ],
-
-		// 	  "axes": [
-		// 	  	{"type": "x", "scale": "x", "title": options.x}, 
-		// 	  	{"type": "y", "scale": "y", "title": options.y}
-		// 	  ]
-		// 	};
-
+		console.log(vegaMOO);
 
 		// if (agg=="NONE"){
 		// 	vega["signals"]=[
@@ -1226,7 +1309,7 @@ $(".bookmark").on('click', function (e) {
 		// 	  ];
 		// 	}
 
-		console.log(vega);
+		// console.log(vega);
 
 		parse(vega);
 		$('#big_viz').data('image_raw_data', data);
@@ -1258,6 +1341,255 @@ $(".addAttributeFilter").on("click", function (e) {
 function parse(spec) {
 	vg.parse.spec(spec, function(chart) { chart({el:"#vis"}).update(); });
 };
+
+/*
+MANUAL:
+var options = {
+	'title': title,
+	'height':big_height,
+	'width' : big_width,
+	vAxis: { title: vAxis},
+	hAxis: {title : x},
+	agg : agg,
+	orig_data : ret["rows2"],
+	norm_data : new_data,
+	x : x,
+	y : y
+};
+
+Get Recommendations:
+// Set chart options
+var options = {
+	'title': title,
+	'height':small_height,
+	'width' : small_width,
+	vAxis: { title: vAxis },
+	hAxis: {title : rec.x},
+	agg : rec.agg,
+	titleFontSize:12, 
+	orig_data : rec.dist,
+	norm_data : new_data,
+	x : rec.x,
+	y : rec.y
+};
+
+
+				//in rec time;, call for large and small
+				// Set chart options
+				var options = {
+					'title': title,
+					'height':small_height,
+					'width' : small_width,
+					vAxis: { title: vAxis },
+					hAxis: {title : rec.x},
+					agg : rec.agg,
+					titleFontSize:12, 
+					orig_data : rec.dist,
+					norm_data : new_data,
+					x : rec.x,
+					y : rec.y
+				};
+
+							var options = $("#big_viz").data('image_options');
+bookmark zoom and store
+*/
+function vega_builder(data, options, hasComparison){
+	var vega = {};
+	vega["width"]=options.width;
+	vega["height"]=options.height;
+	var vega_data=[];
+
+	//converting data to vega data reading format
+	if (hasComparison){
+		$.each(data, function(index, entry){
+				var group = {"x1": entry[0], "x2": entry[1], "y":entry[2]};
+				vega_data.push(group);	
+		});
+	}else {
+		$.each(data, function(index, entry){
+				var group = {"x": entry[0], "y": entry[1]};
+				vega_data.push(group);	
+		});
+	}
+
+	//grouping data for vega json and adding it in
+	var data_grouping = [];
+	data_grouping.push({
+		"name":"table",
+		"values":vega_data
+	});
+	vega["data"]=data_grouping;
+
+
+		
+	vega["signals"] = [{
+		  "name": "tooltip",
+		  "init": {},
+		  "streams": [
+		    {
+		      "type": "rect:mouseover",
+		      "expr": "datum"
+		    },
+		    {
+		      "type": "rect:mouseout",
+		      "expr": "{}"
+		    }
+		  ]
+		}];
+
+	vega["predicates"] = [{
+      "name": "tooltipP",
+      "type": "==",
+      "operands": [
+        {
+          "signal": "tooltip._id"
+        },
+        {
+          "arg": "id"
+        }
+      ]
+    }];
+	vega["scales"] = [
+			    {
+			      "name": "x",
+			      "type": "linear",
+			      "range": "width",
+			      "domain": {
+			        "data": "table",
+			        "field": "x"
+			      }
+			    },
+			    {
+			      "name": "xscale",
+			      "type": "ordinal",
+			      "range": "width",
+			      "domain": {
+			        "data": "table",
+			        "field": "x"
+			      },
+			      "sort": {
+			        "field": "y",
+			        "op": "average",
+			        "order": "asc"
+			      }
+			    },
+			    {
+			      "name": "y",
+			      "type": "linear",
+			      "range": "height",
+			      "domain": {
+			        "data": "table",
+			        "field": "y"
+			      },
+			      "nice": true
+			    }
+			  ];
+
+		vega["axes"] = [
+			    {
+			      "type": "x",
+			      "scale": "x",
+			      "title": options.x
+			    },
+			    {
+			      "type": "y",
+			      "scale": "y",
+			      "title": options.y
+			    }
+			  ];
+		vega["marks"] = [
+			    {
+			      "type": "rect",
+			      "from": {
+			        "data": "table"
+			      },
+			      "properties": {
+			        "enter": {
+			          "x": {
+			            "scale": "x",
+			            "field": "x"
+			          },
+			          "width": {
+			            "value": 1
+			          },
+			          "y": {
+			            "scale": "y",
+			            "field": "y"
+			          },
+			          "y2": {
+			            "scale": "y",
+			            "value": 0
+			          }
+			        },
+			        "update": {
+			          "fill": {
+			            "rule": [
+			              {
+			                "predicate": {
+			                  "name": "tooltipP",
+			                  "id": {
+			                    "field": "_id"
+			                  }
+			                },
+			                "value": "red"
+			              },
+			              {
+			                "value": "steelblue"
+			              }
+			            ]
+			          }
+			        }
+			      }
+			    },
+			    {
+			      "type": "text",
+			      "properties": {
+			        "enter": {
+			          "align": {
+			            "value": "center"
+			          },
+			          "fill": {
+			            "value": "#333"
+			          }
+			        },
+			        "update": {
+			          "x": {
+			            "scale": "x",
+			            "signal": "tooltip.x"
+			          },
+			          "y": {
+			            "scale": "y",
+			            "signal": "tooltip.y",
+			            "offset": -5
+			          },
+			          "text": {
+			            "signal": "tooltip.y",
+			            "template": "{{datum.x}} and {{datum.y}}"
+			          },
+			          "fillOpacity": {
+			            "rule": [
+			              {
+			                "predicate": {
+			                  "name": "tooltipP",
+			                  "id": {
+			                    "value": null
+			                  }
+			                },
+			                "value": 0
+			              },
+			              {
+			                "value": 1
+			              }
+			            ]
+			          }
+			        }
+			      }
+			    }
+			  ];
+	return vega;
+
+}
+	
 
 });
 
