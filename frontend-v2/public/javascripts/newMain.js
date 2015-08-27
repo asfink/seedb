@@ -859,6 +859,12 @@ $(".bookmark").on('click', function (e) {
 			      "values":  vega_data
 			    }
 			  ],
+			  //   "legends": [
+			  //   {
+			  //     "fill": "x",
+			  //     "title": "things"
+			  //   }
+			  // ],
 			  "signals": [
 			    {
 			      "name": "tooltip",
@@ -928,13 +934,12 @@ $(".bookmark").on('click', function (e) {
 			    {
 			      "type": "x",
 			      "scale": "x",
-			      "ticks": 10,
-			      "title": "X TITLE"
+			      "title": options.x
 			    },
 			    {
 			      "type": "y",
 			      "scale": "y",
-			      "title": "Y TITILELKNFE"
+			      "title": options.y
 			    }
 			  ],
 			  "marks": [
