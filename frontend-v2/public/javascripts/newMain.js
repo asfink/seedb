@@ -706,16 +706,16 @@ $(".bookmark").on('click', function (e) {
 			// do the processing and create the chart
 			ret = JSON.parse(ret);
 			//console.log(ret);
-			console.log("params");
-			console.log(params.data);
-			console.log("ret");
-			console.log(ret);
+			// console.log("params");
+			// console.log(params.data);
+			// console.log("ret");
+			// console.log(ret);
 			var data = new google.visualization.DataTable();
 			// populate metadata from schema
 			
 			var blueString = null;
 			var redString = null;
-			console.log(filters);
+			// console.log(filters);
 			// do the processing and create the chart
 			// console.log("params");
 			// console.log(params.data);
@@ -732,7 +732,7 @@ $(".bookmark").on('click', function (e) {
 						// console.log(isNaN(blueQ[i][2]));
 						if (!isNaN(blueQ[i][2])){
 							var filterQ = blueQ[i][0]+" "+blueQ[i][1]+" "+blueQ[i][2];
-							console.log("WE IN");
+							// console.log("WE IN");
 							if(blueString === null){
 								blueString=filterQ;
 							}
@@ -806,18 +806,18 @@ $(".bookmark").on('click', function (e) {
 
 			if (agg == "NONE") {
 				data.addColumn("number", x);
-				console.log("agg = NONE");
-				console.log("number added is ");
-				console.log(x);
+				// console.log("agg = NONE");
+				// console.log("number added is ");
+				// console.log(x);
 
 			} else {
 				data.addColumn(schemas[dataset][x], x);
-				console.log("agg = none else");
-				console.log("number added is "+schemas[dataset][x]);
-				console.log('haskd;lmf');
+				// console.log("agg = none else");
+				// console.log("number added is "+schemas[dataset][x]);
+				// console.log('haskd;lmf');
 			}
-			console.log("schemas[dataset][y]");
-			console.log(schemas[dataset][y]);
+			// console.log("schemas[dataset][y]");
+			// console.log(schemas[dataset][y]);
 			if (hasComparison) {
 				if(blueString!==null&&redString!==null){
 					data.addColumn(schemas[dataset][y], blueString);
@@ -839,9 +839,9 @@ $(".bookmark").on('click', function (e) {
 
 				// data.addColumn(schemas[dataset][y], "Query 1");
 				// data.addColumn(schemas[dataset][y], "Query 2");
-				console.log("HAS COMPARISON");
-				console.log(data);
-				console.log(schemas[dataset][y]);
+				// console.log("HAS COMPARISON");
+				// console.log(data);
+				// console.log(schemas[dataset][y]);
 			} else {
 				data.addColumn(schemas[dataset][y], y);
 			}
@@ -900,8 +900,8 @@ $(".bookmark").on('click', function (e) {
 				title = x + " vs. " + agg + '(' + y + ")";
 				vAxis = agg + '(' + y + ")" ;
 			}
-			console.log("agg value");
-			console.log(agg);
+			// console.log("agg value");
+			// console.log(agg);
 			// Set chart options
 			var options = {'title': title,
 			'height':big_height,
@@ -915,7 +915,7 @@ $(".bookmark").on('click', function (e) {
 			y : y
 		};
 
-		console.log(options.orig_data);
+		// console.log(options.orig_data);
 
 		//new data is the list of x and y data.
 
@@ -930,8 +930,8 @@ $(".bookmark").on('click', function (e) {
 		}
 		// console.log(chart);
 
-		console.log("plotted chart is");
-		console.log(chart);
+		// console.log("plotted chart is");
+		// console.log(chart);
 
 		//in manualPlot
 		var nowTime = Date.now();
@@ -966,19 +966,20 @@ $(".bookmark").on('click', function (e) {
 
 		chart.draw(data, options);
 
-		console.log("THE DATA PASSED TO GCHART IS");
-		console.log(data);
+		// console.log("THE DATA PASSED TO GCHART IS");
+		// console.log(data);
 
 		var vega_data = [];
 		var data_to_parse = ret["rows2"];
-		console.log(data_to_parse);
+		// console.log(data_to_parse);
 		$.each(data_to_parse, function(index, entry){
 				var group = {"x": entry[0], "y": entry[1]};
 				vega_data.push(group);	
 		});
 
 		var vega = vega_builder(data_to_parse, options, hasComparison);
-		console.log(vega);
+		// console.log("vega");
+		// console.log(JSON.stringify(vega));
 		// console.log(JSON.stringify(vega_data));
 		var vegaMOO =
 			{
@@ -1162,7 +1163,7 @@ $(".bookmark").on('click', function (e) {
 			    }
 			  ]
 			};
-		console.log(vegaMOO);
+		// console.log(vegaMOO);
 
 		// if (agg=="NONE"){
 		// 	vega["signals"]=[
@@ -1402,15 +1403,20 @@ function vega_builder(data, options, hasComparison){
 	//converting data to vega data reading format
 	if (hasComparison){
 		$.each(data, function(index, entry){
-				var group = {"x1": entry[0], "x2": entry[1], "y":entry[2]};
+				var group = {"position": entry[0], "category": "y1", "value": entry[1]};
 				vega_data.push(group);	
+				var group2 = {"position": entry[0], "category": "y2", "value": entry[2]};
+				vega_data.push(group2);	
+
 		});
 	}else {
 		$.each(data, function(index, entry){
-				var group = {"x": entry[0], "y": entry[1]};
+				var group = {"category": entry[0], "position": "y1", "value": entry[1]};
 				vega_data.push(group);	
 		});
 	}
+	console.log("alksdjfa;dfjs;alskdjf;aljkf;LKDATSATATATTT");
+	console.log(JSON.stringify(vega_data));
 
 	//grouping data for vega json and adding it in
 	var data_grouping = [];
@@ -1450,142 +1456,148 @@ function vega_builder(data, options, hasComparison){
       ]
     }];
 	vega["scales"] = [
-			    {
-			      "name": "x",
-			      "type": "linear",
-			      "range": "width",
-			      "domain": {
-			        "data": "table",
-			        "field": "x"
-			      }
-			    },
-			    {
-			      "name": "xscale",
-			      "type": "ordinal",
-			      "range": "width",
-			      "domain": {
-			        "data": "table",
-			        "field": "x"
-			      },
-			      "sort": {
-			        "field": "y",
-			        "op": "average",
-			        "order": "asc"
-			      }
-			    },
-			    {
-			      "name": "y",
-			      "type": "linear",
-			      "range": "height",
-			      "domain": {
-			        "data": "table",
-			        "field": "y"
-			      },
-			      "nice": true
-			    }
-			  ];
+		    {
+		      "name": "x1",
+		      "type": "linear",
+		      "range": "width",
+		      "domain": {
+		        "data": "table",
+		        "field": "x1"
+		      }
+		    },
+		    {
+		      "name": "x2",
+		      "type": "linear",
+		      "range": "width",
+		      "domain": {
+		        "data": "table",
+		        "field": "x2"
+		      }
+		    },
+		    {
+		      "name": "y",
+		      "type": "linear",
+		      "range": "height",
+		      "domain": {
+		        "data": "table",
+		        "field": "y"
+		      },
+		      "nice": true
+		    }
+		  ];
 
-		vega["axes"] = [
-			    {
-			      "type": "x",
-			      "scale": "x",
-			      "title": options.x
-			    },
-			    {
-			      "type": "y",
-			      "scale": "y",
-			      "title": options.y
-			    }
-			  ];
-		vega["marks"] = [
-			    {
-			      "type": "rect",
-			      "from": {
-			        "data": "table"
-			      },
-			      "properties": {
-			        "enter": {
-			          "x": {
-			            "scale": "x",
-			            "field": "x"
-			          },
-			          "width": {
-			            "value": 1
-			          },
-			          "y": {
-			            "scale": "y",
-			            "field": "y"
-			          },
-			          "y2": {
-			            "scale": "y",
-			            "value": 0
-			          }
-			        },
-			        "update": {
-			          "fill": {
-			            "rule": [
-			              {
-			                "predicate": {
-			                  "name": "tooltipP",
-			                  "id": {
-			                    "field": "_id"
-			                  }
-			                },
-			                "value": "red"
-			              },
-			              {
-			                "value": "steelblue"
-			              }
-			            ]
-			          }
-			        }
-			      }
-			    },
-			    {
-			      "type": "text",
-			      "properties": {
-			        "enter": {
-			          "align": {
-			            "value": "center"
-			          },
-			          "fill": {
-			            "value": "#333"
-			          }
-			        },
-			        "update": {
-			          "x": {
-			            "scale": "x",
-			            "signal": "tooltip.x"
-			          },
-			          "y": {
-			            "scale": "y",
-			            "signal": "tooltip.y",
-			            "offset": -5
-			          },
-			          "text": {
-			            "signal": "tooltip.y",
-			            "template": "{{datum.x}} and {{datum.y}}"
-			          },
-			          "fillOpacity": {
-			            "rule": [
-			              {
-			                "predicate": {
-			                  "name": "tooltipP",
-			                  "id": {
-			                    "value": null
-			                  }
-			                },
-			                "value": 0
-			              },
-			              {
-			                "value": 1
-			              }
-			            ]
-			          }
-			        }
-			      }
-			    }
-			  ];
+	vega["axes"] = [
+		    {
+		      "type": "x",
+		      "scale": "x1",
+		      "title": options.x
+		    },
+		    {
+		      "type": "y",
+		      "scale": "y",
+		      "title": options.y
+		    }
+		  ];
+	if(hasComparison){
+		var m = vega["axes"];
+		m.push({
+			"type":"x",
+			"scale":"x2",
+		});
+		vega["axes"]=m;
+	}
+
+	vega["marks"] = [
+		    {
+		      "type": "rect",
+		      "from": {
+		        "data": "table"
+		      },
+		      "properties": {
+		        "enter": {
+		          "x": {
+		            "scale": "x",
+		            "field": "x"
+		          },
+		          "width": {
+		            "value": 1
+		          },
+		          "y": {
+		            "scale": "y",
+		            "field": "y"
+		          },
+		          "y2": {
+		            "scale": "y",
+		            "value": 0
+		          }
+		        },
+		        "update": {
+		          "fill": {
+		            "rule": [
+		              {
+		                "predicate": {
+		                  "name": "tooltipP",
+		                  "id": {
+		                    "field": "_id"
+		                  }
+		                },
+		                "value": "red"
+		              },
+		              {
+		                "value": "steelblue"
+		              }
+		            ]
+		          }
+		        }
+		      }
+		    },
+		    {
+		      "type": "text",
+		      "properties": {
+		        "enter": {
+		          "align": {
+		            "value": "center"
+		          },
+		          "fill": {
+		            "value": "#333"
+		          }
+		        },
+		        "update": {
+		          "x": {
+		            "scale": "x",
+		            "signal": "tooltip.x"
+		          },
+		          "y": {
+		            "scale": "y",
+		            "signal": "tooltip.y",
+		            "offset": -5
+		          },
+		          "text": {
+		            "signal": "tooltip.y",
+		            "template": "{{datum.x}} and {{datum.y}}"
+		          },
+		          "fillOpacity": {
+		            "rule": [
+		              {
+		                "predicate": {
+		                  "name": "tooltipP",
+		                  "id": {
+		                    "value": null
+		                  }
+		                },
+		                "value": 0
+		              },
+		              {
+		                "value": 1
+		              }
+		            ]
+		          }
+		        }
+		      }
+		    }
+		  ];
+	// console.log(JSON.stringify(vega));
+
 	return vega;
 
 }
